@@ -6,7 +6,7 @@ import SearchInput from './SearchInput';
 import ServiceSelect from './ServiceSelect';
 import HeaderWrapper from './styles';
 import CustomButton from 'components/CustomButton';
-import { BellFilled, PlusOutlined, MinusOutlined } from '@ant-design/icons';
+import { BellFilled, PlusOutlined } from '@ant-design/icons';
 import UserInfo from './UserInfo';
 import { useLocation, useNavigate } from 'react-router';
 import { HASH_MODAL } from 'configs/constant';
@@ -36,12 +36,6 @@ const Header = () => {
         </div>
       </div>
       <div className="rightHeader">
-        <CustomButton
-          title="button.expense"
-          onClick={()=> navigate('/customer/transactions')}
-          icon={<MinusOutlined />}
-          type='primary'
-        />
          <CustomButton
           title="button.booking"
           onClick={onClickBooking}

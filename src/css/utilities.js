@@ -9,6 +9,9 @@ export const CLASS_UTILITY = `
   .h-50 {
     height: 50%;
   }
+  .h-40 {
+    height: 40px;
+  }
 
 /*----------Width--------------------*/
   .w-160 {

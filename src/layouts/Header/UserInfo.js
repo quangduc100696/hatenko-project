@@ -78,8 +78,8 @@ function UserInfo() {
       <Dropdown overlay={userDropdown} trigger={['click']}>
         <div className="div-user-info">
           <span className="userInfo">
-            <strong>{profile?.fullName}</strong>
-            <span className="role">{profile?.type ?? 'Mpro Office'}</span>
+            <strong>{profile?.fullName ?? 'Flast Solution'}</strong>
+            <span className="role">{profile?.type ?? 'Open-CDP'}</span>
           </span>
           <Avatar size="large" src={profile?.avatar} icon={<UserOutlined />} />
         </div>

@@ -17,10 +17,10 @@ function ServiceSelect() {
   return (
     <Select
       value={locationId || (isAll ? '' : locations[0]?.id)}
-      className="border-none w-160"
+      className="border-none w-160 h-40"
       onChange={onChangeLocation}
     >
-      { isAll ? <Option value="">{i18next.t('locations.all')}</Option> : null}
+      { isAll ? <Option value="">{i18next.t('services.all')}</Option> : null }
       { locations?.map((item, idx) => (
         <Option key={String(idx)} value={item?.id}>
           {item?.name}

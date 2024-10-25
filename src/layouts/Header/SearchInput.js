@@ -60,7 +60,7 @@ function SearchInput() {
     <Select
       value={typeSearch}
       onChange={handleOnChangeType}
-      style={{ width: 120 }}
+      style={{ width: 120, height: 40 }}
     >
       <Option value="individuals">{t('memberTypes.individual')}</Option>
       <Option value="teams">{t('memberTypes.team')}</Option>
@@ -85,9 +85,7 @@ function SearchInput() {
     <SearchInputStyles ref={searchRef}>
       <Search
         placeholder={
-          ['teams'].includes(typeSearch)
-            ? t('input.searchHeader.teamPlaceholder')
-            : t('input.searchHeader.placeholder')
+          ['teams'].includes(typeSearch) ? t('input.searchHeader.teamPlaceholder') : t('input.searchHeader.placeholder')
         }
         onBlur={onBlur}
         onFocus={onFocus}

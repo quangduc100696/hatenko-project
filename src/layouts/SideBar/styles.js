@@ -8,7 +8,6 @@ const SideBarStyles = styled.div`
   }
   .sidebar {
     height: 100vh;
-    /* position: fixed; */
     left: 0;
     background: ${({ theme }) => theme.background.content};
     overflow-y: auto;
@@ -84,13 +83,10 @@ const SideBarStyles = styled.div`
       display: flex;
       align-items: center;
       font-size: 14px;
-      color: #425466;
       font-weight: 600;
       .anticon {
         font-size: 16px;
-        color: #a0aec0;
       }
-
       .menu-label {
         flex: 1;
         display: flex;
