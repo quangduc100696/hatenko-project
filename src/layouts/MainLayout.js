@@ -9,7 +9,7 @@ const MainLayout = (props) => {
     const menoInAppNotify = useMemo( () => {
         return (<InAppNotify />)
     }, []);
-    const Layout = ContainerLayouts[user?.id ? 'PrivateLayout' : 'PrivateLayout'];
+    const Layout = ContainerLayouts[user?.id ? 'PrivateLayout' : 'GuestLayout'];
 
     return <>
         <Layout {...props}/>
