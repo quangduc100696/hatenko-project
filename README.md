@@ -34,7 +34,8 @@ Với những doanh nghiệp cần điều phối quá trình sản xuất từ 
 - Đưa ra số liệu về hiệu quả của CSKH trong việc gia tăng doanh số
 
 6. Phân hệ dự án và công việc của từng cá nhân trong dự án: <br/>
-Chức năng được phát triên như một app nhắn tin, giúp doanh nghiệp lưu vết, tương tác với khách hàng thời gian thực. 
+- Chức năng được phát triên như một app nhắn tin, giúp doanh nghiệp lưu vết, tương tác với khách hàng thời gian thực.
+- Lưu trữ File - Follow dự án
 
 ## Các Báo Cáo Marketting - Sale - Điều phối sản xuất - Kho vận - CSKH ##
 
@@ -69,12 +70,13 @@ Chức năng được phát triên như một app nhắn tin, giúp doanh nghi�
   <summary>
     <a href="https://flast.vn/case-study"><code>Hệ thống bán lẻ, dịch vụ</code></a>
     <span> • </span>
-    <strong><code>$</code></strong>
+    <strong><code>$ CHi phí hệ thống CNTT</code></strong>
     <span> • </span>
     <img align="center" alt="Easy" src="https://img.shields.io/badge/Easy-32CD32">
   </summary>
-  Xây dựng hế thống CNTT để dịch chuyển công việc nên nền tảng số doanh nghiệp cần có hệ thống công nghệ thông tin, nhân sự công nghệ thông tin, chi phí có thể lên tới hàng trăm triệu đồng mỗi tháng. <br/>
-  Với giải pháp của Open-CDP doanh nghiệp chỉ cần một VPS với chi phí thấp chỉ khoảng 200.000 đ cũng có thể vận hành tốt.<br/>
+  <br/>
+  Xây dựng hế thống CNTT để dịch chuyển công việc nên nền tảng số doanh nghiệp cần có hệ thống công nghệ thông tin, nhân sự công nghệ thông tin, chi phí có thể lên tới hàng trăm triệu đồng mỗi tháng. <br/><br/>
+  Với giải pháp của Open-CDP doanh nghiệp chỉ cần một VPS với chi phí thấp chỉ khoảng 200.000 đ cũng có thể vận hành tốt.<br/><br/>
   Quan trọng hơn nữa là dữ liệu là của doanh nghiệp quản lý
 </details>
 
