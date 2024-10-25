@@ -19,7 +19,7 @@ Dự án Open-Cdp được phát triển và duy trì bởi đội ngũ: Công t
 - Kế toán duyệt tiền
 - Đơn hàng được thành lập
 
-3. Phân hệ sản xuất, điều phối đơn hàng:<br.> 
+3. Phân hệ sản xuất, điều phối đơn hàng:<br/> 
 Với những doanh nghiệp cần điều phối quá trình sản xuất từ các nhà cung cấp khác thì sử dụng chức năng này để điều đơn cho các nhà cung cấp, theo dõi tiến độ sản xuất.
 
 4. Phân hệ kho vận: 
