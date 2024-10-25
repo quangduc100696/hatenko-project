@@ -73,8 +73,8 @@ Chức năng được phát triên như một app nhắn tin, giúp doanh nghi�
     <span> • </span>
     <img align="center" alt="Easy" src="https://img.shields.io/badge/Easy-32CD32">
   </summary>
-  Xây dựng hế thống CNTT để dịch chuyển công việc nên nền tảng số doanh nghiệp cần có hệ thống công nghệ thông tin, nhân sự công nghệ thông tin, chi phí có thể lên tới hàng trăm triệu đồng mỗi tháng.
-  Với giải pháp của Open-CDP doanh nghiệp chỉ cần một VPS với chi phí thấp chỉ khoảng 200.000 đ cũng có thể vận hành tốt.
+  Xây dựng hế thống CNTT để dịch chuyển công việc nên nền tảng số doanh nghiệp cần có hệ thống công nghệ thông tin, nhân sự công nghệ thông tin, chi phí có thể lên tới hàng trăm triệu đồng mỗi tháng. <br/>
+  Với giải pháp của Open-CDP doanh nghiệp chỉ cần một VPS với chi phí thấp chỉ khoảng 200.000 đ cũng có thể vận hành tốt.<br/>
   Quan trọng hơn nữa là dữ liệu là của doanh nghiệp quản lý
 </details>
 
