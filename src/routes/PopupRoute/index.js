@@ -19,7 +19,7 @@ const getPopupRoute = (currentModal) => {
       return modalRoute;
     }
     const route = modalRoute.routes.find(route => currentModal.includes(route.path));
-    return route ? route : routeNotFound;
+    return route || routeNotFound;
   }
   return routeNotFound;
 };

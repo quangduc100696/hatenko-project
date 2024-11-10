@@ -1,5 +1,6 @@
 import { DatePicker, Form } from 'antd';
 import { FORMAT_DATE_INPUT } from 'configs/constant';
+import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 
 const FormDatePicker = ({
@@ -15,7 +16,6 @@ const FormDatePicker = ({
   ...props
 }) => {
   const { t } = useTranslation();
-
   return (
     <Form.Item
       {...(label && {
@@ -23,13 +23,13 @@ const FormDatePicker = ({
       })}
       name={name}
       rules={[
-        {
-          required,
-          message: t(messageRequire),
-        },
+        { required, message: t(messageRequire) },
         ...rules,
       ]}
-      initialValue={initialValue}
+      normalize={(value) => value && dayjs(value)}
+      getValueProps={(value) => ({
+        value: value && dayjs(value)
+      })}
       {...formItemProps}
     >
       <DatePicker

@@ -10,6 +10,7 @@ const RestList = ({
   beforeSubmitFilter = (values) => values,
   filter,
   columns,
+  apiPath = '',
   useGetAllQuery,
   initialFilter,
   tabKey,
@@ -29,6 +30,7 @@ const RestList = ({
   const [ queryParams, setQueryParams ] = useState({
     ...initialFilter,
     ...defaultQueryParams,
+    apiPath,
     resource
   });
   
@@ -39,7 +41,8 @@ const RestList = ({
       ...params
     };
     setQueryParams(restQueryParams);
-    navigate({ search: convertObjToSearchStr(restQueryParams) });
+    const { apiPath, ...urlParams } = restQueryParams;
+    navigate({ search: convertObjToSearchStr(urlParams) });
   };
 
   const onSubmitFilter = (values) => {

@@ -3,8 +3,12 @@ import { HASH_MODAL } from 'configs';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { InAppEvent } from 'utils/FuseUtils';
+import productRoute from './productRoute';
 
-const modalRoutes = []
+const modalRoutes = [
+  ...productRoute
+]
+
 const log = (key, val) => console.log('[routes.draw-routes] ' + key + ' ', val);
 const notFoundHash = { Component: () => <div /> };
 

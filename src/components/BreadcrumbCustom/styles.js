@@ -4,6 +4,7 @@ export const BreadcrumbWrapper = styled.div`
   font-weight: 600;
   font-size: 16px;
   line-height: 22px;
+  margin-bottom: 20px;
 
   .breadcrumb-item {
     &__name {

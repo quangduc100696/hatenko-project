@@ -14,7 +14,7 @@ const PrivateLayoutWrapper = styled.div`
     background: ${({ theme }) => theme.background.backgroundPage};
   }
   .content {
-    padding: 34px 20px;
+    padding: 20px 20px;
     flex: 1;
   }
   .trigger {

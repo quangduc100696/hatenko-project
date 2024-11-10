@@ -4,15 +4,16 @@ import { InAppEvent } from "utils/FuseUtils";
 import { ACTIONS, CHANGE_STORE } from "configs";
 import moment from 'moment';
 import { DISCOUNT_UNIT_CONST } from 'configs/localData';
+import dayjs from 'dayjs';
 
 export const formatDataI18n = ( displayName, name ) => {
     return displayName?.[i18next.language] || name;
 };
 
-export const f5List = (resource = '') =>
+export const f5List = (apiPath = '') =>
 InAppEvent.emit(CHANGE_STORE, { 
     type: ACTIONS.F5_LIST, 
-    data: { resource, random: random() } 
+    data: { apiPath, random: random() } 
 });
 
 export const dataArray = (ret) => {
@@ -69,9 +70,22 @@ export const dateFormatForm = (entity, propertes = [], format) => {
     for(let k of propertes) {
         const value = entity[k];
         if(value && (typeof value === 'string' || typeof value === 'number')) {
-            entity[k] = moment(new Date(value), format);
+            entity[k] = dayjs(new Date(value), format);
         }
     }
+}
+
+export const dateFormatOnSubmit = (entity, propertes = [], format = "YYYY-MM-DD HH:mm:ss") => {
+	if(typeof(entity) !== 'object') {
+		return entity;
+	}
+	for(let k of propertes) {
+		const value = entity[k];
+		if(value) {
+			entity[k] = dayjs(value).format(format).valueOf();
+		}
+	}
+	return entity;
 }
 
 export const formatTime = (text, fm = "DD-MM-YYYY") => text ? moment(new Date(text)).format(fm) : 'N/a';

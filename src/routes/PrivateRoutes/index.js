@@ -3,9 +3,11 @@ import { Navigate } from 'react-router-dom';
 import FuseUtils from 'utils/FuseUtils';
 import { LoginConfig } from './AuthConfig';
 import { HomeConfig } from './HomeConfig';
+import { ProductConfig } from './ProductConfig';
 
 const routeConfigs = [
     LoginConfig,
+    ProductConfig,
     HomeConfig
 ];
 

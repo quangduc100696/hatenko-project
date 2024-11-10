@@ -4,7 +4,9 @@ const DrawerRoute = ({ width = 600, children, onClose, ...props }) => (
   <DrawerWrapper
     width={width}
     onClose={onClose}
-    contentWrapperStyle={{ maxWidth: '100vw' }}
+    styles={
+      { wrapper: { maxWidth: '100vw' }}
+    }
     {...props}
     destroyOnClose
     closable={false}

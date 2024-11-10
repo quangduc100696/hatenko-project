@@ -53,7 +53,7 @@ function SideBar() {
 		]),
 		getItem(<Link to="/sale-kpi/list"> Kpi</Link>, 'Kpi', <RiseOutlined />),
 		getItem(<Link to="/data/bot-collection">Bot dữ liệu</Link>, 'bot_data', <PullRequestOutlined />),
-		getItem(<Link to="/product/list"> Sản phẩm</Link>, 'product_list', <UngroupOutlined />),
+		getItem(<Link to="/product"> Sản phẩm</Link>, 'product_list', <UngroupOutlined />),
     getItem(<Link to="/user/list"> Tài khoản</Link>, 'user', <ConfigFIcon />),
   ]
 

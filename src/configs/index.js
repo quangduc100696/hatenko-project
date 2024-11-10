@@ -3,9 +3,9 @@ import moment from 'moment';
 export const SUCCESS_CODE = 200;
 const GATE_EVN = {
   Loc: 'http://127.0.0.1:9765',
-  Pro: 'https://api.office.flast.vn'
+  Pro: 'https://api.open.flast.vn'
 };
-export const GATEWAY = GATE_EVN['Pro'];
+export const GATEWAY = GATE_EVN['Loc'];
 export const CHANGE_STORE = 'CHANGE_STORE';
 export const UPLOAD_PATH = GATEWAY + '/uploads'
 
