@@ -14,22 +14,21 @@ const ProductFormProperty = ({ field }) => {
           onData={(data) => data?.embedded ?? []}
           apiPath='attributed/fetch'
           apiAddNewItem='attributed/save'
-          name={[name, 'propertyName']}
+          name={[name, 'attributedId']}
           placeholder="Tên thuộc tính"
-          valueProp='name'
         />
       </Col>
       <Col md={12} xs={24}>
         <Form.Item
           noStyle
           shouldUpdate={ (prevValues, curValues) => 
-            prevValues.listProperties[name]?.propertyName !== curValues.listProperties[name]?.propertyName 
+            prevValues.listProperties[name]?.attributedId !== curValues.listProperties[name]?.attributedId 
           }
         >
           {({ getFieldValue }) => {
             let listProperties = getFieldValue('listProperties');
-            const tName = listProperties[name]?.propertyName ?? '';
-            const filter = { name: tName, forceUpdate: tName !== '' };
+            const attributedId = listProperties[name]?.attributedId ?? '';
+            const filter = { attributedId, forceUpdate: attributedId !== '' };
             return (
               <FormPropertiesValue
                 filter={filter}
@@ -47,22 +46,26 @@ const FormPropertiesValue = ({ name, filter }) => {
   const contentForm = useMemo(() => {
     return (
       <FormSelectAPI
+        mode='multiple'
+        searchKey='value'
         required
         isFetchOnMount={false}
         showSearch
-        onData={(data) => data?.embedded ?? []}
-        apiPath='attributed/fetch'
-        apiAddNewItem='attributed/save'
-        name={[name, 'propertyValue']}
+        apiPath='attributed/fetch-value-by-id'
+        apiAddNewItem='attributed/save-value-by-id'
+        name={[name, 'propertyValueId']}
         placeholder="Gía trị thuộc tính"
-        valueProp='value'
         titleProp='value'
-        searchKey='value'
+        valueProp='id'
+        createDefaultValues={{
+          attributedId: filter?.id
+        }}
         filter={filter}
+        onData={(data) => data?.embedded ?? []}
       />
     )
     /* eslint-disable-next-line */
-  }, [filter]);
+  }, [name, filter]);
   return contentForm;
 };
 

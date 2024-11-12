@@ -32,6 +32,7 @@ const FormSelectAPI = ({
   onCreateNewItem = () => false,
   isLimitWidth = false,
   filter,
+  createDefaultValues,
   onData = (values) => values,
   ...props
 }) => {
@@ -99,7 +100,8 @@ const FormSelectAPI = ({
     }
     const value = inputRef?.current?.input?.value ?? '';
     if(value && apiAddNewItem) {
-      const { errorCode, message: msg } = await RequestUtils.Post("/" + apiAddNewItem, {name: value});
+      const dataPost = { [searchKey]: value, ...(createDefaultValues || {})}
+      const { errorCode, message: msg } = await RequestUtils.Post("/" + apiAddNewItem, dataPost);
       if(errorCode !== SUCCESS_CODE) {
         message.error(msg);
       } else {
@@ -107,7 +109,7 @@ const FormSelectAPI = ({
       }
     }
     /* eslint-disable-next-line */
-  }, [apiPath, apiAddNewItem, inputRef]);
+  }, [inputRef, createDefaultValues]);
 
   const onSearch = useCallback((value) => {
     fetchResource({...localFilter, [searchKey]: value});

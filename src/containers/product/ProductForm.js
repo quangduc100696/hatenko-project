@@ -43,7 +43,7 @@ const ProductForm = () => {
       </Col>
 
       <Col md={24} xs={24}>
-        <Typography.Title level={5}>Thuộc tính sản phẩm</Typography.Title>
+        <Typography.Title level={5}>Thuộc tính sản phẩm (Có tính chất nhận diện tồn kho)</Typography.Title>
         <FormListAddition 
           name="listProperties"
           textAddNew="Thêm mới thuộc tính"
