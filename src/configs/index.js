@@ -24,6 +24,7 @@ export const INAPP_NOTIFICATION_EMITTER = 'in_app_noti';
 export const EVENT_ACCEPT_IMAGE_TYPES = '.png, .jpeg, .jpg';
 export const ANT_PREFIX_CLS = 'booking-antd';
 export const HASH_MODAL = '#modal';
+export const HASH_MODAL_CLOSE = '#close-modal';
 export const DEFAULT_INBOX_ID = 'inbox';
 export const DEFAULT_PARENT_INBOX_ID = 'parent';
 export const FORMAT_DATE_INPUT = 'DD-MM-YYYY';

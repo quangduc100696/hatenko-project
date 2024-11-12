@@ -99,7 +99,7 @@ const FormSelect = ({
       <Select
         placeholder={t(placeholder)}
         filterOption={isFilterOption ? onSelectOption : false}
-        dropdownMatchSelectWidth={isLimitWidth}
+        popupMatchSelectWidth={isLimitWidth}
         {...props}
         onChange={onChange || handleChange}
       >

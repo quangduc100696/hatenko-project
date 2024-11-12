@@ -1,12 +1,19 @@
+import React from 'react';
+import DrawerContent from './DrawerContent';
 import DrawerRoute from './DrawerRoute';
 
-const DrawerCustom = ({
-  children,
-  onClose,
-  ...props
-}) => (
-  <DrawerRoute onClose={onClose} {...props}>
-    { children }
+const DrawerCustom = ({ children, onClose, title, ...props }) => (
+  <DrawerRoute 
+    onClose={onClose} 
+    {...props}
+  >
+    <DrawerContent
+      title={title}
+      onClose={onClose}
+      {...props}
+    >
+      { children }
+    </DrawerContent>
   </DrawerRoute>
 );
 

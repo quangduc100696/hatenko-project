@@ -1,14 +1,12 @@
-import DrawerRoute from 'components/DrawerCustom';
-import { HASH_MODAL } from 'configs';
+import { HASH_MODAL, HASH_MODAL_CLOSE } from 'configs';
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router';
 import { InAppEvent } from 'utils/FuseUtils';
+import DrawerCustom from 'components/DrawerCustom';
 import productRoute from './productRoute';
 
 const modalRoutes = [
   ...productRoute
 ]
-
 const log = (key, val) => console.log('[routes.draw-routes] ' + key + ' ', val);
 const notFoundHash = { Component: () => <div /> };
 
@@ -32,54 +30,43 @@ const getModalRoute = (urlHash) => {
 
 function ModalRoutes() {
 
-  const [ params, setParams ] = useState({});
-  const [ visibleModal, setVisibleModal ] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    setVisibleModal(location.hash.includes(HASH_MODAL));
-  }, [location.hash]);
-
-  const closeModal = () => {
-    setVisibleModal(false);
-    /* replace with location.search */
-    const { pathname, search } = location;
-    const isEmpty = (str) => (!str?.length);
-    const pathSearch = isEmpty(search) ? '' : search;
-    navigate(pathname.concat(pathSearch), { replace: true })
-  };
-
-  const GetModalRoute = useMemo(
-    () => getModalRoute(location.hash || params.hash),
-    [location.hash, params.hash],
-  );
-
+  const [ params, setParams ] = useState({ open: false });
   const handleEventDraw = useCallback( ({ hash, data, title }) => {
-    log('#hash', { hash, title, data});
-    if(!data) {
-      setVisibleModal(false);
-      return;
-    }
-    setVisibleModal(true);
-    setParams({ hash, data, title});
+    log('#hash', {hash, data});
+    setParams({open: true, hash, data, title});
+  }, []);
+
+  const handleCloseDraw = useCallback( () => {
+    setParams({open: false});
   }, []);
 
   useEffect( () => {
-    InAppEvent.addEventListener(HASH_MODAL, handleEventDraw);
-    return () => {
-      InAppEvent.removeListener(HASH_MODAL, handleEventDraw);
-    };
-  }, [handleEventDraw]);
+      InAppEvent.addEventListener(HASH_MODAL, handleEventDraw);
+      InAppEvent.addEventListener(HASH_MODAL_CLOSE, handleCloseDraw);
+      return () => {
+        InAppEvent.removeListener(HASH_MODAL, handleEventDraw);
+        InAppEvent.removeListener(HASH_MODAL_CLOSE, handleCloseDraw);
+      };
+  }, [handleEventDraw, handleCloseDraw]);
+
+  const closeModal =useCallback(() => {
+    setParams({open: false})
+  }, []);
+
+  const ModalRoute = useMemo(
+    () => getModalRoute(params.hash),
+    [params.hash],
+  );
 
   return (
-    <DrawerRoute
-      {...GetModalRoute?.modalOptions}
-      open={visibleModal}
+    <DrawerCustom
+      {...ModalRoute?.modalOptions}
+      title={params?.title || ModalRoute?.modalOptions?.title}
+      open={params.open }
       onClose={closeModal}
     >
-      <GetModalRoute.Component closeModal={closeModal} {...params} />
-    </DrawerRoute>
+      <ModalRoute.Component closeModal={closeModal} {...params} />
+    </DrawerCustom>
   );
 }
 

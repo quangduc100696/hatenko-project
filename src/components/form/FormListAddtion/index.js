@@ -10,6 +10,7 @@ import FormStyles from './styles';
 const FormListAddition = ({
   children,
   name,
+  textAddNew = 'Thêm mới',
   title,
   formatInitialValue = value => value,
   defaultValueItem,
@@ -43,7 +44,7 @@ const FormListAddition = ({
                   onClick={() => add(defaultValueItem)}
                   icon={<PlusOutlined />}
                 >
-                  Thêm mới
+                  {textAddNew}
                 </Button>
                 <Form.ErrorList errors={errors} />
               </Form.Item>

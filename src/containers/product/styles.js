@@ -17,6 +17,9 @@ const FormStyles = styled(Row)`
       font-size: 25px;
     }
   }
+  .ant-col .ant-form-item {
+    margin-bottom: 0px !important;
+  }
 `;
 
 export default FormStyles;

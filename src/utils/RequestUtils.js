@@ -27,23 +27,16 @@ class RequestUtils {
         }
         return getOrPost.then(({ data }) => {
             return data;
-        }).catch( ({ response }) => {
-            return response.data;
+        }).catch( (response) => {
+            return response;
         });
     }
 
-    static Get(
-        service,
-        input = ''
-    ) {
+    static Get(service, input = {}) {
         return this.httpRequest( input, service, 'GET' );
     }
 
-    static Post(
-        service,
-        input = '',
-        params = ''
-    ) {
+    static Post(service, input = {}, params = {}) {
         return this.httpRequest( input, service, 'POST', params );
     }
     

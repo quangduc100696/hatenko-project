@@ -1,10 +1,13 @@
 import React, { useEffect } from "react"
 
-/*
-  useUnmount(() => {
-    console.log("useUnmount")
-  })
-*/
+export const useMount = (callback) => {
+  useEffect(() => {
+    callback();
+    /* eslint-disable-next-line */
+  }, []);
+}
+
+/* useUnmount(() => console.log("useUnmount")) */
 export const useUnmount = (callback) => {
   const callbackRef = React.useRef(callback)
   callbackRef.current = callback

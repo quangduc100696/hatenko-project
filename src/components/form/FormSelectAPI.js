@@ -1,12 +1,14 @@
 import { useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import RequestUtils from 'utils/RequestUtils';
-import { Form, Select, Spin, Divider, Input, Button } from 'antd';
-import { isObject, get } from 'lodash';
-import { onSearch as onChangeSearch } from 'utils/tools';
+import { Form, Select, Spin, Divider, Input, Button, message } from 'antd';
+import { get } from 'lodash';
+import debounce from 'lodash/debounce';
 import { useTranslation } from 'react-i18next';
 import MyContext from 'DataContext';
-import { useUpdateEffect } from "hooks/MyHooks";
+import { useUpdateEffect, useMount } from "hooks/MyHooks";
 import { PlusOutlined } from '@ant-design/icons';
+import { SUCCESS_CODE } from 'configs';
+import { arrayEmpty, f5List as reloadApi } from "utils/dataUtils"
 const { Option } = Select;
 
 const FormSelectAPI = ({
@@ -20,7 +22,7 @@ const FormSelectAPI = ({
   rules = [],
   valueProp = 'id',
   titleProp = 'name',
-  isFilterOption = true,
+  isFetchOnMount = true,
   formatText = value => value,
   formatValue = value => value,
   searchKey = 'name',
@@ -35,19 +37,19 @@ const FormSelectAPI = ({
 }) => {
 
   const { f5List } = useContext(MyContext);
-  
-  const [ localFilter, setFilter ] = useState({});
+  const [ localFilter, setLocalFilter ] = useState(filter || {});
   const [ loading, setLoading ] = useState(false);
   const [ resourceData, setData ] = useState([]);
 
   useEffect(() => {
-    setFilter(filter);
+    setLocalFilter(filter);
   }, [filter]);
 
-  useEffect(() => {
-    fetchResource(localFilter)
-    /* eslint-disable-next-line */
-  }, [localFilter]);
+  useMount(() => {
+    if(isFetchOnMount && arrayEmpty(resourceData)) {
+      fetchResource(localFilter);
+    }
+  });
 
   const fetchResource = useCallback((values) => {
     if(!apiPath) {
@@ -67,20 +69,13 @@ const FormSelectAPI = ({
   }, [onData, apiPath]);
 
   useUpdateEffect(() => {
-    if(f5List?.apiPath === apiPath) {
+    if(f5List?.apiPath === apiPath || (localFilter?.forceUpdate ?? false) !== false) {
       fetchResource(localFilter);
     }
+    /* eslint-disable-next-line */
   }, [f5List, localFilter, apiPath]);
 
   const { t } = useTranslation();
-  const onSelectOption = useCallback((inputValue, option) => {
-    let dataOnSelect = isObject(option.children) ? get(option.children.props?.record, searchKey) : option.children;
-    if(onChangeSearch(dataOnSelect, inputValue)) {
-      return option.value;
-    }
-    return null;
-  }, [searchKey]);
-
   const optionLoading = useMemo(() => {
     return (
       <Option
@@ -97,14 +92,32 @@ const FormSelectAPI = ({
   }, []);
 
   const inputRef = useRef(null);
-  const addItem = useCallback(() => {
+  const addItem = useCallback(async () => {
     if(onCreateNewItem()) {
       /* Open Modal Create Data */
-    } else {
-      console.log(apiPath, apiAddNewItem)
+      return;
+    }
+    const value = inputRef?.current?.input?.value ?? '';
+    if(value && apiAddNewItem) {
+      const { errorCode, message: msg } = await RequestUtils.Post("/" + apiAddNewItem, {name: value});
+      if(errorCode !== SUCCESS_CODE) {
+        message.error(msg);
+      } else {
+        reloadApi(apiPath);
+      }
     }
     /* eslint-disable-next-line */
-  }, [apiPath, apiAddNewItem]);
+  }, [apiPath, apiAddNewItem, inputRef]);
+
+  const onSearch = useCallback((value) => {
+    fetchResource({...localFilter, [searchKey]: value});
+    /* eslint-disable-next-line */
+  }, [localFilter, searchKey]);
+
+  const handleChange = useCallback((value) => {
+    fetchResource(localFilter);
+    /* eslint-disable-next-line */
+  }, [localFilter]);
 
   return (
     <Form.Item
@@ -119,7 +132,7 @@ const FormSelectAPI = ({
     >
       <Select
         placeholder={t(placeholder)}
-        filterOption={isFilterOption ? onSelectOption : false}
+        filterOption={false}
         popupMatchSelectWidth={isLimitWidth}
         dropdownRender={(menu) => (
           <>
@@ -148,11 +161,13 @@ const FormSelectAPI = ({
           </>
         )}
         options={
-          resourceData?.map((data) => ({ 
-            label: formatText(titleProp ? get(data, titleProp) : data, data), 
-            value: formatValue(valueProp ? get(data, valueProp) : data, data) 
+          resourceData?.map((item) => ({ 
+            label: formatText(titleProp ? get(item, titleProp) : item, item), 
+            value: formatValue(valueProp ? get(item, valueProp) : item, item) 
           }))
         }
+        onSearch={debounce(onSearch, 600)}
+        onChange={handleChange}
         {...props}
       >
         { loading && optionLoading }
