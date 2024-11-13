@@ -1,13 +1,42 @@
 import { SUCCESS_CODE } from 'configs';
-import { arrayEmpty } from 'utils/dataUtils';
+import { arrayEmpty, arrayNotEmpty } from 'utils/dataUtils';
 import RequestUtils from 'utils/RequestUtils';
 
 const ProductAttrService = {
+  allData: [],
+  cacheItems: {},
   attrs: {},
   attrsValue: {},
   empty () {
+    /* this.allData = []; */
     this.attrs = {};
+    this.cacheItems = {};
     this.attrsValue = {};
+  },
+  async fetchValueByAttributedId(attrId) {
+    if(!attrId) {
+      return [];
+    }
+    if(this.cacheItems[attrId]) {
+      return this.cacheItems[attrId];
+    }
+    const { data, errorCode } = await RequestUtils.Get("/attributed/fetch-value-by-id", { attributedId: attrId});
+    if(errorCode !== SUCCESS_CODE) {
+      return [];
+    }
+    this.cacheItems[attrId] = data?.embedded ?? [];
+    return this.cacheItems[attrId];
+  },
+  async loadAll(values) {
+    if(arrayNotEmpty(this.allData)) {
+      return this.allData;
+    }
+    const { data, errorCode } = await RequestUtils.Get("/attributed/fetch", values || {});
+    if(errorCode !== SUCCESS_CODE) {
+      return [];
+    }
+    this.allData = data?.embedded ?? [];
+    return this.allData;
   },
 	async loadByIds(ids = []) {
 		if(!ids || arrayEmpty(ids)) {
@@ -88,7 +117,6 @@ const ProductAttrService = {
       data.children = childs;
       datas = datas.concat(data);
     }
-    /* console.log(datas); */
     return datas;
   }
 }

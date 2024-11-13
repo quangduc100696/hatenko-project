@@ -7,6 +7,8 @@ import FormListAddition from 'components/form/FormListAddtion';
 import ProductFormProperty from './ProductFormProperty';
 import { SwitcherOutlined } from '@ant-design/icons';
 import ProductFormPrice from './ProductFormPrice';
+import FormSelect from 'components/form/FormSelect';
+import { PRODUCT_STATUS } from 'configs/localData';
 
 const ProductForm = () => {
   return (
@@ -20,6 +22,7 @@ const ProductForm = () => {
           placeholder={"Nhập tên sản phẩm"}
         />
       </Col>
+
       <Col md={12} xs={24}>
         <FormSelectAPI
           required
@@ -41,6 +44,25 @@ const ProductForm = () => {
           label="Nhà cung cấp"
           name="providerId"
           placeholder="Chọn nhà cung cấp"
+        />
+      </Col>
+
+      <Col md={12} xs={24}>
+        <FormInput 
+          label="Đơn vị tính"
+          name="unit"
+          placeholder={"Nhập đơn vị tính"}
+        />
+      </Col>
+      <Col md={12} xs={24}>
+        <FormSelect 
+          required
+          resourceData={PRODUCT_STATUS}
+          valueProp='value'
+          titleProp='text'
+          label="Trạng thái"
+          name="status"
+          placeholder={"Chọn trạng thái"}
         />
       </Col>
 

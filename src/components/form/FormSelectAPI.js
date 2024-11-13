@@ -34,6 +34,7 @@ const FormSelectAPI = ({
   filter,
   createDefaultValues,
   onData = (values) => values,
+  fnLoadData,
   ...props
 }) => {
 
@@ -56,6 +57,10 @@ const FormSelectAPI = ({
     if(!apiPath) {
       return;
     }
+    if(fnLoadData) {
+      Promise.resolve(fnLoadData(values)).then(onData).then(setData);
+      return;
+    }
     setLoading(true);
     RequestUtils.Get('/' + apiPath, values).then( async ({data, errorCode}) => {
       if(errorCode !== 200) {
@@ -67,6 +72,7 @@ const FormSelectAPI = ({
       console.log('[form.FormSelectAPI] Error ', e);
       setLoading(false);
     });
+    /* eslint-disable-next-line */
   }, [onData, apiPath]);
 
   useUpdateEffect(() => {

@@ -212,16 +212,9 @@ export const AMOUNT_DATA = [
   }
 ];
 
-export const CONTRACT_TYPES = [
-  { value: 'MAIN', text: 'contractTypes.main', color: 'blue' },
-  { value: 'APPENDIX', text: 'contractTypes.appendix', color: 'orange' },
-  { value: 'LIQUIDATION', text: 'contractTypes.liquidation', color: 'green' },
-];
-
-export const CONTRACT_STATUS = [
-  { value: 'ACTIVE', text: 'contractStatus.active', color: 'green' },
-  { value: 'INACTIVE', text: 'contractStatus.inactive', color: 'red' },
-  { value: 'EXPIRED', text: 'contractStatus.expired', color: 'purple' },
+export const PRODUCT_STATUS = [
+  { value: 0, text: 'Ngưng', color: 'red' },
+  { value: 1, text: 'Kích hoạt', color: 'green' }
 ];
 
 export const FILE_TYPES = [

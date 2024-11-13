@@ -1,16 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { message } from 'antd';
 import RestEditModal from 'components/RestLayout/RestEditModal';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
 import { arrayEmpty, dateFormatOnSubmit, f5List } from 'utils/dataUtils';
 import ProductForm from './ProductForm';
-import { message } from 'antd';
+import ProductAttrService from 'services/ProductAttrService';
 
 const Product = ({ closeModal, data }) => {
 
   const [ record, setRecord ] = useState({});
   useEffect(() => {
     setRecord(data);
+    return () => ProductAttrService.empty();
   }, [data]);
   
   const onSubmit = useCallback( async (values) => {

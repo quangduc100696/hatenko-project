@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Col, Form } from 'antd';
 import FormSelectAPI from 'components/form/FormSelectAPI';
 import FormStyles from './styles'
+import ProductAttrService from 'services/ProductAttrService';
 
 const ProductFormProperty = ({ field }) => {
   const { name } = field || { name: 0 };
@@ -11,8 +12,8 @@ const ProductFormProperty = ({ field }) => {
         <FormSelectAPI
           required
           showSearch
-          onData={(data) => data?.embedded ?? []}
-          apiPath='attributed/fetch'
+          fnLoadData={(filter) => ProductAttrService.loadAll(filter)}
+          apiPath={"attributed/fetch"}
           apiAddNewItem='attributed/save'
           name={[name, 'attributedId']}
           placeholder="Tên thuộc tính"
@@ -61,7 +62,7 @@ const FormPropertiesValue = ({ name, filter }) => {
           attributedId: filter?.id
         }}
         filter={filter}
-        onData={(data) => data?.embedded ?? []}
+        fnLoadData={(f) => ProductAttrService.fetchValueByAttributedId(f.attributedId)}
       />
     )
     /* eslint-disable-next-line */
