@@ -1,10 +1,12 @@
-import { Row, Col, Typography } from 'antd';
+import { Row, Col, Typography, Form } from 'antd';
 import FormHidden from 'components/form/FormHidden';
 import CustomButton from 'components/CustomButton';
 import FormSelectAPI from 'components/form/FormSelectAPI';
 import FormInput from 'components/form/FormInput';
 import FormListAddition from 'components/form/FormListAddtion';
 import ProductFormProperty from './ProductFormProperty';
+import { SwitcherOutlined } from '@ant-design/icons';
+import ProductFormPrice from './ProductFormPrice';
 
 const ProductForm = () => {
   return (
@@ -43,13 +45,36 @@ const ProductForm = () => {
       </Col>
 
       <Col md={24} xs={24}>
-        <Typography.Title level={5}>Thuộc tính sản phẩm (Có tính chất nhận diện tồn kho)</Typography.Title>
+        <Typography.Title level={5}>
+          <SwitcherOutlined />
+          <span style={{marginLeft: 20}}>Thiết lập sản phẩm (Có tính nhận diện tồn kho)</span>
+        </Typography.Title>
         <FormListAddition 
           name="listProperties"
           textAddNew="Thêm mới thuộc tính"
         >
           <ProductFormProperty />
         </FormListAddition>
+      </Col>
+
+      <Col md={24} xs={24}>
+        <Typography.Title level={5}>
+          <SwitcherOutlined />
+          <span style={{marginLeft: 20}}>Thiết lập giá bán</span>
+        </Typography.Title>
+        <Form.Item
+          noStyle
+          shouldUpdate={ (prevValues, curValues) => 
+            prevValues.listProperties !== curValues.listProperties
+          }
+        >
+          {({ getFieldValue }) => {
+            let listProperties = getFieldValue('listProperties');
+            return (
+              <ProductFormPrice listProperties={listProperties} />
+            )
+          }}
+        </Form.Item>
       </Col>
 
       <Col md={24} xs={24}>

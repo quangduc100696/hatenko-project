@@ -58,3 +58,9 @@ export const TableStyle = styled.div`
     margin-top: 3px;
   }
 `
+
+export const FormPriceStyle = styled.div`
+  .form-list__list-item .ant-form-item {
+    margin-bottom: 0px !important;
+  }
+`
