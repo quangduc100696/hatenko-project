@@ -47,7 +47,7 @@ const FormListCascader = ({ field, dataInOptions }) => {
   const { name } = field || { name: 0 };
   return (
     <Row gutter={16}>
-      <Col md={19} xs={24}>
+      <Col md={24} xs={24}>
         <FormCascader 
           resourcesData={dataInOptions}
           name={[name, 'sku']}
@@ -55,7 +55,37 @@ const FormListCascader = ({ field, dataInOptions }) => {
           placeholder={"Chọn SKUs để tạo đơn vị tồn kho"}
         /> 
       </Col>
-      <Col md={5} xs={24}>
+      <Col md={24} xs={24}>
+        <div style={{height: 20, width: '100%'}} />
+        <FormListAddition 
+          name={[name, 'listPriceRange']} 
+          textAddNew="Thêm khoảng gía" 
+          showBtnInLeft={false}
+        >
+          <FormListPriceRange />
+        </FormListAddition>
+      </Col>
+    </Row>
+  )
+}
+
+const FormListPriceRange = ({ field }) => {
+  const { name } = field || { name: 0 };
+  return (
+    <Row gutter={16}>
+      <Col md={8} xs={24}>
+        <FormInputNumber 
+          name={[name, 'start']}
+          placeholder={"Số lượng từ"}
+        />
+      </Col>
+      <Col md={8} xs={24}>
+        <FormInputNumber 
+          name={[name, 'end']}
+          placeholder={"Số lượng đến"}
+        />
+      </Col>
+      <Col md={8} xs={24}>
         <FormInputNumber 
           name={[name, 'price']}
           required

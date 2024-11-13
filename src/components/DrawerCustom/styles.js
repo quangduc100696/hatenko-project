@@ -13,7 +13,7 @@ export const DrawerWrapper = styled(Drawer)`
   }
 
   .drawer-content {
-    height: calc(100vh - 110px);
+    height: calc(100vh - 50px);
     padding: 16px 24px;
     overflow-y: auto;
     overflow-x: hidden;

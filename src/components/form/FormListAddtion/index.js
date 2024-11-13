@@ -10,6 +10,7 @@ import FormStyles from './styles';
 const FormListAddition = ({
   children,
   name,
+  showBtnInLeft = true,
   textAddNew = 'Thêm mới',
   title,
   formatInitialValue = value => value,
@@ -39,13 +40,15 @@ const FormListAddition = ({
                 </div>
               ))}
               <Form.Item>
-                <Button
-                  type="dashed"
-                  onClick={() => add(defaultValueItem)}
-                  icon={<PlusOutlined />}
-                >
-                  {textAddNew}
-                </Button>
+                <div style={{display: 'flex', justifyContent: showBtnInLeft ? 'flex-start' : 'flex-end'}}>
+                  <Button
+                    type="dashed"
+                    onClick={() => add(defaultValueItem)}
+                    icon={<PlusOutlined />}
+                  >
+                    {textAddNew}
+                  </Button>
+                </div>
                 <Form.ErrorList errors={errors} />
               </Form.Item>
             </>

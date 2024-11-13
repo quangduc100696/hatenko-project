@@ -1,0 +1,39 @@
+{
+  "createdTime": "2024-11-13 20:36:29",
+  "name": "Hữu Long",
+  "serviceId": 10008,
+  "providerId": 10008,
+  "listProperties": [
+    {
+      "attributedId": 10008,
+      "propertyValueId": [ 10009 ]
+    },
+    {
+      "attributedId": 10009,
+      "propertyValueId": [ 10010, 10011 ]
+    }
+  ],
+  "skus": [
+    {
+      "listPriceRange": [
+        { "start": 1, "end": 10, "price": 1000000 }
+      ],
+      "sku": [
+        {
+          "attributedId": 10008,
+          "attributedValueId": 10009
+        },
+        {
+          "attributedId": 10009,
+          "attributedValueId": 10010
+        }
+      ]
+    }
+  ],
+  "listOpenInfo": [
+    {
+      "name": "Môi trường",
+      "value": "Ánh sáng dưới 30C"
+    }
+  ]
+}

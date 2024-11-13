@@ -78,6 +78,20 @@ const ProductForm = () => {
       </Col>
 
       <Col md={24} xs={24}>
+        <Typography.Title level={5}>
+          <SwitcherOutlined />
+          <span style={{marginLeft: 20}}>Thông tin mở rộng</span>
+        </Typography.Title>
+        <FormListAddition 
+          name="listOpenInfo"
+          textAddNew="Thêm mới"
+          showBtnInLeft={false}
+        >
+          <FormOpenInfo />
+        </FormListAddition>
+      </Col>
+
+      <Col md={24} xs={24}>
         <div style={{display: 'flex', justifyContent:'end'}}>
           <CustomButton 
             htmlType="submit"
@@ -86,6 +100,28 @@ const ProductForm = () => {
             variant="solid"
           />
         </div>
+      </Col>
+    </Row>
+  )
+}
+
+const FormOpenInfo = ({ field }) => {
+  const { name } = field || { name: 0 };
+  return (
+    <Row gutter={16}>
+      <Col md={12} xs={24}>
+        <FormInput 
+          name={[name, 'name']}
+          required
+          placeholder={"Tên trường"}
+        /> 
+      </Col>
+      <Col md={12} xs={24}>
+        <FormInput 
+          required
+          name={[name, 'value']} 
+          placeholder="Gía trị" 
+        />
       </Col>
     </Row>
   )

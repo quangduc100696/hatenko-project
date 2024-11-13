@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import RestEditModal from 'components/RestLayout/RestEditModal';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
-import { dateFormatOnSubmit, f5List } from 'utils/dataUtils';
+import { arrayEmpty, dateFormatOnSubmit, f5List } from 'utils/dataUtils';
 import ProductForm from './ProductForm';
+import { message } from 'antd';
 
 const Product = ({ closeModal, data }) => {
 
@@ -16,16 +17,30 @@ const Product = ({ closeModal, data }) => {
     let params = (values?.id ?? '') === '' ? {} : { id: values.id };
     let uri = params?.id ? 'update' : 'create';
     let nUri = String("/product/").concat(uri);
+    if(arrayEmpty(values.skus)) {
+      message.info("Can't create Product with empty skus .!");
+      return;
+    }
+    for(let arrsku of values.skus) {
+      let newSku = []
+      for(let sku of arrsku.sku) {
+        newSku = newSku.concat({attributedId: sku[0], attributedValueId: sku[1]})
+      }
+      arrsku.sku = newSku;
+    }
     const { errorCode } = await RequestUtils.Post(nUri, values, params);
-    f5List('product/fetch');
-    InAppEvent.normalInfo(errorCode === 200 ? "Cập nhật thành công" : "Lỗi cập nhật, vui lòng thử lại sau");
+    const isSuccess = errorCode === 200;
+    if(isSuccess) {
+      f5List('product/fetch');
+    }
+    InAppEvent.normalInfo(isSuccess ? "Cập nhật thành công" : "Lỗi cập nhật, vui lòng thử lại sau");
   }, []);
 
   const formatOnSubmit = useCallback((values) => {
     dateFormatOnSubmit(values, ['createdAt']);
     return values;
   }, []);
-
+ 
   return <>
     <RestEditModal
       isMergeOnSubmit={false}
