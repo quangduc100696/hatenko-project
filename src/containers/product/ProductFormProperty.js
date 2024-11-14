@@ -1,11 +1,14 @@
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { Col, Form } from 'antd';
 import FormSelectAPI from 'components/form/FormSelectAPI';
 import FormStyles from './styles'
 import ProductAttrService from 'services/ProductAttrService';
+import { FormContextCustom } from 'components/context/FormContextCustom';
+import _ from "lodash";
 
 const ProductFormProperty = ({ field }) => {
   const { name } = field || { name: 0 };
+  const { record } = useContext(FormContextCustom);
   return <>
     <FormStyles gutter={16}>
       <Col md={12} xs={24}>
@@ -13,6 +16,7 @@ const ProductFormProperty = ({ field }) => {
           required
           showSearch
           fnLoadData={(filter) => ProductAttrService.loadAll(filter)}
+          onData={(values) => _.merge(values, record?.dRe?.attrs ?? [])}
           apiPath={"attributed/fetch"}
           apiAddNewItem='attributed/save'
           name={[name, 'attributedId']}
@@ -50,11 +54,10 @@ const FormPropertiesValue = ({ name, filter }) => {
         mode='multiple'
         searchKey='value'
         required
-        isFetchOnMount={false}
         showSearch
         apiPath='attributed/fetch-value-by-id'
         apiAddNewItem='attributed/save-value-by-id'
-        name={[name, 'propertyValueId']}
+        name={[name, 'attributedValueId']}
         placeholder="Gía trị thuộc tính"
         titleProp='value'
         valueProp='id'

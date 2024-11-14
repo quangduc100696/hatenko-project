@@ -19,17 +19,15 @@ const ProductFormPrice = ({ listProperties }) => {
 
   const [ dataInOptions, setDataInOptions ] = useState([]);
   useEffect(() => {
-    (async () => {
-      let attrs = [], attrValues = [];
-      for(let item of listProperties) {
-        if(isEmpty(item) || !item.attributedId || !item.propertyValueId) {
-          continue;
-        }
-        attrs.push(item.attributedId);
-        attrValues = attrValues.concat(item.propertyValueId);
+    let attrs = [], attrValues = [];
+    for(let item of listProperties) {
+      if(isEmpty(item) || !item.attributedId || !item.attributedValueId) {
+        continue;
       }
-      ProductAttrService.createDataOptionInForm(attrs, attrValues).then(setDataInOptions);
-    })();
+      attrs.push(item.attributedId);
+      attrValues = attrValues.concat(item.attributedValueId);
+    }
+    ProductAttrService.createDataOptionInForm(attrs, attrValues).then(setDataInOptions);
   }, [listProperties]);
 
   return (
@@ -73,16 +71,22 @@ const FormListPriceRange = ({ field }) => {
   const { name } = field || { name: 0 };
   return (
     <Row gutter={16}>
-      <Col md={8} xs={24}>
+      <Col md={4} xs={24}>
         <FormInputNumber 
           name={[name, 'start']}
           placeholder={"Số lượng từ"}
         />
       </Col>
-      <Col md={8} xs={24}>
+      <Col md={4} xs={24}>
         <FormInputNumber 
           name={[name, 'end']}
           placeholder={"Số lượng đến"}
+        />
+      </Col>
+      <Col md={8} xs={24}>
+        <FormInputNumber 
+          name={[name, 'priceRef']}
+          placeholder={"Giá / phí trước giảm"}
         />
       </Col>
       <Col md={8} xs={24}>

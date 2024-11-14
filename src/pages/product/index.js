@@ -20,7 +20,30 @@ const Index = () => {
   const onCreateProduct = () => InAppEvent.emit(HASH_MODAL, {
     hash: '#draw/product.edit',
     title: 'Tạo mới sản phẩm',
-    data: { createdAt: new Date() }
+    data: { 
+      "status": 1,
+      "name": "Hữu Long",
+      "serviceId": 10008,
+      "providerId": 10008,
+      "listProperties": [
+        { "attributedId": 10008, "attributedValueId": [ 10009 ] },
+        { "attributedId": 10009, "attributedValueId": [ 10010, 10011 ] }
+      ],
+      "skus": [
+        {
+          "listPriceRange": [
+            { "start": 1, "end": 2, "price": 500000 }
+          ],
+          "sku": [
+            [ 10008, 10009 ],
+            [ 10009, 10011 ]
+          ]
+        }
+      ],
+      "listOpenInfo": [
+        { "name": "Môi trường", "value": "Ánh sáng dưới 30C" }
+      ]
+    }
   });
 
 	const [ title ] = useState("Danh sách sản phẩm");

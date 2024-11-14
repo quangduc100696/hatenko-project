@@ -9,6 +9,7 @@ import { SwitcherOutlined } from '@ant-design/icons';
 import ProductFormPrice from './ProductFormPrice';
 import FormSelect from 'components/form/FormSelect';
 import { PRODUCT_STATUS } from 'configs/localData';
+import FormStyles from './styles';
 
 const ProductForm = () => {
   return (
@@ -130,22 +131,29 @@ const ProductForm = () => {
 const FormOpenInfo = ({ field }) => {
   const { name } = field || { name: 0 };
   return (
-    <Row gutter={16}>
-      <Col md={12} xs={24}>
+    <FormStyles gutter={16}>
+      <Col md={6} xs={24}>
         <FormInput 
           name={[name, 'name']}
           required
           placeholder={"Tên trường"}
         /> 
       </Col>
-      <Col md={12} xs={24}>
+      <Col md={14} xs={24}>
         <FormInput 
           required
           name={[name, 'value']} 
           placeholder="Gía trị" 
         />
       </Col>
-    </Row>
+      <Col md={4} xs={24}>
+        <FormInput 
+          name={[name, 'icon']}
+          required
+          placeholder={"Icon"}
+        /> 
+      </Col>
+    </FormStyles>
   )
 }
 

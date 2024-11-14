@@ -3,19 +3,37 @@ import { message } from 'antd';
 import RestEditModal from 'components/RestLayout/RestEditModal';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
-import { arrayEmpty, dateFormatOnSubmit, f5List } from 'utils/dataUtils';
+import { arrayEmpty, arrayNotEmpty, f5List } from 'utils/dataUtils';
 import ProductForm from './ProductForm';
 import ProductAttrService from 'services/ProductAttrService';
+import { cloneDeep } from 'lodash';
 
+const log = (value) => console.log('[container.product.index] ', value);
 const Product = ({ closeModal, data }) => {
 
   const [ record, setRecord ] = useState({});
   useEffect(() => {
-    setRecord(data);
+    (async () => {
+      let dRe = {}
+      if(arrayNotEmpty(data?.listProperties || [])) {
+        let attrIds = data.listProperties.map(i => i.attributedId) ?? [];
+        let attrValueIds = [];
+        for(let values of data.listProperties.map(i => i.attributedValueId)) {
+          attrValueIds = attrValueIds.concat(values);
+        }
+        const itemAttrs = await ProductAttrService.loadByIds(attrIds);
+        const itemAttrValues = await ProductAttrService.loadValueByIds(attrValueIds);
+        dRe.attrs = itemAttrs;
+        dRe.attrValues = itemAttrValues;
+      }
+      setRecord({ ...data, dRe });
+    })();
     return () => ProductAttrService.empty();
   }, [data]);
   
-  const onSubmit = useCallback( async (values) => {
+  const onSubmit = useCallback( async (data) => {
+    log(data);
+    let values = cloneDeep(data);
     let params = (values?.id ?? '') === '' ? {} : { id: values.id };
     let uri = params?.id ? 'update' : 'create';
     let nUri = String("/product/").concat(uri);
@@ -38,15 +56,9 @@ const Product = ({ closeModal, data }) => {
     InAppEvent.normalInfo(isSuccess ? "Cập nhật thành công" : "Lỗi cập nhật, vui lòng thử lại sau");
   }, []);
 
-  const formatOnSubmit = useCallback((values) => {
-    dateFormatOnSubmit(values, ['createdAt']);
-    return values;
-  }, []);
- 
   return <>
     <RestEditModal
-      isMergeOnSubmit={false}
-      formatOnSubmit={formatOnSubmit}
+      isMergeRecordOnSubmit={false}
       updateRecord={(values) => setRecord(curvals => ({...curvals, ...values}))}
       onSubmit={onSubmit}
       record={record}

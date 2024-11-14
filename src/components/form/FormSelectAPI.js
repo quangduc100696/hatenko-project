@@ -62,7 +62,7 @@ const FormSelectAPI = ({
       return;
     }
     setLoading(true);
-    RequestUtils.Get('/' + apiPath, values).then( async ({data, errorCode}) => {
+    RequestUtils.Get('/' + apiPath, values).then( async ({ data, errorCode }) => {
       if(errorCode !== 200) {
         return Promise.reject("Get not success from server .!");
       }
