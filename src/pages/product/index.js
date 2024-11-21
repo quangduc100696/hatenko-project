@@ -28,12 +28,11 @@ const Index = () => {
       }
     }
     for(const iSkus of item.skus) {
-      let item = { listPriceRange: iSkus.listPriceRange }
+      let item = { name: iSkus.name, listPriceRange: iSkus.listPriceRange }
       let details = [];
       for(const detail of iSkus.skuDetail) {
         details.push([detail.attributedId, detail.attributedValueId]);
       }
-      item.name = iSkus.name;
       item.sku = details;
       skus.push(item);
     }
