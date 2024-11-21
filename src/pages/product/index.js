@@ -7,43 +7,45 @@ import Filter from './Filter';
 import { Button } from 'antd';
 import { InAppEvent } from "utils/FuseUtils";
 import { HASH_MODAL } from 'configs';
-import { dateFormatOnSubmit, formatTime } from 'utils/dataUtils';
+import { arrayEmpty, dateFormatOnSubmit, formatTime } from 'utils/dataUtils';
+import ProductAttrService from 'services/ProductAttrService';
+import { cloneDeep } from 'lodash';
 
 const Index = () => {
 
   const onEdit = (item) => {
     let title = 'Sửa sản phẩm # ' + item.id;
     let hash = '#draw/product.edit';
-    InAppEvent.emit(HASH_MODAL, { hash, title, data: item });
+    let data = cloneDeep(item);
+    let skus = [], listProperties = [];
+    for(const property of item.listProperties) {
+      let attr = listProperties.find(i => i.attributedId === property.attributedId);
+      if(attr) {
+        attr.attributedValueId.push(property.attributedValueId);
+      } else {
+        attr = { attributedId: property.attributedId, attributedValueId: [property.attributedValueId]}
+        listProperties.push(attr);
+      }
+    }
+    for(const iSkus of item.skus) {
+      let item = { listPriceRange: iSkus.listPriceRange }
+      let details = [];
+      for(const detail of iSkus.skuDetail) {
+        details.push([detail.attributedId, detail.attributedValueId]);
+      }
+      item.name = iSkus.name;
+      item.sku = details;
+      skus.push(item);
+    }
+    data.listProperties = listProperties;
+    data.skus = skus;
+    InAppEvent.emit(HASH_MODAL, { hash, title, data });
   }
 
   const onCreateProduct = () => InAppEvent.emit(HASH_MODAL, {
     hash: '#draw/product.edit',
     title: 'Tạo mới sản phẩm',
-    data: { 
-      "status": 1,
-      "name": "Hữu Long",
-      "serviceId": 10008,
-      "providerId": 10008,
-      "listProperties": [
-        { "attributedId": 10008, "attributedValueId": [ 10009 ] },
-        { "attributedId": 10009, "attributedValueId": [ 10010, 10011 ] }
-      ],
-      "skus": [
-        {
-          "listPriceRange": [
-            { "start": 1, "end": 2, "price": 500000 }
-          ],
-          "sku": [
-            [ 10008, 10009 ],
-            [ 10009, 10011 ]
-          ]
-        }
-      ],
-      "listOpenInfo": [
-        { "name": "Môi trường", "value": "Ánh sáng dưới 30C" }
-      ]
-    }
+    data: {}
   });
 
 	const [ title ] = useState("Danh sách sản phẩm");
@@ -116,6 +118,20 @@ const Index = () => {
     return values;
   }, []);
 
+  const onData = useCallback((values) => {
+    if(arrayEmpty(values.embedded)) {
+      return values;
+    }
+    let attrsId = [], attrsValuesId = [];
+    for(let item of values.embedded) {
+      attrsId = item.listProperties.map(i => i.attributedId).filter(i => i && i > 0);
+      attrsValuesId = item.listProperties.map(i => i.attributedValueId).filter(i => i && i > 0);
+    }
+    ProductAttrService.loadByIds(attrsId);
+    ProductAttrService.loadValueByIds(attrsValuesId);
+    return values;
+  }, []);
+
 	return (
 		<>
 			<Helmet>
@@ -126,6 +142,7 @@ const Index = () => {
 			/>
 			<RestList
 				xScroll={1200}
+        onData={onData}
 				initialFilter={{ limit: 10, page: 1 }}
 				filter={<Filter />}
         beforeSubmitFilter={beforeSubmitFilter}

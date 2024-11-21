@@ -6,6 +6,7 @@ import FormInputNumber from 'components/form/FormInputNumber';
 import { useEffect, useState } from 'react';
 import { isEmpty } from 'lodash';
 import ProductAttrService from 'services/ProductAttrService';
+import FormInput from 'components/form/FormInput';
 
 /** 
  * listProperties Data simple
@@ -45,7 +46,13 @@ const FormListCascader = ({ field, dataInOptions }) => {
   const { name } = field || { name: 0 };
   return (
     <Row gutter={16}>
-      <Col md={24} xs={24}>
+      <Col md={12} xs={24}>
+        <FormInput 
+          placeholder={"Tên SKU (Nếu có)"}
+          name={[name, 'name']}
+        />
+      </Col>
+      <Col md={12} xs={24}>
         <FormCascader 
           resourcesData={dataInOptions}
           name={[name, 'sku']}
@@ -73,13 +80,13 @@ const FormListPriceRange = ({ field }) => {
     <Row gutter={16}>
       <Col md={4} xs={24}>
         <FormInputNumber 
-          name={[name, 'start']}
+          name={[name, 'quantityFrom']}
           placeholder={"Số lượng từ"}
         />
       </Col>
       <Col md={4} xs={24}>
         <FormInputNumber 
-          name={[name, 'end']}
+          name={[name, 'quantityTo']}
           placeholder={"Số lượng đến"}
         />
       </Col>

@@ -13,7 +13,7 @@
     {
       "id": 10016,
       "listPriceRange": [
-        { "id": 10013, "start": 1, "end": 10, "price": 1000000 }
+        { "id": 10013, "quantityFrom": 1, "quantityTo": 10, "price": 1000000 }
       ],
       "sku": [
         { "id": 10010, "attributedId": 10008, "attributedValueId": 10009 },
@@ -39,7 +39,7 @@
   "skus": [
     {
       "listPriceRange": [
-        { "start": 1, "end": 2, "price": 500000 }
+        { "quantityFrom": 1, "quantityTo": 2, "price": 500000 }
       ],
       "sku": [
         [ 10008, 10009 ],

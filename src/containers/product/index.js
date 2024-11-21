@@ -35,8 +35,6 @@ const Product = ({ closeModal, data }) => {
     log(data);
     let values = cloneDeep(data);
     let params = (values?.id ?? '') === '' ? {} : { id: values.id };
-    let uri = params?.id ? 'update' : 'create';
-    let nUri = String("/product/").concat(uri);
     if(arrayEmpty(values.skus)) {
       message.info("Can't create Product with empty skus .!");
       return;
@@ -48,7 +46,7 @@ const Product = ({ closeModal, data }) => {
       }
       arrsku.sku = newSku;
     }
-    const { errorCode } = await RequestUtils.Post(nUri, values, params);
+    const { errorCode } = await RequestUtils.Post("/product/save", values, params);
     const isSuccess = errorCode === 200;
     if(isSuccess) {
       f5List('product/fetch');
