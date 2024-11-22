@@ -5,21 +5,21 @@ import { dataArray } from 'utils/dataUtils';
 
 const FormSelectUser = ({name, label, filter, ...props}) => {
 
-    const [ data, setData ] = useState([]);
-    useEffect(() => {
-        RequestUtils.Get('/user/fetch-all', filter).then(dataArray).then(setData);
-    }, [filter]);
+	const [ data, setData ] = useState([]);
+	useEffect(() => {
+		RequestUtils.Get('/user/fetch-all', filter).then(dataArray).then(setData);
+	}, [filter]);
 
-    return (
-        <FormSelect
-            label={label}
-            placeholder={label}
-            name={name || 'ssoId'}
-            valueProp="id"
-            titleProp="ssoId"
-            resourceData={data}
-            {...props}
-        />
+	return (
+		<FormSelect
+			label={label}
+			placeholder={label}
+			name={name || 'ssoId'}
+			valueProp="id"
+			titleProp="ssoId"
+			resourceData={data}
+			{...props}
+		/>
   );
 }
 

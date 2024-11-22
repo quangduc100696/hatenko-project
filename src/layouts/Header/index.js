@@ -37,7 +37,7 @@ const Header = () => {
       </div>
       <div className="rightHeader">
          <CustomButton
-          title="button.booking"
+          title="button.fastBooking"
           onClick={onClickBooking}
           icon={<PlusOutlined />}
           type='primary'

@@ -1,22 +1,20 @@
 import { Select } from 'antd';
 import i18next from 'i18next';
-import useAccessLocations from 'hooks/useAccessLocations';
-import useLocationId from 'hooks/useLocationId';
+import useServiceId from 'hooks/useServiceId';
 
 const { Option } = Select;
-
 function ServiceSelect() {
 
-  const { locationId, setLocationId } = useLocationId();
-  const { isAll = true, locations = [] } = useAccessLocations();
+  const { serviceId, setServiceId } = useServiceId();
+  const isAll = true, locations = [];
 
   const onChangeLocation = (e) => {
-    setLocationId(e);
+    setServiceId(e);
   };
 
   return (
     <Select
-      value={locationId || (isAll ? '' : locations[0]?.id)}
+      value={serviceId}
       className="border-none w-160 h-40"
       onChange={onChangeLocation}
     >

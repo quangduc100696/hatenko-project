@@ -27,14 +27,11 @@ const FormAutoComplete = ({
   ...props
 }) => {
   const { t } = useTranslation();
-
   const onSelectOption = useCallback(
     (inputValue, option) => {
       if (
         onChangeSearch(
-          isObject(option.children)
-            ? get(option.children.props?.record, searchKey)
-            : option.children,
+          isObject(option.children) ? get(option.children.props?.record, searchKey) : option.children,
           inputValue,
         )
       ) {
@@ -57,8 +54,9 @@ const FormAutoComplete = ({
   ), []);
 
   const getValueFromEvent = (value) => {
-    if (!customGetValueFromEvent) return value;
-
+    if (!customGetValueFromEvent) {
+      return value;
+    }
     const findItem = resourceData?.find(
       (item) => get(item, valueProp).toString() === value,
     );

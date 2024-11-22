@@ -71,34 +71,6 @@ export const DrawerWrapper = styled(Drawer)`
   }
 `;
 
-export const FooterStyles = styled.div`
-  height: 50px;
-
-  display: flex;
-  background: #fff;
-
-  button {
-    height: 100%;
-    font-size: 16px;
-  }
-
-  .footer-drawer-btn {
-    height: 100%;
-    text-transform: uppercase;
-    border: none;
-    border-radius: 0 !important;
-  }
-
-  .cancel-button {
-    background-color: ${({ theme }) => theme.drawer?.cancelBtnBg};
-    color: ${({ theme }) => theme.text.mainL1};
-    &:hover {
-      background-color: ${({ theme }) => `${theme.drawer?.cancelBtnBg}50`};
-      color: ${({ theme }) => theme.text.mainL1} !important;
-    }
-  }
-`;
-
 export const HeaderStyles = styled.div`
   height: 60px;
   background: ${({ theme }) => theme.palette.primary};

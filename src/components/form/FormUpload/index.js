@@ -10,7 +10,7 @@ const UploadWrapper = styled.div`
 
 const FormUpload = ({
   tblName = "customer_order",
-  label = "contracts.file"
+  label = "upload.label"
 }) => {
   const { t } = useTranslation()
   return (

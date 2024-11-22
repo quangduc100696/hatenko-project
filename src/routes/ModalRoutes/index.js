@@ -17,15 +17,15 @@ const getModalRoute = (urlHash) => {
   const iHash = urlHash.replaceAll('/', '.')
   const modalRoute = modalRoutes.find(route => iHash.includes(route.path));
   log('==== modalRoute', modalRoute)
-  if (modalRoute) {
-    if(modalRoute['Component']) {
-      delete modalRoute.routes;
-      return modalRoute;
-    }
-    const route = modalRoute.routes.find(route => iHash.includes(route.path));
-    return route ? route : notFoundHash;
+  if (!modalRoute) {
+    return notFoundHash;
   }
-  return notFoundHash;
+  if(modalRoute['Component']) {
+    delete modalRoute.routes;
+    return modalRoute;
+  }
+  const route = modalRoute.routes.find(route => iHash.includes(route.path));
+  return route || notFoundHash;
 };
 
 function ModalRoutes() {
@@ -41,12 +41,12 @@ function ModalRoutes() {
   }, []);
 
   useEffect( () => {
-      InAppEvent.addEventListener(HASH_MODAL, handleEventDraw);
-      InAppEvent.addEventListener(HASH_MODAL_CLOSE, handleCloseDraw);
-      return () => {
-        InAppEvent.removeListener(HASH_MODAL, handleEventDraw);
-        InAppEvent.removeListener(HASH_MODAL_CLOSE, handleCloseDraw);
-      };
+    InAppEvent.addEventListener(HASH_MODAL, handleEventDraw);
+    InAppEvent.addEventListener(HASH_MODAL_CLOSE, handleCloseDraw);
+    return () => {
+      InAppEvent.removeListener(HASH_MODAL, handleEventDraw);
+      InAppEvent.removeListener(HASH_MODAL_CLOSE, handleCloseDraw);
+    };
   }, [handleEventDraw, handleCloseDraw]);
 
   const closeModal =useCallback(() => {

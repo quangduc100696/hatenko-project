@@ -180,7 +180,6 @@ export const SearchInputStyles = styled.div`
     .ant-input {
       border: 1px solid #d4d2f450;
       border-right: none !important;
-      border-left: none !important;
     }
     .ant-input-group-addon {
       background-color: #fff !important;

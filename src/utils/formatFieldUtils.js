@@ -1,20 +1,14 @@
 import union from 'lodash/union';
-import { TeamOutlined } from '@ant-design/icons';
 import { getStaticImageUrl } from './tools';
 import GridPhotos from 'components/common/GridPhotos';
 import i18next from 'i18next';
-import { useEffect, useState } from 'react';
-import ResourceService from 'services/ResourceService';
 import { arrayEmpty } from './dataUtils';
 import { 
-  PACKAGE_TYPE_UNITS_CONST, BOOKING_STATUS_MAP_KEYS, 
-  GENDERS_MAPS_KEY, PAYMENT_STATUS_MAP_KEYS, EXTRA_SERVICE_STATUS,
+  PAYMENT_STATUS_MAP_KEYS,
   CONTRACT_TYPES, CONTRACT_STATUS
 } from 'configs/localData';
 import { Tag } from 'antd';
-import CardService from 'services/CardService';
 import { formatDataI18n } from './dataUtils';
-import { formatDateDashboard } from './textUtils';
 import UserInfo from 'components/common/UserInfo';
 
 export const formatGallery = (thumbnail, gallery = []) => {
@@ -34,62 +28,14 @@ export const formatGallery = (thumbnail, gallery = []) => {
   );
 };
 
-export const FormatLocation = ({ lId }) => {
-  const [ text, setText ] = useState('');
-  useEffect(() => {
-    ResourceService.listLocation().then(locations => setText(locations.find(f => f.id === lId)?.name || 'Unknow'))
-  }, [lId]);
-  return text;
-};
-
-export const formatPackageTypeUnit = (data) => {
-  const restText = Object.values(PACKAGE_TYPE_UNITS_CONST).find(
-    item => item.value === data,
-  )?.text;
-
-  return restText ? i18next.t(restText) : data;
-};
-
-export const formatBookingStatus = (data) => {
-  if (!data) return null;
-  const restItem = BOOKING_STATUS_MAP_KEYS[data];
-  return (
-    <Tag color={restItem?.color}>
-      {restItem?.text ? i18next.t(restItem.text) : data}
-    </Tag>
-  );
-};
-
 export const formatPaymentStatus = (data) => {
-  if (!data) return null;
+  if (!data) {
+    return null;
+  }
   const restItem = PAYMENT_STATUS_MAP_KEYS[data];
   return (
     <Tag color={restItem?.color}>
       {restItem?.text ? i18next.t(restItem.text) : data}
-    </Tag>
-  );
-};
-
-export const formatGender = ( gender, isTeam ) => {
-  if (isTeam) return <TeamOutlined style={{ color: 'blue' }} />;
-  if (!gender) return null;
-
-  const genderItem = GENDERS_MAPS_KEY[gender.toLowerCase()];
-  return genderItem ? (
-    <genderItem.IconCPN style={{ color: genderItem.color || 'red' }} />
-  ) : null;
-};
-
-export const formatNamePaymentMethod = (value) => {
-  return CardService.getPaymentMethod().find(f => f.value = value)?.name || 'Unknow';
-}
-
-export const formatExtraServiceOrderStatus = (data) => {
-  if (!data) return null;
-  const restItem = EXTRA_SERVICE_STATUS.find(item => item.value === data);
-  return (
-    <Tag color={restItem?.color}>
-      { restItem?.text ? i18next.t(restItem.text) : data }
     </Tag>
   );
 };
@@ -114,23 +60,6 @@ export const formatContractStatus = (data) => {
       {i18next.t(contractStatusItem.text)}
     </Tag>
   ) : null;
-};
-
-export const formatRangeDateDashboard = ( startTime, endTime ) => {
-  return (
-    <div>
-      { startTime && (
-        <div>{`${i18next.t('time.startSymbol')}: ${formatDateDashboard(
-          startTime,
-        )}`}</div>
-      )}
-      { endTime && (
-        <div>{`${i18next.t('time.endSymbol')}: ${formatDateDashboard(
-          endTime,
-        )}`}</div>
-      )}
-    </div>
-  );
 };
 
 export const formatCustomerOrTeamInfo = ({ data, size }) => (

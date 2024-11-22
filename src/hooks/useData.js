@@ -63,35 +63,8 @@ function useData({
     };
 }
 
-export const useGetAllExtraServiceTypesQuery = ({queryParams, onCompleted}) =>
-    useData({queryParams, onCompleted, api: 'resource/service-add/list'});
-
-export const useGetAllExtraServiceCategoriesQuery = ({queryParams}) => 
-    useData({queryParams, api: 'extra-service/cate'});
-
-export const useGetAllCustomersSummaryQuery = (queryParams) => 
-    useData({queryParams, api: 'customer/summary'});
-
 export const useGetAllCustomersSimpleQuery = ({queryParams, onCompleted}) => 
     useData({queryParams, onCompleted, api: 'customer/list'});
-
-export const useGetContractSummaryQuery = (queryParams) => 
-    useData({queryParams, api: 'contracts/sumary'});
-
-export const useGetAllBookingsQuery = ({queryParams}) => 
-    useData({queryParams, api: 'order/list'});
-
-export const useGetAllIncidentsQuery = ({queryParams}) => 
-    useData({queryParams, api: 'incident/list'});
-
-export const useGetAllInboxesQuery = ({queryParams}) => 
-    useData({queryParams, api: 'inboxes/list'});
-
-export const useGetAllMessagesQuery = ({queryParams}) => 
-    useData({queryParams, api: 'messages/list'});
-
-export const useGetAllParentInboxesQuery = ({queryParams}) => 
-    useData({queryParams, api: 'parent-inboxes/list'});
 
 export const useGetAllBusinessUsersQuery = ({queryParams, onCompleted}) => 
     useData({queryParams, onCompleted, api: 'user/list'});

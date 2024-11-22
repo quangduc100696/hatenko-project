@@ -3,12 +3,6 @@ import { Cascader, Form } from 'antd';
 import { useTranslation } from 'react-i18next';
 const { SHOW_CHILD } = Cascader;
 
-/*
-const resourcesData = [
-  { label: 'Bamboo', value: 'bamboo', children: [{ label: 'Little', value: 'little' }] }
-];
-*/
-
 const FormCascader = ({
   name,
   label,

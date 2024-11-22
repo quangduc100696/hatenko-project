@@ -30,72 +30,7 @@ export const ACTIVE_TYPES = [
   }
 ];
 
-export const WEEKDAYS_DATA = [
-  {
-    text: 'weekDays.monday',
-    textShort: 'weekDays.mon',
-    value: 1,
-    valueText: 'monday',
-    textIsOpen: 'weekDays.openMonday',
-  },
-  {
-    text: 'weekDays.tuesday',
-    textShort: 'weekDays.tue',
-    value: 2,
-    valueText: 'tuesday',
-    textIsOpen: 'weekDays.openTuesday',
-  },
-  {
-    text: 'weekDays.wednesday',
-    textShort: 'weekDays.wed',
-    value: 3,
-    valueText: 'wednesday',
-    textIsOpen: 'weekDays.openWednesday',
-  },
-  {
-    text: 'weekDays.thursday',
-    textShort: 'weekDays.thu',
-    value: 4,
-    valueText: 'thursday',
-    textIsOpen: 'weekDays.openThursday',
-  },
-  {
-    text: 'weekDays.friday',
-    textShort: 'weekDays.fri',
-    value: 5,
-    valueText: 'friday',
-    textIsOpen: 'weekDays.openFriday',
-  },
-  {
-    text: 'weekDays.saturday',
-    textShort: 'weekDays.sat',
-    value: 6,
-    valueText: 'saturday',
-    textIsOpen: 'weekDays.openSaturday',
-  },
-  {
-    text: 'weekDays.sunday',
-    textShort: 'weekDays.sun',
-    value: 0,
-    valueText: 'sunday',
-    textIsOpen: 'weekDays.openSunday',
-  }
-];
-
 export const IMAGE_TYPES = ['png', 'jpg', 'jpeg', 'gif', 'tif', 'tiff'];
-
-export const EXTRA_CUSTOMER_TYPES = [
-  {
-    text: 'extraCustomerTypes.internal',
-    value: "true",
-    color: 'red',
-  },
-  {
-    text: 'extraCustomerTypes.external',
-    value: "false",
-    color: 'blue',
-  }
-];
 
 export const CHANNEL_SOURCE = [
   { 'id': 11, 'name': 'Web' },
@@ -111,47 +46,14 @@ export const CHANNEL_SOURCE = [
   { 'id': 10, 'name': 'Shopee' }
 ];
 export const CHANNEL_SOURCE_MAP_KEYS = mapKeys(CHANNEL_SOURCE, 'id');
-
 export const CHANNEL_STATUS = [
   { 'id': 1, 'name': 'Chưa liên hệ' },
   { 'id': 2, 'name': 'Đã liên hệ' }
 ];
 
-export const BOOKING_PAY_TYPES_CONST = {
-  payAll: {
-    value: 'payAll',
-    text: 'pay.payAll',
-  },
-  payPartially: {
-    value: 'payPartially',
-    text: 'pay.payPartially',
-  },
-  payLater: {
-    value: 'payLater',
-    text: 'pay.payLater',
-  }
-};
-
 export const DISCOUNT_UNIT_CONST = {
   percent: { text: '%', value: '%' },
   number: { text: 'VND', value: 'VND' },
-};
-
-export const MEMBER_TYPES_CONSTANT = {
-  individual: {
-    text: 'memberTypes.individual',
-    value: 'individual',
-    color: 'orange',
-    fillColor: '#f96fb2',
-    background: '#339AF0',
-  },
-  team: {
-    text: 'memberTypes.team',
-    value: 'team',
-    color: 'blue',
-    fillColor: '#56d0f5',
-    background: '#61BB64',
-  }
 };
 
 export const PAYMENT_STATUS_CONST = {

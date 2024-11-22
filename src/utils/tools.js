@@ -1,10 +1,9 @@
-import { CUSTOMERS_TAB_KEYS } from 'configs';
 import { GATEWAY } from 'configs';
 import { pickBy, identity } from 'lodash'
 import { notification } from 'antd';
 import i18next from 'i18next';
 
-export const showNotifyError = (description) => {
+export const showMeesageError = (description) => {
   notification.error({
     message: i18next.t('error.title'),
     description: i18next.t(description),
@@ -12,22 +11,18 @@ export const showNotifyError = (description) => {
 };
 
 export const getQueryParamsFromUrl = (url) => {
-  if(!url) return {};
+  if(!url) {
+    return {};
+  }
   var query = url.substr(1);
   var result = {};
   query.split("&").forEach(function(part) {
-      var item = part.split("=");
-      if(item[1]) {
-        result[item[0]] = decodeURIComponent(item[1]);
-      }
+    var item = part.split("=");
+    if(item[1]) {
+      result[item[0]] = decodeURIComponent(item[1]);
+    }
   });
   return result;
-};
-
-export const getTabCustomer = (pathname) => {
-    if (!pathname?.includes('/customers')) return null;
-    if (pathname === '/customers') return CUSTOMERS_TAB_KEYS.individuals;
-    return pathname?.split('/')?.[2];
 };
 
 export const convertObjToSearchStr = (params) => {
@@ -49,14 +44,9 @@ export const getStaticImageUrl = (image) => {
 
 export const formatterInputNumber = (value) =>
   `${value}`
-    .replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-    .replace(/\.(?=\d{0,2}$)/g, ',');
+  .replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  .replace(/\.(?=\d{0,2}$)/g, ',');
 
 export const parserInputNumber = (value) => {
   return value ? value.replace(/\$\s?|(\.*)/g, '').replace(/(,{1})/g, '.') : '';
-};
-
-export const getATagHref = (url) => {
-  if (!url) return '';
-  return `https://${url.replace(/^(https:\/\/)|(http:\/\/)/g, '')}`;
 };
