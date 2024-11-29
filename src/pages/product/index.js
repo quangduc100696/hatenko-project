@@ -10,6 +10,7 @@ import { HASH_MODAL } from 'configs';
 import { arrayEmpty, dateFormatOnSubmit, formatTime } from 'utils/dataUtils';
 import ProductAttrService from 'services/ProductAttrService';
 import { cloneDeep } from 'lodash';
+import SkuView, { PriceView } from 'containers/product/SkuView';
 
 const Index = () => {
 
@@ -50,49 +51,33 @@ const Index = () => {
 	const [ title ] = useState("Danh sách sản phẩm");
 	const CUSTOM_ACTION = [
 		{
-      title:"Id",
-      dataIndex:'id',
+      title:"Mã",
+      dataIndex:'code',
       width:100
     },
 		{
-      title:"Employe",
-      dataIndex:'userCreate',
-      width:120,
-      ellipsis: true
-    },
-    {
-      title:"Type",
-      dataIndex:'type',
+      title:"Sản phẩm",
+      dataIndex:'name',
       width:200,
       ellipsis: true
     },
-		{
-      title:"Review",
-      dataIndex:'userCheck',
-      width:150,
-      ellipsis: true
-    },
-		{
-      title:"Appoved",
-      dataIndex:'userAppoved',
-      width:150,
-      ellipsis: true
-    },
-		{
-      title:"Begin",
-      dataIndex:'startedAt',
-      width:150,
-      ellipsis: true
+    {
+      title:"SKus",
+      dataIndex:'skus',
+      width:400,
+      ellipsis: true,
+      render: (skus) => <SkuView skus={skus}/>
     },
     {
-      title:"End",
-      dataIndex:'endAt',
-      width:150,
-      ellipsis: true
+      title:"Giá bán",
+      dataIndex:'skus',
+      width:250,
+      ellipsis: true,
+      render: (skus) => <PriceView skus={skus}/>
     },
     {
       title:"Created",
-      dataIndex:'createdAt',
+      dataIndex:'createdTime',
       width:120,
       ellipsis: true,
 			render: (createdAt) => formatTime(createdAt)
@@ -100,7 +85,9 @@ const Index = () => {
 		{
       title:"Status",
       dataIndex:'status',
-      ellipsis: true
+      ellipsis: true,
+      width:120,
+      render: (status) => (status || 0) === 0 ? 'Ngưng' : 'Kích hoạt'
     },
 		{
       title:"",

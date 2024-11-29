@@ -64,3 +64,9 @@ export const FormPriceStyle = styled.div`
     margin-bottom: 0px !important;
   }
 `
+
+export const SKUContent = styled.div`
+  .ant-typography {
+    margin-bottom: 0px;
+  }
+`

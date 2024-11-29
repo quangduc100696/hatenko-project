@@ -1,13 +1,23 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import FuseUtils from 'utils/FuseUtils';
+import { authRoles } from 'auth';
 import { LoginConfig } from './AuthConfig';
 import { HomeConfig } from './HomeConfig';
 import { ProductConfig } from './ProductConfig';
 
+const OrderPage = React.lazy(() => import('pages/order'));
+const SaleConfig = {
+    auth    : authRoles.admin,
+    routes  : [
+        { path     : '/sale/order', element: <OrderPage /> }
+    ]
+};
+
 const routeConfigs = [
     LoginConfig,
     ProductConfig,
+    SaleConfig,
     HomeConfig
 ];
 

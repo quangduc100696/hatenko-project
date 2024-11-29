@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
 import FormSelect from './FormSelect';
 import RequestUtils from 'utils/RequestUtils';
-import { dataArray } from 'utils/dataUtils';
+import { arrayNotEmpty } from 'utils/dataUtils';
 
 const FormSelectUser = ({name, label, filter, ...props}) => {
 
 	const [ data, setData ] = useState([]);
 	useEffect(() => {
-		RequestUtils.Get('/user/fetch-all', filter).then(dataArray).then(setData);
+		RequestUtils.Get('/user/list', filter).then(data => {
+			if(arrayNotEmpty(data?.embedded)) {
+				setData(data.embedded);
+			}
+		});
 	}, [filter]);
-
 	return (
 		<FormSelect
 			label={label}

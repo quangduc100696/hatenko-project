@@ -11,13 +11,25 @@ const ProductFilter = () => {
         <Col xl={6} lg={6} md={6} xs={24}>
           <FormInput
             name={'name'}
-            placeholder="Tên sản phẩm"
+            placeholder="Tên đơn"
+          />
+        </Col>
+        <Col xl={6} lg={6} md={6} xs={24}>
+          <FormInput
+            name={'code'}
+            placeholder="Mã đơn"
+          />
+        </Col>
+        <Col xl={6} lg={6} md={6} xs={24}>
+          <FormInput
+            name={'mobile'}
+            placeholder="Số điện thoại"
           />
         </Col>
         <Col xl={6} lg={6} md={6} xs={24}>
           <FormSelectUser
             name={'userId'}
-            label="Nhân viên"
+            placeholder="Nhân viên"
           />
         </Col>
         <Col xl={6} lg={6} md={6} xs={24}>
@@ -33,14 +45,14 @@ const ProductFilter = () => {
           <FormDatePicker
             format='YYYY-MM-DD'
             name='from'
-            placeholder="Start date filter"
+            placeholder="Ngày bắt đầu"
           />
         </Col>
         <Col xl={6} lg={6} md={6} xs={24}>
           <FormDatePicker
             format='YYYY-MM-DD'
             name='to'
-            placeholder="End date filter"
+            placeholder="Đến ngày"
           />
         </Col>
       </Row>
