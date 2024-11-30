@@ -51,10 +51,11 @@ export const CHANNEL_STATUS = [
   { 'id': 2, 'name': 'Đã liên hệ' }
 ];
 
-export const DISCOUNT_UNIT_CONST = {
-  percent: { text: '%', value: '%' },
-  number: { text: 'VND', value: 'VND' },
-};
+export const DISCOUNT_UNIT_CONST = [
+  { text: 'Tiền mặt', value: 'money'},
+  { text: 'Phần trăm', value: 'percent'}
+]
+export const DISCOUNT_MAP_KEYS = mapKeys(DISCOUNT_UNIT_CONST, 'value');
 
 export const PAYMENT_STATUS_CONST = {
   unpaid: { text: 'bookings.unpaid', value: 'UNPAID', color: 'red' },

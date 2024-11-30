@@ -36,40 +36,22 @@ const useInfinite = ({
       page: data?.page?.currentPage + 1
     }).then(data => {
       setCurrentPage(data?.page?.currentPage);
-      const mergedData = unionBy(
-        resourceData,
-        data?.embedded,
-        'id',
-      );
+      const mergedData = unionBy( resourceData, data?.embedded, 'id');
       setResourceData(mergedData);
     });
   };
 
-  const enableWaypoint =
-    !loading && data?.embedded?.length < data?.page?.pageSize;
-
+  const enableWaypoint = !loading && data?.embedded?.length < data?.page?.pageSize;
   const onSearch = (value) => {
     if (searchKey === 'q') {
-      setQueryParams({
-        ...queryParams,
-        page: 1,
-        q: value?.trim() || undefined
-      });
+      setQueryParams({ ...queryParams, page: 1, q: value?.trim() || undefined });
     } else {
-      setQueryParams({
-        ...queryParams,
-        [searchKey]: value,
-        page: 1
-      });
+      setQueryParams({ ...queryParams, [searchKey]: value, page: 1 });
     }
   };
 
   const onSubmitFilter = (values) => {
-    setQueryParams({
-      ...queryParams,
-      page: 1,
-      ...values
-    });
+    setQueryParams({ ...queryParams, page: 1, ...values });
   };
 
   const onClearFilter = () => {
@@ -79,11 +61,7 @@ const useInfinite = ({
   const fetchMoreDefaultValue = (filterField, defaultValue) => {
     log( {filterField, defaultValue}, 'fetchMoreDefaultValue .!!')
     fetchMore({ filterField, defaultValue })?.then(data => {
-      const mergedData = unionBy(
-        resourceData,
-        data?.embedded,
-        'id',
-      );
+      const mergedData = unionBy( resourceData, data?.embedded, 'id');
       setResourceData(mergedData);
     });
   };

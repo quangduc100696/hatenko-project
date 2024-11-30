@@ -153,6 +153,10 @@ export const GlobalStyle = createGlobalStyle`
   .my__content {
     margin-top: 20px;
   }
+  .line-dash {
+    background: #f4f4f4;
+    border-top: 1px dashed red;
+  }
   .btn-next {
     background-color: #faad14;
     border-color: #faad14;

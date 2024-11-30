@@ -26,21 +26,15 @@ const FormAutoComplete = ({
   customGetValueFromEvent,
   ...props
 }) => {
+
   const { t } = useTranslation();
-  const onSelectOption = useCallback(
-    (inputValue, option) => {
-      if (
-        onChangeSearch(
-          isObject(option.children) ? get(option.children.props?.record, searchKey) : option.children,
-          inputValue,
-        )
-      ) {
-        return option.value;
-      }
-      return null;
-    },
-    [searchKey],
-  );
+  const onSelectOption = useCallback((inputValue, option) => {
+    const data = isObject(option.children) ? get(option.children.props?.record, searchKey) : option.children;
+    if (onChangeSearch(data, inputValue)) {
+      return option.value;
+    }
+    return null;
+  }, [searchKey]);
 
   const optionLoading = useMemo(() => (
     <Option
@@ -68,15 +62,12 @@ const FormAutoComplete = ({
       label={t(label)}
       name={name}
       rules={[
-        {
-          required,
-          message: t(messageRequire),
-        },
-        ...rules,
+        { required, message: t(messageRequire) },
+        ...rules
       ]}
       initialValue={initialValue}
       {...(customGetValueFromEvent && {
-        getValueFromEvent,
+        getValueFromEvent
       })}
       {...formItemProps}
     >

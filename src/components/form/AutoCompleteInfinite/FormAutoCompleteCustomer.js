@@ -1,7 +1,7 @@
 import { useGetAllCustomersSimpleQuery } from 'hooks/useData';
 import FormAutoCompleteInfinite from './FormAutoCompleteInfinite';
 
-const FormAutoCompleteInfiniteCustomer = props => {
+const FormAutoCompleteCustomer = props => {
   return (
     <FormAutoCompleteInfinite
       useGetAllQuery={useGetAllCustomersSimpleQuery}
@@ -13,4 +13,4 @@ const FormAutoCompleteInfiniteCustomer = props => {
   );
 };
 
-export default FormAutoCompleteInfiniteCustomer;
+export default FormAutoCompleteCustomer;
