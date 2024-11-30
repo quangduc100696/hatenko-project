@@ -10,7 +10,7 @@ import { HASH_MODAL } from 'configs';
 import { arrayEmpty, dateFormatOnSubmit, formatTime } from 'utils/dataUtils';
 import ProductAttrService from 'services/ProductAttrService';
 import { cloneDeep } from 'lodash';
-import SkuView, { PriceView } from 'containers/product/SkuView';
+import SkuView, { PriceView } from 'containers/Product/SkuView';
 
 const Index = () => {
 

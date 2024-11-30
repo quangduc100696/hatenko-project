@@ -2,10 +2,12 @@ import { HASH_MODAL, HASH_MODAL_CLOSE } from 'configs';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { InAppEvent } from 'utils/FuseUtils';
 import DrawerCustom from 'components/DrawerCustom';
-import productRoute from './productRoute';
+import ProductRoute from './ProductRoute';
+import OrderRoute from './OrderRoute';
 
 const modalRoutes = [
-  ...productRoute
+  ...ProductRoute,
+  ...OrderRoute
 ]
 const log = (key, val) => console.log('[routes.draw-routes] ' + key + ' ', val);
 const notFoundHash = { Component: () => <div /> };
