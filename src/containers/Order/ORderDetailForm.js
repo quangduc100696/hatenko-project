@@ -10,11 +10,14 @@ import { DISCOUNT_UNIT_CONST } from "configs/localData";
 import ProductSumary from "containers/Product/ProductSumary";
 import { useGetAllProductQuery } from "hooks/useData";
 import { useCallback, useContext } from "react";
-import { arrayEmpty, formatMoney } from "utils/dataUtils";
+import { arrayEmpty, arrayNotEmpty, formatMoney } from "utils/dataUtils";
 import RequestUtils from "utils/RequestUtils";
 import CustomButton from 'components/CustomButton';
 import FormTextArea from "components/form/FormTextArea";
 import { ShowPriceStyles } from "./styles";
+import { calPriceOff } from "utils/tools";
+import { UserIcon } from "icons/SVGIcons";
+import FormHidden from "components/form/FormHidden";
 
 const ORderDetailForm = () => {
   const { record, updateRecord } = useContext(FormContextCustom);
@@ -27,6 +30,7 @@ const ORderDetailForm = () => {
   }, [updateRecord]);
 
   return <>
+    <FormHidden name="orderIndex" />
     <Form.Item 
       noStyle
       shouldUpdate={ (prevValues, curValues) => prevValues.code !== curValues.code }
@@ -37,14 +41,6 @@ const ORderDetailForm = () => {
     </Form.Item>
     <Row gutter={16} style={{marginTop: 20}}>
       <Col md={12} xs={24}>
-        <FormInput 
-          required
-          name="name" 
-          label="Tên đơn"
-          placeholder="Nhập tên đơn"
-        />
-      </Col>
-      <Col md={12} xs={24}>
         <FormAutoCompleteCustomer 
           required
           label="Khách hàng"
@@ -53,12 +49,30 @@ const ORderDetailForm = () => {
           placeholder="Tìm kiếm khách hàng"
         />
       </Col>
+      <Col md={12} xs={24}>
+        <Form.Item label={<span/>}>
+          <CustomButton 
+            color="default" 
+            variant="outlined"
+            title="Thêm mới K.H" 
+            icon={<UserIcon />}
+          />
+        </Form.Item>
+      </Col>
       <Col md={24} xs={24}>
         <ProductSumary data={record?.product ?? {}} />
         <div style={{ margin: '20px 0px' }}>
           <p><strong>Thông tin đơn hàng</strong></p>
           <div className="line-dash"></div>
         </div>
+      </Col>
+      <Col md={24} xs={24}>
+        <FormInput 
+          required
+          name="name" 
+          label="Tên đơn"
+          placeholder="Nhập tên đơn"
+        />
       </Col>
       <Col md={12} xs={24}>
         <FormAutoCompleteInfinite 
@@ -117,9 +131,28 @@ const ORderDetailForm = () => {
           placeholder="Nhập giá trị"
         />
       </Col>
-      <ShowPriceStyles md={24} xs={24}>
-        <h3 className="lo-order">Thành tiền: {formatMoney(30000000)}</h3>
-      </ShowPriceStyles>
+      <Form.Item
+        noStyle
+        shouldUpdate={(prevValues, curValues) => (
+          prevValues.quantity !== curValues.quantity
+          || prevValues.discountValue !== curValues.discountValue
+          || prevValues.discountUnit !== curValues.discountUnit
+          || prevValues.price !== curValues.price
+        )}
+      >	
+        {({ getFieldValue }) => {
+          const { sku, quantity, discountValue, discountUnit, price  } = getFieldValue();
+          const total = quantity * price;
+          const pOff = calPriceOff({ discountValue, discountUnit, total });
+          const totalAFD = total - pOff;
+          return (
+            <ShowPriceStyles md={24} xs={24}>
+              <h3 className="lo-order">Thành tiền: {formatMoney(sku ? (totalAFD > 0 ? totalAFD : 0) : 0)}</h3>
+            </ShowPriceStyles>
+          )
+        }}
+      </Form.Item>
+      
       <Col md={24} xs={24}>
         <FormTextArea 
           rows={3}
@@ -142,14 +175,31 @@ const ORderDetailForm = () => {
 }
 
 const HeadDetail = ({ details, currentCode }) => {
+
+  const { form, record } = useContext(FormContextCustom);
+  const onClick = useCallback((index) => {
+    const orderIndex = form.getFieldValue('orderIndex');
+    if( (orderIndex || 0) !== 0 && arrayNotEmpty(record?.details)) {
+      /* SeT value In Current Form */
+      form.setFieldsValue(record?.details[index] || {});
+    }
+    form.setFieldValue('orderIndex', index);
+  }, [form, record]);
+
 	return arrayEmpty(details) 
   ? <Tag size="small" style={{ cursor: "pointer" }} color={'#2db7f5'}>{ (details.length + 1) } - Cơ hội mới</Tag>
   : details.map((item, id) => {
     let color = item.code === currentCode ? '#2db7f5' : '#ccc';
     const newName = item.productName;
     return (
-      <Tag key={id} size="small" style={{ textAlign: 'center', cursor: "pointer" }} color={color}>
-        {item.code} {!newName ? '' : <span><br/>{newName}</span>}
+      <Tag 
+        onClick={()=> onClick(id)}
+        key={id} 
+        size="small" 
+        style={{ textAlign: 'center', cursor: "pointer" }} 
+        color={color}
+      >
+        {item.code} {!newName ? `${id + 1} Cơ hội mới` : <span><br/>{newName}</span>}
       </Tag>
     )
   })

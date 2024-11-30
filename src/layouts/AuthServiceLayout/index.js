@@ -1,6 +1,5 @@
 import { Layout } from 'antd';
 import IntroAuth from 'assets/images/intro-auth.svg';
-import ContentAuth from 'assets/images/content-auth.svg';
 import PublicLayoutWrapper from './styles';
 const { Content } = Layout;
 
@@ -8,7 +7,7 @@ const PublicLayout = ({ children }) => (
   <PublicLayoutWrapper>
     <Layout className="layout">
       <Content className="main-img">
-        <img src={ContentAuth} id="content" alt="Content Auth" />
+        <img src="/img-intro-login.png" id="content" alt="Content Auth" />
         <img src={IntroAuth} id="intro" alt="Intro Auth" />
       </Content>
       <div className="main-content">

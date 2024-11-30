@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Network from 'assets/images/network.png';
 
 const PublicLayoutWrapper = styled.div`
   .layout {
@@ -74,8 +73,7 @@ const PublicLayoutWrapper = styled.div`
     align-items: center;
     justify-content: center;
     border-radius: 20px;
-    background: url(${Network}),
-      linear-gradient(146.79deg, #34383d 8.65%, #1e2328 99.07%);
+    background: white;
     background-position: bottom right;
     background-repeat: no-repeat;
     height: 100%;

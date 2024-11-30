@@ -26,7 +26,7 @@ const Order = ({ closeModal, data }) => {
     log(data);
     let values = cloneDeep(data);
     if(arrayEmpty(values.details)) {
-      message.info("Can't create Product with empty skus .!");
+      message.info("Can't create Order with empty skus .!");
       return;
     }
     let params = (values?.id ?? '') === '' ? {} : { id: values.id };

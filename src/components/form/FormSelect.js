@@ -32,16 +32,11 @@ const FormSelect = ({
   isLimitWidth = false,
   ...props
 }) => {
+
   const { t } = useTranslation();
   const onSelectOption = useCallback((inputValue, option) => {
-    if (
-      onChangeSearch(
-        isObject(option.children)
-          ? get(option.children.props?.record, searchKey)
-          : option.children,
-        inputValue,
-      )
-    ) {
+    const data = isObject(option.children) ? get(option.children.props?.record, searchKey) : option.children;
+    if (onChangeSearch(data, inputValue)) {
       return option.value;
     }
     return null;
@@ -87,11 +82,8 @@ const FormSelect = ({
       label={t(label)}
       name={name}
       rules={[
-        {
-          required,
-          message: t(messageRequire),
-        },
-        ...rules,
+        { required, message: t(messageRequire)},
+        ...rules
       ]}
       initialValue={initialValue}
       {...formItemProps}

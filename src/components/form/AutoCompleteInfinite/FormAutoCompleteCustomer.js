@@ -6,7 +6,7 @@ const FormAutoCompleteCustomer = props => {
     <FormAutoCompleteInfinite
       useGetAllQuery={useGetAllCustomersSimpleQuery}
       name="customerId"
-      valueProp="id"
+      valueProp="name"
       titleProp="name"
       {...props}
     />

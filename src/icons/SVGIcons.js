@@ -29,7 +29,6 @@ import { ReactComponent as ICMessageText } from 'assets/icons/ic-message-text.sv
 import { ReactComponent as ICWalletMoney } from 'assets/icons/ic-wallet-money.svg';
 import { ReactComponent as ICSmsStar } from 'assets/icons/ic-sms-star.svg';
 import { ReactComponent as ICNotificationStatus } from 'assets/icons/ic-notification-status.svg';
-import { ReactComponent as ICPeople } from 'assets/icons/ic-people.svg';
 import { ReactComponent as ICNote } from 'assets/icons/ic-note.svg';
 import { ReactComponent as ICMessageTime } from 'assets/icons/ic-message-time.svg';
 import { ReactComponent as ICEmptyWalletTime } from 'assets/icons/ic-empty-wallet-time.svg';
@@ -66,10 +65,6 @@ export const MessageIcon = props => (
 
 export const NoteIcon = props => (
   <Icon {...props} component={ICNote} />
-);
-
-export const PeopleIcon = props => (
-  <Icon {...props} component={ICPeople} />
 );
 
 export const NotificationStatusIcon = props => (

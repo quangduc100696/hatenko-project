@@ -50,3 +50,13 @@ export const formatterInputNumber = (value) =>
 export const parserInputNumber = (value) => {
   return value ? value.replace(/\$\s?|(\.*)/g, '').replace(/(,{1})/g, '.') : '';
 };
+
+export const calPriceOff = ({ discountValue, discountUnit, total }) => {
+  if(!discountValue || !discountUnit) {
+    return 0;
+  }
+  if(discountUnit === "money") {
+    return discountValue;
+  }
+  return (discountValue * total) / 100;
+};
