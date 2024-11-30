@@ -79,9 +79,9 @@ const FormAutoComplete = ({
         { map(resourceData, (data, index) => (
           <Option
             key={String(index)}
-            value={formatValue(valueProp ? get(data, valueProp) : data, data)}
+            value={formatValue(valueProp ? get(data, valueProp) : data)}
           >
-            {formatText(titleProp ? get(data, titleProp) : data, data)}
+            {formatText(titleProp ? get(data, titleProp) : data)}
           </Option>
         ))}
         { loading && optionLoading }

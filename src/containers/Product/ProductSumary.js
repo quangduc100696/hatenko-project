@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row, Col } from 'antd';
-import { GiftTwoTone, StrikethroughOutlined } from "@ant-design/icons";
+import { GiftTwoTone, DollarOutlined } from "@ant-design/icons";
 import SkuView, { PriceView } from './SkuView';
 
 const ProductSumary = ({ data }) => {
@@ -23,7 +23,7 @@ const ProductSumary = ({ data }) => {
           <SkuView skus={data?.skus ?? []}/>
         </Col>
         <Col span={12}>
-          <p><StrikethroughOutlined style={{fontSize: 20}}/> Giá bán</p>
+          <p><DollarOutlined style={{fontSize: 20}}/> Giá bán</p>
           <PriceView skus={data?.skus ?? []}/>
         </Col>
       </Row>

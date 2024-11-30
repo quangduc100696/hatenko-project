@@ -5,31 +5,25 @@ import FormAutoCompleteInfinite from "components/form/AutoCompleteInfinite/FormA
 import FormInput from "components/form/FormInput";
 import FormInputNumber from "components/form/FormInputNumber";
 import FormSelect from "components/form/FormSelect";
-import { SUCCESS_CODE } from "configs";
 import { DISCOUNT_UNIT_CONST } from "configs/localData";
 import ProductSumary from "containers/Product/ProductSumary";
 import { useGetAllProductQuery } from "hooks/useData";
 import { useCallback, useContext } from "react";
 import { arrayEmpty, arrayNotEmpty, formatMoney } from "utils/dataUtils";
-import RequestUtils from "utils/RequestUtils";
 import CustomButton from 'components/CustomButton';
 import FormTextArea from "components/form/FormTextArea";
 import { ShowPriceStyles } from "./styles";
 import { calPriceOff } from "utils/tools";
 import { UserIcon } from "icons/SVGIcons";
 import FormHidden from "components/form/FormHidden";
+import ShowCustomerInfo from "containers/Customer/ShowCustomerInfo";
+import { useMount } from "hooks/MyHooks";
 
 const ORderDetailForm = () => {
   const { record, updateRecord } = useContext(FormContextCustom);
-  const onSelectProduct = useCallback((value) => {
-    RequestUtils.Get("/product/find-by-name", { name: value}).then( ({ data, errorCode }) => {
-      if(errorCode === SUCCESS_CODE && data?.id) {
-        updateRecord({ product: data});
-      }
-    })
-  }, [updateRecord]);
-
   return <>
+    <FormHidden name="id" />
+    <FormHidden name="detailId" />
     <FormHidden name="orderIndex" />
     <Form.Item 
       noStyle
@@ -42,11 +36,16 @@ const ORderDetailForm = () => {
     <Row gutter={16} style={{marginTop: 20}}>
       <Col md={12} xs={24}>
         <FormAutoCompleteCustomer 
+          name="customerName"
           required
           label="Khách hàng"
           searchKey="mobile"
           require
           placeholder="Tìm kiếm khách hàng"
+          customGetValueFromEvent={(value, customer) => {
+            updateRecord({customer});
+            return value;
+          }}
         />
       </Col>
       <Col md={12} xs={24}>
@@ -58,6 +57,9 @@ const ORderDetailForm = () => {
             icon={<UserIcon />}
           />
         </Form.Item>
+      </Col>
+      <Col md={24} xs={24}>
+        <ShowCustomerInfo customer={record?.customer ?? {}} />
       </Col>
       <Col md={24} xs={24}>
         <ProductSumary data={record?.product ?? {}} />
@@ -78,21 +80,15 @@ const ORderDetailForm = () => {
         <FormAutoCompleteInfinite 
           useGetAllQuery={useGetAllProductQuery}
           label="Sản phẩm"
-          name="productId"
+          name="productName"
           valueProp="name"
           searchKey="name"
           required
           placeholder="Tìm kiếm Sản phẩm"
-          onSelect={onSelectProduct}
-        />
-      </Col>
-      <Col md={12} xs={24}>
-        <FormInputNumber 
-          required
-          name="quantity"
-          label="Số lượng"
-          min="0" 
-          placeholder="Nhập Số lượng"
+          customGetValueFromEvent={(value, product) => {
+            updateRecord({product});
+            return value;
+          }}
         />
       </Col>
       <Col md={12} xs={24}>
@@ -102,6 +98,15 @@ const ORderDetailForm = () => {
           required
           resourceData={record?.product?.skus ?? []}
           placeholder="Chọn SKU"
+        />
+      </Col>
+      <Col md={12} xs={24}>
+        <FormInputNumber 
+          required
+          name="quantity"
+          label="Số lượng"
+          min="0" 
+          placeholder="Nhập Số lượng"
         />
       </Col>
       <Col md={12} xs={24}>
@@ -164,6 +169,7 @@ const ORderDetailForm = () => {
       <Col md={24} xs={24} style={{display: 'flex', justifyContent:'end', marginBottom: 20}}>
         <CustomButton htmlType="submit" />
         <CustomButton 
+          disabled={ (record?.id || 0) === 0}
           color="primary" 
           variant="outlined"
           title="Thêm cơ hội mới" 
@@ -179,12 +185,21 @@ const HeadDetail = ({ details, currentCode }) => {
   const { form, record } = useContext(FormContextCustom);
   const onClick = useCallback((index) => {
     const orderIndex = form.getFieldValue('orderIndex');
-    if( (orderIndex || 0) !== 0 && arrayNotEmpty(record?.details)) {
+    if( (orderIndex || 0) !== 0 && arrayNotEmpty(details)) {
       /* SeT value In Current Form */
-      form.setFieldsValue(record?.details[index] || {});
+      const entity = details[index] || {};
+      const { id, ...values } = entity;
+      form.setFieldsValue({detailId: entity?.id, ...values});
     }
     form.setFieldValue('orderIndex', index);
-  }, [form, record]);
+  }, [form, details]);
+
+  useMount(() => {
+    if(record?.id && arrayNotEmpty(details ?? [])) {
+      form.setFieldsValue({ detailId: details[0].id });
+    }
+    form.setFieldValue('orderIndex', 0);
+  });
 
 	return arrayEmpty(details) 
   ? <Tag size="small" style={{ cursor: "pointer" }} color={'#2db7f5'}>{ (details.length + 1) } - Cơ hội mới</Tag>

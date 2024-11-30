@@ -65,7 +65,7 @@ function useData({
 }
 
 export const useGetAllCustomersSimpleQuery = ({queryParams, onCompleted}) => 
-    useData({queryParams, onCompleted, api: 'customer/find-mobile'});
+    useData({queryParams, onCompleted, api: 'customer/find'});
 
 export const useGetAllBusinessUsersQuery = ({queryParams, onCompleted}) => 
     useData({queryParams, onCompleted, api: 'user/list'});
