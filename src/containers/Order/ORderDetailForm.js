@@ -8,7 +8,7 @@ import FormSelect from "components/form/FormSelect";
 import { DISCOUNT_UNIT_CONST, VAT_UNIT_CONST } from "configs/localData";
 import ProductSumary from "containers/Product/ProductSumary";
 import { useGetAllProductQuery } from "hooks/useData";
-import { useCallback, useContext } from "react";
+import { useContext } from "react";
 import { arrayEmpty, arrayNotEmpty, formatMoney } from "utils/dataUtils";
 import CustomButton from 'components/CustomButton';
 import FormTextArea from "components/form/FormTextArea";
@@ -20,14 +20,44 @@ import ShowCustomerInfo from "containers/Customer/ShowCustomerInfo";
 import { useMount } from "hooks/MyHooks";
 import FormRadioGroup from "components/form/FormRadioGroup";
 import OrderService from "services/OrderService";
+import { generateInForm } from "./utils";
+import { cloneDeep } from "lodash";
 
 const ORderDetailForm = () => {
   const { record, updateRecord } = useContext(FormContextCustom);
+  const onClickAddNewOrder = async () => {
+    if(arrayEmpty(record?.details ?? [])) {
+      return;
+    }
+    let nRecord = cloneDeep(record);
+    let details = nRecord.details;
+    let detail = cloneDeep(details[details.length - 1]);
+    if(detail.code === "New") {
+      return;
+    }
+    detail.id = "";
+    detail.code = "New"
+    detail.productName = "(Thêm cơ hội)"
+    detail.skuId = null;
+    detail.quantity = "";
+    detail.price = "";
+    detail.discount = {
+      discountUnit: null,
+      discountValue: ""
+    }
+    detail.note = "";
+    detail.name = "";
+    detail.status = null;
+
+    details.push(detail);
+    let rForm = await generateInForm(nRecord, details.length - 1);
+    updateRecord(rForm);
+  };
+
   return <>
     <FormHidden name="id" />
     <FormHidden name="detailCode" />
     <FormHidden name="detailId" />
-    <FormHidden name="orderIndex" />
     <Form.Item 
       noStyle
       shouldUpdate={ (prevValues, curValues) => prevValues.detailCode !== curValues.detailCode }
@@ -91,9 +121,9 @@ const ORderDetailForm = () => {
           searchKey="name"
           required
           placeholder="Tìm kiếm Sản phẩm"
-          customGetValueFromEvent={(value, product) => {
-            updateRecord({product});
-            return value;
+          customGetValueFromEvent={(productName, product) => {
+            updateRecord({product, productName});
+            return productName;
           }}
         />
       </Col>
@@ -202,6 +232,7 @@ const ORderDetailForm = () => {
           variant="outlined"
           title="Thêm cơ hội mới" 
           style={{marginLeft: 20}} 
+          onClick={() => onClickAddNewOrder()}
         />
       </Col>
     </Row>
@@ -210,21 +241,19 @@ const ORderDetailForm = () => {
 
 const HeadDetail = ({ details, currentCode }) => {
 
-  const { form, record } = useContext(FormContextCustom);
-  const onClick = useCallback((index) => {
+  const { form, record, updateRecord } = useContext(FormContextCustom);
+  const onClick = async (index) => {
     if(arrayNotEmpty(details)) {
       /* SeT value In Current Form */
-      const entity = details[index] || {};
-      const { id: detailId, code: detailCode, ...values } = entity;
-      form.setFieldsValue({detailId, detailCode, orderIndex: index, ...values });
+      let rForm = await generateInForm(record, index);
+      updateRecord(rForm);
     }
-  }, [form, details]);
+  };
 
   useMount(() => {
     if(record?.id && arrayNotEmpty(details ?? [])) {
       form.setFieldsValue({ detailId: details[0].id });
     }
-    form.setFieldValue('orderIndex', 0);
   });
 
 	return arrayEmpty(details) 

@@ -3,10 +3,11 @@ import { message } from 'antd';
 import RestEditModal from 'components/RestLayout/RestEditModal';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
-import { arrayEmpty, arrayNotEmpty, dataAsObj, decodeProperty, encodeProperty, f5List } from 'utils/dataUtils';
+import { arrayEmpty, encodeProperty, f5List } from 'utils/dataUtils';
 import OrderForm from './OrderForm';
 import ProductAttrService from 'services/ProductAttrService';
 import { cloneDeep, merge } from 'lodash';
+import { generateInForm } from './utils';
 
 const log = (value) => console.log('[container.order.index] ', value);
 const Order = ({ closeModal, data }) => {
@@ -14,40 +15,7 @@ const Order = ({ closeModal, data }) => {
   const [ record, setRecord ] = useState({});
   useEffect(() => {
     (async () => {
-      if(!data?.id) {
-        return;
-      }
-      let detail = {};
-      if(arrayNotEmpty(data?.details || [])) {
-        detail = data.details[0];
-        for(let item of data.details) {
-          delete item.total;
-          delete item.priceOff;
-        }
-      }
-      decodeProperty(detail, ['discount']);
-
-      const [ product, customer ] = await Promise.all([
-        RequestUtils.Get("/product/find-by-name", { name: detail?.productName }).then(dataAsObj),
-        RequestUtils.Get("/customer/find-id", { customerId: data.customerId }).then(dataAsObj)
-      ]);
-      const { id, vat, customerReceiverName: customerName, details } = data;
-      const { id: detailId, price, note, name, quantity, status, skuId } = detail;
-
-      let detailInForm = { 
-        name,
-        detailId, 
-        price, 
-        quantity,
-        skuId,
-        note,
-        detailCode: detail.code,
-        discountUnit: detail.discount?.discountUnit,
-        discountValue: detail.discount?.discountValue,
-        status
-      }
-      let rForm = { id, vat, customerName, product, customer, details, ...detailInForm }
-      rForm.productName = product.name;
+      let rForm = await generateInForm(data, 0);
       setRecord(rForm);
     })();
     return () => ProductAttrService.empty();
@@ -71,28 +39,38 @@ const Order = ({ closeModal, data }) => {
       vat: vat || 0,
       customer: record?.customer
     };
-    /* Loại bỏ detailCode, customerName, orderIndex */
-    const { detailId, detailCode, customerName, orderIndex, ...detail } = rest;
+    /* Loại bỏ detailCode, customerName */
+    const { detailId, detailCode, customerName, ...detail } = rest;
 
     let details = record?.details ?? [];
     let entity = details.find(i => i.id === detailId) || {};
-    if(!entity?.id) {
+    if(!entity?.id && detailId !== "") {
       details.push(entity);
     }
     
     entity.productId = product.id;
     entity.skuInfo = product?.skus?.find(s => s.id === rest.skuId)?.skuDetail ?? [];
     entity.discount = discount;
-    
+
+    /* Xoá Id, code cho đơn thêm mới */
+    if(detailId === "") {
+      delete entity.id;
+      delete entity.code;
+    }
+
     encodeProperty(entity, ['skuInfo', 'discount']);
     merge(entity, detail); /* Copy detail to entity */
-    
+    if(!discountValue) {
+      delete entity.discount;
+    }
+
     input.details = details;
     log(input);
     if(arrayEmpty(input.details)) {
       message.info("Can't create Order with empty skus .!");
       return;
     }
+    
     let params = (input?.id ?? '') === '' ? {} : { id: input.id };
     const { errorCode } = await RequestUtils.Post("/order/save", input, params);
     const isSuccess = errorCode === 200;

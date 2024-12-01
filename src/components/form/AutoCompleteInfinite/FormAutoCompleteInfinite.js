@@ -13,8 +13,8 @@ const FormAutoCompleteInfinite = ({
   customValue,
   ...props
 }) => {
-  const { record } = useContext(FormContextCustom);
 
+  const { record } = useContext(FormContextCustom);
   const defaultValue = useMemo(
     () => customValue || get(record, props.name),
     /* eslint-disable-next-line */
