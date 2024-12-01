@@ -58,9 +58,9 @@ export const DISCOUNT_UNIT_CONST = [
 export const DISCOUNT_MAP_KEYS = mapKeys(DISCOUNT_UNIT_CONST, 'value');
 
 export const VAT_UNIT_CONST = [
-  { text: '8%', value: '8'},
-  { text: '10%', value: '10'},
-  { text: 'K.Vat', value: '0'}
+  { text: '8%', value: 8 },
+  { text: '10%', value: 10 },
+  { text: 'K.Vat', value: 0 }
 ]
 export const PAYMENT_STATUS_CONST = {
   unpaid: { text: 'bookings.unpaid', value: 'UNPAID', color: 'red' },

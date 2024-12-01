@@ -25,14 +25,15 @@ const ORderDetailForm = () => {
   const { record, updateRecord } = useContext(FormContextCustom);
   return <>
     <FormHidden name="id" />
+    <FormHidden name="detailCode" />
     <FormHidden name="detailId" />
     <FormHidden name="orderIndex" />
     <Form.Item 
       noStyle
-      shouldUpdate={ (prevValues, curValues) => prevValues.code !== curValues.code }
+      shouldUpdate={ (prevValues, curValues) => prevValues.detailCode !== curValues.detailCode }
     >
       {({ getFieldValue }) => (
-        <HeadDetail  details={record?.details ?? []} currentCode={getFieldValue('code')} />
+        <HeadDetail  details={record?.details ?? []} currentCode={getFieldValue('detailCode')} />
       )}
     </Form.Item>
     <Row gutter={16} style={{marginTop: 20}}>
@@ -211,14 +212,12 @@ const HeadDetail = ({ details, currentCode }) => {
 
   const { form, record } = useContext(FormContextCustom);
   const onClick = useCallback((index) => {
-    const orderIndex = form.getFieldValue('orderIndex');
-    if( (orderIndex || 0) !== 0 && arrayNotEmpty(details)) {
+    if(arrayNotEmpty(details)) {
       /* SeT value In Current Form */
       const entity = details[index] || {};
-      const { id, ...values } = entity;
-      form.setFieldsValue({detailId: entity?.id, ...values});
+      const { id: detailId, code: detailCode, ...values } = entity;
+      form.setFieldsValue({detailId, detailCode, orderIndex: index, ...values });
     }
-    form.setFieldValue('orderIndex', index);
   }, [form, details]);
 
   useMount(() => {

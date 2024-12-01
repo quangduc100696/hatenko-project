@@ -41,6 +41,7 @@ const Order = ({ closeModal, data }) => {
         quantity,
         skuId,
         note,
+        detailCode: detail.code,
         discountUnit: detail.discount?.discountUnit,
         discountValue: detail.discount?.discountValue,
         status
@@ -70,8 +71,8 @@ const Order = ({ closeModal, data }) => {
       vat: vat || 0,
       customer: record?.customer
     };
-    /* Loại bỏ customerName và orderIndex */
-    const { detailId, customerName, orderIndex, ...detail } = rest;
+    /* Loại bỏ detailCode, customerName, orderIndex */
+    const { detailId, detailCode, customerName, orderIndex, ...detail } = rest;
 
     let details = record?.details ?? [];
     let entity = details.find(i => i.id === detailId) || {};
