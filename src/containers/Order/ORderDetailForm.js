@@ -5,7 +5,7 @@ import FormAutoCompleteInfinite from "components/form/AutoCompleteInfinite/FormA
 import FormInput from "components/form/FormInput";
 import FormInputNumber from "components/form/FormInputNumber";
 import FormSelect from "components/form/FormSelect";
-import { DISCOUNT_UNIT_CONST } from "configs/localData";
+import { DISCOUNT_UNIT_CONST, VAT_UNIT_CONST } from "configs/localData";
 import ProductSumary from "containers/Product/ProductSumary";
 import { useGetAllProductQuery } from "hooks/useData";
 import { useCallback, useContext } from "react";
@@ -18,6 +18,7 @@ import { UserIcon } from "icons/SVGIcons";
 import FormHidden from "components/form/FormHidden";
 import ShowCustomerInfo from "containers/Customer/ShowCustomerInfo";
 import { useMount } from "hooks/MyHooks";
+import FormRadioGroup from "components/form/FormRadioGroup";
 
 const ORderDetailForm = () => {
   const { record, updateRecord } = useContext(FormContextCustom);
@@ -34,13 +35,12 @@ const ORderDetailForm = () => {
       )}
     </Form.Item>
     <Row gutter={16} style={{marginTop: 20}}>
-      <Col md={12} xs={24}>
+      <Col md={8} xs={24}>
         <FormAutoCompleteCustomer 
           name="customerName"
           required
           label="Khách hàng"
           searchKey="mobile"
-          require
           placeholder="Tìm kiếm khách hàng"
           customGetValueFromEvent={(value, customer) => {
             updateRecord({customer});
@@ -48,7 +48,7 @@ const ORderDetailForm = () => {
           }}
         />
       </Col>
-      <Col md={12} xs={24}>
+      <Col md={8} xs={24}>
         <Form.Item label={<span/>}>
           <CustomButton 
             color="default" 
@@ -57,6 +57,15 @@ const ORderDetailForm = () => {
             icon={<UserIcon />}
           />
         </Form.Item>
+      </Col>
+      <Col md={8} xs={24}>
+        <FormRadioGroup 
+          label="Chọn VAT"
+          name="vat"
+          titleProp="text"
+          valueProp="value"
+          resourceData={VAT_UNIT_CONST}
+        />
       </Col>
       <Col md={24} xs={24}>
         <ShowCustomerInfo customer={record?.customer ?? {}} />
@@ -93,7 +102,7 @@ const ORderDetailForm = () => {
       </Col>
       <Col md={12} xs={24}>
         <FormSelect 
-          name="sku"
+          name="skuId"
           label="SKU"
           required
           resourceData={record?.product?.skus ?? []}
@@ -146,13 +155,13 @@ const ORderDetailForm = () => {
         )}
       >	
         {({ getFieldValue }) => {
-          const { sku, quantity, discountValue, discountUnit, price  } = getFieldValue();
+          const { skuId, quantity, discountValue, discountUnit, price  } = getFieldValue();
           const total = quantity * price;
           const pOff = calPriceOff({ discountValue, discountUnit, total });
           const totalAFD = total - pOff;
           return (
             <ShowPriceStyles md={24} xs={24}>
-              <h3 className="lo-order">Thành tiền: {formatMoney(sku ? (totalAFD > 0 ? totalAFD : 0) : 0)}</h3>
+              <h3 className="lo-order">Thành tiền: {formatMoney(skuId ? (totalAFD > 0 ? totalAFD : 0) : 0)}</h3>
             </ShowPriceStyles>
           )
         }}

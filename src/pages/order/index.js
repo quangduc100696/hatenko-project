@@ -7,7 +7,7 @@ import Filter from './Filter';
 import { Button } from 'antd';
 import { InAppEvent } from "utils/FuseUtils";
 import { HASH_MODAL } from 'configs';
-import { arrayEmpty, dateFormatOnSubmit, formatTime } from 'utils/dataUtils';
+import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
 import { cloneDeep } from 'lodash';
 
 const Order = () => {
@@ -30,23 +30,23 @@ const Order = () => {
 		{
       title:"Mã đơn",
       dataIndex:'code',
-      width:100
+      width:150
     },
 		{
       title:"Nhân viên",
-      dataIndex:'userCreate',
+      dataIndex:'userCreateUsername',
       width:120,
       ellipsis: true
     },
     {
       title:"K.Hàng",
-      dataIndex:'type',
+      dataIndex:'customerReceiverName',
       width:200,
       ellipsis: true
     },
 		{
       title:"Số ĐT",
-      dataIndex:'userCheck',
+      dataIndex:'customerMobilePhone',
       width:150,
       ellipsis: true
     },
@@ -58,15 +58,17 @@ const Order = () => {
     },
 		{
       title:"Đơn giá",
-      dataIndex:'startedAt',
+      dataIndex:'subtotal',
       width:150,
-      ellipsis: true
+      ellipsis: true,
+      render: (subtotal) => formatMoney(subtotal)
     },
     {
       title:"Giảm giá",
-      dataIndex:'startedAt',
+      dataIndex:'priceOff',
       width:150,
-      ellipsis: true
+      ellipsis: true,
+      render: (priceOff) => formatMoney(priceOff)
     },
     {
       title:"VAT",
@@ -76,15 +78,17 @@ const Order = () => {
     },
     {
       title:"Tổng đơn",
-      dataIndex:'endAt',
+      dataIndex:'total',
       width:150,
-      ellipsis: true
+      ellipsis: true,
+      render: (total) => formatMoney(total)
     },
     {
       title:"Thanh toán",
-      dataIndex:'endAt',
+      dataIndex:'paid',
       width:150,
-      ellipsis: true
+      ellipsis: true,
+      render: (paid) => formatMoney(paid)
     },
     {
       title:"Created",
