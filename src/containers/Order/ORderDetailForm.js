@@ -19,6 +19,7 @@ import FormHidden from "components/form/FormHidden";
 import ShowCustomerInfo from "containers/Customer/ShowCustomerInfo";
 import { useMount } from "hooks/MyHooks";
 import FormRadioGroup from "components/form/FormRadioGroup";
+import OrderService from "services/OrderService";
 
 const ORderDetailForm = () => {
   const { record, updateRecord } = useContext(FormContextCustom);
@@ -37,6 +38,7 @@ const ORderDetailForm = () => {
     <Row gutter={16} style={{marginTop: 20}}>
       <Col md={8} xs={24}>
         <FormAutoCompleteCustomer 
+          filterField="name"
           name="customerName"
           required
           label="Khách hàng"
@@ -77,18 +79,12 @@ const ORderDetailForm = () => {
           <div className="line-dash"></div>
         </div>
       </Col>
-      <Col md={24} xs={24}>
-        <FormInput 
-          required
-          name="name" 
-          label="Tên đơn"
-          placeholder="Nhập tên đơn"
-        />
-      </Col>
+      
       <Col md={12} xs={24}>
         <FormAutoCompleteInfinite 
           useGetAllQuery={useGetAllProductQuery}
           label="Sản phẩm"
+          filterField="name"
           name="productName"
           valueProp="name"
           searchKey="name"
@@ -109,6 +105,7 @@ const ORderDetailForm = () => {
           placeholder="Chọn SKU"
         />
       </Col>
+
       <Col md={12} xs={24}>
         <FormInputNumber 
           required
@@ -127,6 +124,7 @@ const ORderDetailForm = () => {
           placeholder="Nhập Đơn giá"
         />
       </Col>
+
       <Col md={12} xs={24}>
         <FormSelect 
           name="discountUnit"
@@ -145,6 +143,7 @@ const ORderDetailForm = () => {
           placeholder="Nhập giá trị"
         />
       </Col>
+
       <Form.Item
         noStyle
         shouldUpdate={(prevValues, curValues) => (
@@ -175,6 +174,25 @@ const ORderDetailForm = () => {
           placeholder="Nhập ghi chú"
         />
       </Col>
+
+      <Col md={12} xs={24}>
+        <FormInput 
+          required
+          name="name" 
+          label="Tên đơn"
+          placeholder="Nhập tên đơn"
+        />
+      </Col>
+      <Col md={12} xs={24}>
+        <FormSelect 
+          resourceData={OrderService.allStatus}
+          required
+          name="status" 
+          label="Trạng thái"
+          placeholder="Chọn trạng thái"
+        />
+      </Col>
+
       <Col md={24} xs={24} style={{display: 'flex', justifyContent:'end', marginBottom: 20}}>
         <CustomButton htmlType="submit" />
         <CustomButton 

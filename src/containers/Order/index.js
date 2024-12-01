@@ -3,7 +3,7 @@ import { message } from 'antd';
 import RestEditModal from 'components/RestLayout/RestEditModal';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
-import { arrayEmpty, arrayNotEmpty, encodeProperty, f5List } from 'utils/dataUtils';
+import { arrayEmpty, arrayNotEmpty, dataAsObj, decodeProperty, encodeProperty, f5List } from 'utils/dataUtils';
 import OrderForm from './OrderForm';
 import ProductAttrService from 'services/ProductAttrService';
 import { cloneDeep, merge } from 'lodash';
@@ -14,10 +14,40 @@ const Order = ({ closeModal, data }) => {
   const [ record, setRecord ] = useState({});
   useEffect(() => {
     (async () => {
-      if(arrayNotEmpty(data?.details || [])) {
-
+      if(!data?.id) {
+        return;
       }
-      setRecord(data);
+      let detail = {};
+      if(arrayNotEmpty(data?.details || [])) {
+        detail = data.details[0];
+        for(let item of data.details) {
+          delete item.total;
+          delete item.priceOff;
+        }
+      }
+      decodeProperty(detail, ['discount']);
+
+      const [ product, customer ] = await Promise.all([
+        RequestUtils.Get("/product/find-by-name", { name: detail?.productName }).then(dataAsObj),
+        RequestUtils.Get("/customer/find-id", { customerId: data.customerId }).then(dataAsObj)
+      ]);
+      const { id, vat, customerReceiverName: customerName, details } = data;
+      const { id: detailId, price, note, name, quantity, status, skuId } = detail;
+
+      let detailInForm = { 
+        name,
+        detailId, 
+        price, 
+        quantity,
+        skuId,
+        note,
+        discountUnit: detail.discount?.discountUnit,
+        discountValue: detail.discount?.discountValue,
+        status
+      }
+      let rForm = { id, vat, customerName, product, customer, details, ...detailInForm }
+      rForm.productName = product.name;
+      setRecord(rForm);
     })();
     return () => ProductAttrService.empty();
   }, [data]);
@@ -48,15 +78,16 @@ const Order = ({ closeModal, data }) => {
     if(!entity?.id) {
       details.push(entity);
     }
-    input.details = details;
+    
     entity.productId = product.id;
     entity.skuInfo = product?.skus?.find(s => s.id === rest.skuId)?.skuDetail ?? [];
     entity.discount = discount;
-
+    
     encodeProperty(entity, ['skuInfo', 'discount']);
     merge(entity, detail); /* Copy detail to entity */
+    
+    input.details = details;
     log(input);
-
     if(arrayEmpty(input.details)) {
       message.info("Can't create Order with empty skus .!");
       return;

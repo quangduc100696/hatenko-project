@@ -21,7 +21,7 @@ export const dataArray = (ret) => {
     return errorCode === 200 ? data : [];
 }
 
-export const dataObj = (ret) => {
+export const dataAsObj = (ret) => {
     const { errorCode, data } = ret;
     return errorCode === 200 ? data : {};
 }

@@ -4,11 +4,13 @@ import useGetList from "hooks/useGetList";
 import { Helmet } from "react-helmet";
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import Filter from './Filter';
-import { Button } from 'antd';
+import { Button, Typography } from 'antd';
 import { InAppEvent } from "utils/FuseUtils";
 import { HASH_MODAL } from 'configs';
 import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
 import { cloneDeep } from 'lodash';
+import OrderService from 'services/OrderService';
+import { DetailsStyle } from './styles';
 
 const Order = () => {
 
@@ -52,9 +54,10 @@ const Order = () => {
     },
 		{
       title:"Sản Phẩm",
-      dataIndex:'userAppoved',
+      dataIndex:'details',
       width:150,
-      ellipsis: true
+      ellipsis: true,
+      render: (details) => <ProductInOder details={details} action="name"/>
     },
 		{
       title:"Đơn giá",
@@ -98,9 +101,11 @@ const Order = () => {
 			render: (createdAt) => formatTime(createdAt)
     },
 		{
-      title:"Status",
-      dataIndex:'status',
-      ellipsis: true
+      title:"Trạng thái",
+      dataIndex:'details',
+      width:150,
+      ellipsis: true,
+      render: (details) => <ProductInOder details={details} action="status"/>
     },
 		{
       title:"",
@@ -145,6 +150,21 @@ const Order = () => {
 			/>
 		</>
 	)
+}
+
+const ProductInOder = ({ details, action }) => {
+  if(arrayEmpty(details)) {
+    return '(No Content)';
+  }
+  return details.map( (item, key) => (
+    <DetailsStyle key={key}>
+      <Typography.Paragraph>
+        <Typography.Text style={{color: OrderService.statusColor(item.status)}}>
+          { action === 'status' ? OrderService.statusName(item.status) : `${ key + 1} - ${item.productName}`}
+        </Typography.Text>
+      </Typography.Paragraph>
+    </DetailsStyle>
+  ));
 }
 
 export default Order;

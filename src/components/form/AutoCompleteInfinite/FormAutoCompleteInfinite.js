@@ -18,7 +18,7 @@ const FormAutoCompleteInfinite = ({
   const defaultValue = useMemo(
     () => customValue || get(record, props.name),
     /* eslint-disable-next-line */
-  [] );
+  [record] );
 
   const { onSearch, fetchMoreDefaultValue, loading, resourceData } = useInfinite({
     initialFilter,
