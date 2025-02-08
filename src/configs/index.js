@@ -1,7 +1,7 @@
 
 export const SUCCESS_CODE = 200;
 const GATE_EVN = {
-  Loc: 'http://127.0.0.1:9765',
+  Loc: 'http://103.153.69.109:9765',
   Pro: 'https://api.open.flast.vn'
 };
 export const GATEWAY = GATE_EVN['Loc'];

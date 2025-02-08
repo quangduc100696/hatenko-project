@@ -114,7 +114,7 @@ const Index = () => {
       attrsValuesId = item.listProperties.map(i => i.attributedValueId).filter(i => i && i > 0);
     }
     ProductAttrService.loadByIds(attrsId);
-    ProductAttrService.loadValueByIds(attrsValuesId);
+    ProductAttrService.loadValueByIds(attrsValuesId);    
     return values;
   }, []);
 

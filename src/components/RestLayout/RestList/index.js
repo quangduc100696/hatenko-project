@@ -50,7 +50,7 @@ const RestList = ({
   };
 
   const onClearFilter = () => {
-    const initFilter = { resource, page: 1, limit: 10 };
+    const initFilter = {apiPath: queryParams.apiPath, resource, page: 1, limit: 10 };    
     setQueryParams(initFilter);
     navigate({ search: convertObjToSearchStr(initFilter) });
   };
