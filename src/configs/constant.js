@@ -36,6 +36,12 @@ export const STATUS_LEAD = {
   THANH_CO_HOI: 7
 }
 
+export const SERVICE_ID = {
+  PRINTGO: 1,
+  PAKGO: 2,
+  GIFGO: 3,
+}
+
 export const getSource = (option) => {
   switch (option) {
     case SOURCE.FACEBOOK:
@@ -70,17 +76,51 @@ export const getSource = (option) => {
 export const getStatusLead = (option) => {
   switch (option) {
     case STATUS_LEAD.CREATE_DATA:
-      return 'Tạo dữ liệu';
+      return ' Chưa liên hệ';
     case STATUS_LEAD.DO_NOT_MANUFACTORY:
-      return 'Không sản xuất';
+      return 'Không triển khai';
     case STATUS_LEAD.IS_CONTACT:
-      return 'Đang liên lạc';
+      return ' Đang tư vấn';
     case STATUS_LEAD.CONTACT_LATER:
       return 'Liên hệ sau';
     case STATUS_LEAD.KO_LIEN_HE_DUOC:
       return 'Không liên hệ được';
     case STATUS_LEAD.THANH_CO_HOI:
       return 'Thành cơ hội';
+    default:
+      return 'N/A';
+  }
+}
+
+export const getColorStatusLead = (option) => {
+  switch (option) {
+    case STATUS_LEAD.CREATE_DATA:
+      return '#f50';
+    case STATUS_LEAD.DO_NOT_MANUFACTORY:
+      return '#2db7f5';
+    case STATUS_LEAD.IS_CONTACT:
+      return '#87d068';
+    case STATUS_LEAD.CONTACT_LATER:
+      return '#108ee9';
+    case STATUS_LEAD.KO_LIEN_HE_DUOC:
+      return 'error';
+    case STATUS_LEAD.THANH_CO_HOI:
+      return 'green';
+    default:
+      return 'N/A';
+  }
+}
+
+
+
+export const getStatusService = (option) => {
+  switch (option) {
+    case SERVICE_ID.PRINTGO:
+      return 'Printgo';
+    case SERVICE_ID.PAKGO:
+      return 'Pakgo';
+    case SERVICE_ID.GIFGO:
+      return 'Gifgo';
     default:
       return 'N/A';
   }

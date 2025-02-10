@@ -19,16 +19,15 @@ const resourceData = [
 ]
 
 const statusData = [
-  { id: STATUS_LEAD.CREATE_DATA, name: 'Chưa liên hệ' },
-  { id: STATUS_LEAD.DO_NOT_MANUFACTORY, name: 'Không triển khai' },
-  { id: STATUS_LEAD.IS_CONTACT, name: 'Đang tư vấn' },
+  { id: STATUS_LEAD.CREATE_DATA, name: 'Tạo dữ liệu' },
+  { id: STATUS_LEAD.DO_NOT_MANUFACTORY, name: 'Không sản xuất' },
+  { id: STATUS_LEAD.IS_CONTACT, name: 'Đang liên lạc' },
   { id: STATUS_LEAD.CONTACT_LATER, name: 'Liên hệ sau' },
   { id: STATUS_LEAD.KO_LIEN_HE_DUOC, name: 'Không liên hệ được' },
   { id: STATUS_LEAD.THANH_CO_HOI, name: 'Thành cơ hội' },
 ]
 
 const LeadFilter = () => {
-
   return (
     <>
       <Row gutter={16}>

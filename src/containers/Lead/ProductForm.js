@@ -8,6 +8,7 @@ import { SOURCE } from 'configs/constant';
 import Dragger from 'antd/es/upload/Dragger';
 import FormTextArea from 'components/form/FormTextArea';
 import RequestUtils from 'utils/RequestUtils';
+import { GATEWAY } from 'configs';
 
 const resourceData = [
   { id: SOURCE.FACEBOOK, name: 'Facebook' },
@@ -24,8 +25,10 @@ const resourceData = [
   { id: SOURCE.TIKTOK, name: 'Tiktok' },
 ]
 
-const ProductForm = ({ setNewFile }) => {
+const ProductForm = ({ setNewFile, dataUpdate }) => {
   const [province, setProvince] = useState([])
+  const [serviceList, setServiceList] = useState([]);
+  const [listFile, setListFile ] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -35,8 +38,21 @@ const ProductForm = ({ setNewFile }) => {
         return { id: f?.id, name: f?.name }
       })
       setProvince(newData);
+      /* lấy danh sách dịch vụ */
+      const item = await RequestUtils.Get(`/service/list`);
+      const newItem = item?.data.map(f => {
+        return { id: f?.id, name: f?.name }
+      })
+      setServiceList(newItem)
+      if(dataUpdate) {
+        const { data } = await RequestUtils.Get(`/data/view?dataId=${dataUpdate?.id}`);
+        const newItem = data?.listFileUploads.map(f => {
+          return { uid: f?.id, status: "done", name: f?.file, url: `${GATEWAY}${f?.file}` }
+        })
+        setListFile(newItem);
+      }
     })()
-  }, [])
+  }, [dataUpdate])
 
   /* Tải file mẫu */
   const props = {
@@ -82,7 +98,7 @@ const ProductForm = ({ setNewFile }) => {
       <Col md={12} xs={24}>
         <FormSelect
           required
-          name="province"
+          name="provinceName"
           label="Tỉnh / TP"
           placeholder="Chọn Tỉnh / TP"
           resourceData={province || []}
@@ -102,11 +118,14 @@ const ProductForm = ({ setNewFile }) => {
         />
       </Col>
       <Col md={24} xs={24}>
-        <FormInput
+        <FormSelect
           required
-          label="Dịch vụ"
           name="serviceId"
-          placeholder={"Chọn dịch vụ"}
+          label="Dịch vụ"
+          placeholder="Chọn dịch vụ"
+          resourceData={serviceList || []}
+          valueProp="id"
+          titleProp="name"
         />
       </Col>
       <Col md={12} xs={24}>
@@ -134,7 +153,7 @@ const ProductForm = ({ setNewFile }) => {
         />
       </Col>
       <Col md={24} xs={24} style={{ marginTop: 10 }}>
-        <Dragger {...props}>
+        <Dragger {...props} multiple={true} fileList={listFile}>
           <p className="ant-upload-text">Tải file mẫu</p>
           <p className="ant-upload-drag-icon">
             Bấm vào đây để tải file mẫu của khách hàng

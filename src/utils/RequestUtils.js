@@ -24,7 +24,7 @@ class RequestUtils {
             getOrPost = axios.get(_uri + this.encodeQueryData(input));
         } else {
             getOrPost = axios.post(_uri + this.encodeQueryData(params), input);
-        }
+        } 
         return getOrPost.then(({ data }) => {
             return data;
         }).catch( (response) => {

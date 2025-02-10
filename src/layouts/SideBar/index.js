@@ -5,7 +5,8 @@ import {
   PieChartOutlined, GroupOutlined, BarChartOutlined, ContainerOutlined,
   RiseOutlined, PullRequestOutlined, UngroupOutlined, DollarCircleFilled,
   OrderedListOutlined, DeploymentUnitOutlined,
-  FileAddOutlined
+  FileAddOutlined,
+  ScheduleOutlined
 } from '@ant-design/icons';
 
 import { ConfigFIcon, CustomerFIcon, DashboardFIcon, IncomeFIcon, ReportFIcon, ReservationFIcon } from 'icons/FontIcons';
@@ -30,8 +31,14 @@ function SideBar() {
     getItem(<Link to="/sale/dashboard">Tình trạng đơn</Link>, 'dashboard', <ControlOutlined />),
 		getItem(<Link to="/project/list">Dự án</Link>, 'project_list', <PieChartOutlined />),
 		// getItem(<Link to="/sale/list-data/tong-lead">Lead</Link>, 'tong_lead', <FolderOpenOutlined />),
-    getItem('Lead', 'tong_lead', <FolderOpenOutlined /> , [
-			getItem(<Link to="/lead">Lead mới</Link>, 'newLead', <FileAddOutlined />),
+    getItem('Lead mới', 'tong_lead', <FolderOpenOutlined /> , [
+			getItem(<Link to="/lead">Lead</Link>, 'newLead', <FileAddOutlined />),
+		]),
+    getItem('Chưa chăm sóc', 'lead_not_taken', <ScheduleOutlined />, [
+			getItem(<Link to="/customer-service/lead">Lead</Link>, 'lead_not_taken_child', <FileAddOutlined />),
+		]),
+    getItem('Đã chăm sóc', 'lead_taken', <ScheduleOutlined />, [
+			getItem(<Link to="/customer-lead/lead">Lead</Link>, 'lead_taken_child', <FileAddOutlined />),
 		]),
 		getItem(<Link to="/sale/co-hoi"> Cơ hội</Link>, 'co_hoi', <IncomeFIcon />),
 		getItem(<Link to="/sale/order"> Đơn hàng</Link>, 'list_order', <UnorderedListOutlined />),

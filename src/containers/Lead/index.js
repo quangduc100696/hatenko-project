@@ -32,20 +32,39 @@ const NewLead = ({ closeModal, data }) => {
     return () => ProductAttrService.empty();
   }, [data]);
   
-  const onSubmit = async (data) => {
-    log(data);
-    if(!newFile?.sessionId) {
-      InAppEvent.normalInfo("Bạn cần tải file trước khi tạo Lead");
-    }
-    const newData = await RequestUtils.Post(`/data/create?sessionId=${newFile?.sessionId}`, data);
-    const isSuccess = newData?.errorCode === 200;
+  const onSubmit = async (dataCreate) => {
+    log(dataCreate);
+    if(data) {
+      const param = {
+        ...data,
+        provinceName: data?.provinceName || dataCreate?.provinceName,
+        customerName: data?.customerName ||  data?.customerName,
+        customerMobile: data?.customerMobile || data?.customerMobile,
+        source: data?.source || dataCreate?.source,
+        serviceId: !data?.serviceId ? dataCreate?.serviceId : data?.serviceId,
+        customerEmail: data?.customerEmail || data?.customerEmail,
+        customerFacebook: data?.customerFacebook || data?.customerFacebook,
+        staff: data?.staff || dataCreate?.staff,
+        note: data?.note || dataCreate?.note,
+      };
+      const result = await RequestUtils.Post(`/data/update?leadId=${data?.id}`, param);
+      if(result?.errorCode === 200) {
+        InAppEvent.normalSuccess("Update thành công");
+        InAppEvent.emit(HASH_MODAL_CLOSE);
+      }
+    } else {
+      if(!newFile?.sessionId) {
+        InAppEvent.normalInfo("Bạn cần tải file trước khi tạo Lead");
+      }
+      const newData = await RequestUtils.Post(`/data/create?sessionId=${newFile?.sessionId}`, dataCreate);
+      const isSuccess = newData?.errorCode === 200;
       if(isSuccess) {
         f5List('data/lists');
         InAppEvent.normalSuccess("Cập nhật thành công");
         InAppEvent.emit(HASH_MODAL_CLOSE);
       }
-  };
-
+    }
+  }
   return <>
     <RestEditModal
       isMergeRecordOnSubmit={false}
@@ -54,7 +73,7 @@ const NewLead = ({ closeModal, data }) => {
       record={record}
       closeModal={closeModal}
     >
-      <ProductForm setNewFile={setNewFile}/>
+      <ProductForm setNewFile={setNewFile} dataUpdate={data}/>
     </RestEditModal>
   </>
 }

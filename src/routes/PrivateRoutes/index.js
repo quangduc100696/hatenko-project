@@ -6,6 +6,8 @@ import { LoginConfig } from './AuthConfig';
 import { HomeConfig } from './HomeConfig';
 import { ProductConfig } from './ProductConfig';
 import { LeadConfig } from './LeadConfig';
+import { LeadNotTakeConfig } from './LeadNotTakeConfig'
+import { LeadTookCareConfig } from './LeadTookCareConfig';
 
 const OrderPage = React.lazy(() => import('pages/order'));
 const SaleConfig = {
@@ -20,7 +22,9 @@ const routeConfigs = [
     ProductConfig,
     SaleConfig,
     HomeConfig,
-    LeadConfig
+    LeadConfig,
+    LeadNotTakeConfig,
+    LeadTookCareConfig
 ];
 
 const routes = [
