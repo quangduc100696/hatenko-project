@@ -5,11 +5,13 @@ import DrawerCustom from 'components/DrawerCustom';
 import ProductRoute from './ProductRoute.js';
 import OrderRoute from './OrderRoute';
 import LeadRoute from './LeadRouter.js';
+import LeadNotTakeRouter from './LeadNotTakeRouter.js';
 
 const modalRoutes = [
   ...ProductRoute,
   ...OrderRoute,
-  ...LeadRoute
+  ...LeadRoute,
+  ...LeadNotTakeRouter
 ]
 const log = (key, val) => console.log('[routes.draw-routes] ' + key + ' ', val);
 const notFoundHash = { Component: () => <div /> };

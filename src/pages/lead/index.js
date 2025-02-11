@@ -16,6 +16,7 @@ import FormSelect from 'components/form/FormSelect';
 
 const LeadPage = () => {
 
+  const [form] = Form.useForm();
   const [title] = useState("Danh sách Lead");
   const [ listSale, setListSale ] = useState([]);
   const [ isOpen, setIsOpen ] = useState(false);
@@ -29,6 +30,10 @@ const LeadPage = () => {
       }
     })()
   }, [])
+
+  useEffect(() => {
+    form.setFieldsValue({saleId: detailRecord?.saleId})
+  },[form, detailRecord])
 
   const onEdit = (item) => {
     let title = 'Sửa lead mới # ' + item.id;
@@ -158,12 +163,13 @@ const LeadPage = () => {
             color="primary"
             size='small'
             variant="dashed"
+            style={{width: '60%'}}
             onClick={() => {
               setIsOpen(true);
               setDetailRecord(record)
             }}
           >
-            Tạo sale
+            {record?.saleId ? 'Chuyển sale' : 'Tạo sale'}
           </Button>
           <Button color="danger" variant="dashed" onClick={() => onEdit(record)} size='small'>Detail</Button>
         </div>
@@ -229,6 +235,7 @@ const LeadPage = () => {
           <Form
             name="basic"
             layout='vertical'
+            form={form}
             onFinish={onHandleSubmitSaleLead}
           >
             <FormSelect

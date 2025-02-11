@@ -15,6 +15,7 @@ const RestList = ({
   initialFilter,
   tabKey,
   resource,
+  hasCreate = true,
   tabProps = 'model',
   ...props
 }) => {
@@ -71,6 +72,7 @@ const RestList = ({
         queryParams={queryParams}
         handleChangeQueryParams={handleChangeQueryParams}
         columns={columns}
+        hasCreate={hasCreate}
         data={data?.embedded || []}
         totalItems={data?.page?.totalElements ?? 0}
         loading={loading}

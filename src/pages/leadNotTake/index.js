@@ -5,25 +5,26 @@ import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './LeadFilter';
 import useGetList from "hooks/useGetList";
 import { Button, Tag } from 'antd';
-import { arrayEmpty, dateFormatOnSubmit, formatTime } from 'utils/dataUtils';
-import { getSource, getStatusLead, getStatusService } from 'configs/constant';
+import { arrayEmpty, dateFormatOnSubmit } from 'utils/dataUtils';
+import { getColorStatusLead, getSource, getStatusLead, getStatusService } from 'configs/constant';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
+import { cloneDeep } from 'lodash';
 
 const LeadNotTakePage = () => {
 
   const [title] = useState("Danh sách Lead");
 
   const onEdit = (item) => {
-    // let title = 'Sửa sản phẩm # ' + item.id;
-    // let hash = '#draw/product.edit';
-    // let data = cloneDeep(item);
-    // let skus = [], listProperties = [];
+    let title = 'Tạo lead chăm sóc# ' + item.id;
+    let hash = '#draw/leadNotTake.edit';
+    let data = cloneDeep(item);
+    InAppEvent.emit(HASH_MODAL, { hash, title, data });
   }
 
   const CUSTOM_ACTION = [
     {
-      title: "NV",
+      title: "Create",
       dataIndex: 'staff',
       width: 100
     },
@@ -61,7 +62,7 @@ const LeadNotTakePage = () => {
       render: (item) => {
         return (
           <div>
-            {formatTime(item?.inTime)}
+            {dateFormatOnSubmit(item?.inTime)}
           </div>
         )
       }
@@ -113,7 +114,7 @@ const LeadNotTakePage = () => {
       render: (item) => {
         return (
           <div>
-            {getStatusLead(item?.status)}
+            <Tag color={getColorStatusLead(item?.status)}>{getStatusLead(item?.status)}</Tag>
           </div>
         )
       }
@@ -136,7 +137,9 @@ const LeadNotTakePage = () => {
       width: 100,
       fixed: 'right',
       render: (record) => (
-        <Button color="danger" variant="dashed" onClick={() => onEdit(record)} size='small'>Detail</Button>
+        <Button color="danger" variant="dashed" onClick={() => onEdit(record)} size='small'>
+          Tạo lead
+        </Button>
       )
     }
   ];
@@ -153,11 +156,9 @@ const LeadNotTakePage = () => {
       return values;
     }, []);
 
-  const onCreateLead = () => InAppEvent.emit(HASH_MODAL, {
-    hash: '#draw/lead.edit',
-    title: 'Tạo mới Lead',
-    data: {}
-  });
+  const onCreateLead = () => {
+
+  }
 
   return (
     <div>
@@ -174,6 +175,7 @@ const LeadNotTakePage = () => {
         filter={<LeadFilter />}
         beforeSubmitFilter={beforeSubmitFilter}
         useGetAllQuery={useGetList}
+        hasCreate={false}
         apiPath={'data/not-taken-care'}
         customClickCreate={onCreateLead}
         columns={CUSTOM_ACTION}

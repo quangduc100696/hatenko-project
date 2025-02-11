@@ -4,51 +4,23 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './LeadFilter';
 import useGetList from "hooks/useGetList";
-import { Button, Tag } from 'antd';
-import { arrayEmpty, dateFormatOnSubmit, formatTime } from 'utils/dataUtils';
-import { getSource, getStatusLead, getStatusService } from 'configs/constant';
-import { HASH_MODAL } from 'configs';
-import { InAppEvent } from 'utils/FuseUtils';
+import { Tag } from 'antd';
+import { arrayEmpty, dateFormatOnSubmit } from 'utils/dataUtils';
 
 const LeadTookCarePage = () => {
 
   const [title] = useState("Danh sách Lead đã chăm sóc");
-
-  const onEdit = (item) => {
-    // let title = 'Sửa sản phẩm # ' + item.id;
-    // let hash = '#draw/product.edit';
-    // let data = cloneDeep(item);
-    // let skus = [], listProperties = [];
-  }
-
+  
   const CUSTOM_ACTION = [
     {
-      title: "NV",
-      dataIndex: 'staff',
-      width: 100
-    },
-    // {
-    //   title: "Hình thức",
-    //   ataIndex: 'productId',
-    //   width: 200,
-    //   ellipsis: true,
-    //   render: (item) => {
-    //     return (
-    //       <div>
-    //         <Tag color="orange">{item?.productId || 'N/A'}</Tag>
-    //       </div>
-    //     )
-    //   }
-    // },
-    {
-      title: "Dịch vụ",
-      ataIndex: 'serviceId',
+      title: "Nguyên nhân",
+      ataIndex: 'cause',
       width: 200,
       ellipsis: true,
       render: (item) => {
         return (
           <div>
-             <Tag color="orange">{getStatusService(item?.serviceId)}</Tag>
+             <Tag color="orange">{item?.cause}</Tag>
           </div>
         )
       }
@@ -61,72 +33,46 @@ const LeadTookCarePage = () => {
       render: (item) => {
         return (
           <div>
-            {formatTime(item?.inTime)}
+            {dateFormatOnSubmit(item?.inTime)}
           </div>
         )
       }
     },
     {
-      title: "Nguồn",
-      ataIndex: 'source',
+      title: "Tên sản phẩm",
+      ataIndex: 'productName',
       width: 200,
       ellipsis: true,
       render: (item) => {
         return (
           <div>
-            {getSource(item?.source)}
-          </div>
-        )
-      }
-    },
-    {
-      title: "Khách hàng",
-      ataIndex: 'customerName',
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {item?.customerName}
-          </div>
-        )
-      }
-    },
-    {
-      title: "Số đ/t",
-      ataIndex: 'customerMobile',
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {item?.customerMobile}
-          </div>
-        )
-      }
-    },
-    {
-      title: "Trạng thái",
-      ataIndex: 'status',
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {getStatusLead(item?.status)}
+            {item?.productName}
           </div>
         )
       }
     },
     {
       title: "Sale",
-      ataIndex: 'saleId',
+      ataIndex: 'sale',
       width: 200,
       ellipsis: true,
       render: (item) => {
         return (
           <div>
-            {item?.saleId || 'N/A'}
+            {item?.sale}
+          </div>
+        )
+      }
+    },
+    {
+      title: "User_Note",
+      ataIndex: 'userNote',
+      width: 200,
+      ellipsis: true,
+      render: (item) => {
+        return (
+          <div>
+            {item?.userNote}
           </div>
         )
       }
@@ -135,9 +81,6 @@ const LeadTookCarePage = () => {
       title: "Thao tác",
       width: 100,
       fixed: 'right',
-      render: (record) => (
-        <Button color="danger" variant="dashed" onClick={() => onEdit(record)} size='small'>Detail</Button>
-      )
     }
   ];
 
@@ -145,7 +88,12 @@ const LeadTookCarePage = () => {
     if (arrayEmpty(values.embedded)) {
       return values;
     }
-    return values;
+    const data = values.embedded.map(v => v?.dataCare);
+    const newData = {
+      embedded: data,
+      page: values?.page
+    }
+    return newData;
   }, []);
 
    const beforeSubmitFilter = useCallback((values) => {
@@ -153,11 +101,9 @@ const LeadTookCarePage = () => {
       return values;
     }, []);
 
-  const onCreateLead = () => InAppEvent.emit(HASH_MODAL, {
-    hash: '#draw/lead.edit',
-    title: 'Tạo mới Lead',
-    data: {}
-  });
+  const onCreateLead = () => {
+
+  }
 
   return (
     <div>
@@ -174,6 +120,7 @@ const LeadTookCarePage = () => {
         filter={<LeadFilter />}
         beforeSubmitFilter={beforeSubmitFilter}
         useGetAllQuery={useGetList}
+        hasCreate={false}
         apiPath={'data/taken-care'}
         customClickCreate={onCreateLead}
         columns={CUSTOM_ACTION}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Row, Col } from 'antd';
+import { Row, Col, Space, Form, Button, Input } from 'antd';
 import FormHidden from 'components/form/FormHidden';
 import CustomButton from 'components/CustomButton';
 import FormInput from 'components/form/FormInput';
@@ -9,6 +9,7 @@ import Dragger from 'antd/es/upload/Dragger';
 import FormTextArea from 'components/form/FormTextArea';
 import RequestUtils from 'utils/RequestUtils';
 import { GATEWAY } from 'configs';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 
 const resourceData = [
   { id: SOURCE.FACEBOOK, name: 'Facebook' },
@@ -28,7 +29,7 @@ const resourceData = [
 const ProductForm = ({ setNewFile, dataUpdate }) => {
   const [province, setProvince] = useState([])
   const [serviceList, setServiceList] = useState([]);
-  const [listFile, setListFile ] = useState([]);
+  const [listFile, setListFile] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -44,7 +45,7 @@ const ProductForm = ({ setNewFile, dataUpdate }) => {
         return { id: f?.id, name: f?.name }
       })
       setServiceList(newItem)
-      if(dataUpdate) {
+      if (dataUpdate) {
         const { data } = await RequestUtils.Get(`/data/view?dataId=${dataUpdate?.id}`);
         const newItem = data?.listFileUploads.map(f => {
           return { uid: f?.id, status: "done", name: f?.file, url: `${GATEWAY}${f?.file}` }
@@ -152,13 +153,40 @@ const ProductForm = ({ setNewFile, dataUpdate }) => {
           placeholder={"Nhân viên"}
         />
       </Col>
-      <Col md={24} xs={24} style={{ marginTop: 10 }}>
+      <Col md={24} xs={24} style={{ marginTop: 10, marginBottom: 50 }}>
         <Dragger {...props} multiple={true} fileList={listFile}>
           <p className="ant-upload-text">Tải file mẫu</p>
           <p className="ant-upload-drag-icon">
             Bấm vào đây để tải file mẫu của khách hàng
           </p>
         </Dragger>
+      </Col>
+      <Col md={24} xs={24} >
+        <Form.List name="fileUrls">
+          {(fields, { add, remove }) => (
+            <>
+              {fields.map(({ key, name, ...restField }) => (
+                <Space key={key} style={{display: "block", marginBottom: 8 }} align="baseline">
+                  <div style={{display: 'flex', alignItems: 'baseline', gap: 10}}>
+                    <div style={{width: '100%'}}>
+                        <Form.Item
+                          {...restField}
+                          name={[name]}  // Đây là chỗ bạn cần sửa
+                          rules={[{ required: false, message: "Nhập link ảnh!" }]}
+                        >
+                          <Input placeholder='Nhập link ảnh'/>
+                        </Form.Item>
+                    </div>
+                    <MinusCircleOutlined onClick={() => remove(name)} />
+                  </div>
+                </Space>
+              ))}
+              <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                Thêm Input
+              </Button>
+            </>
+          )}
+        </Form.List>
       </Col>
       <Col md={24} xs={24} style={{ marginTop: 40 }}>
         <FormTextArea

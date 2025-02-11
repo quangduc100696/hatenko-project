@@ -31,7 +31,6 @@ const NewLead = ({ closeModal, data }) => {
     })();
     return () => ProductAttrService.empty();
   }, [data]);
-  
   const onSubmit = async (dataCreate) => {
     log(dataCreate);
     if(data) {
@@ -46,6 +45,7 @@ const NewLead = ({ closeModal, data }) => {
         customerFacebook: data?.customerFacebook || data?.customerFacebook,
         staff: data?.staff || dataCreate?.staff,
         note: data?.note || dataCreate?.note,
+        fileUrls: data?.fileUrls.length > 0 ? data?.fileUrls : dataCreate?.fileUrls
       };
       const result = await RequestUtils.Post(`/data/update?leadId=${data?.id}`, param);
       if(result?.errorCode === 200) {
