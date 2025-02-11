@@ -190,9 +190,11 @@ const LeadPage = () => {
   });
 
   const onHandleSubmitSaleLead = async (value) => {
-    const {data} = await RequestUtils.Post(`/data/re-assign?dataId=${detailRecord?.id}&saleId=${value?.saleId}`, '');
+    const data = await RequestUtils.Post(`/data/re-assign?dataId=${detailRecord?.id}&saleId=${value?.saleId}`, '');
     if(data?.errorCode === 200) {
       InAppEvent.normalSuccess("Tạo sale chăm sóc lead thành công");
+      /* nếu tạo ok thì tắt popup */
+      setIsOpen(false);
     } else {
       InAppEvent.normalError("Tạo thất bại");
     }
