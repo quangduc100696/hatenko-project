@@ -12,6 +12,8 @@ const log = (value) => console.log('[container.product.index] ', value);
 const Product = ({ closeModal, data }) => {
 
   const [ record, setRecord ] = useState({});
+  const [ fileActive, setFileActive ] = useState('');
+
   useEffect(() => {
     (async () => {
       let dRe = {}
@@ -34,6 +36,7 @@ const Product = ({ closeModal, data }) => {
   const onSubmit = useCallback( async (data) => {
     log(data);
     let values = cloneDeep(data);
+    const newValue = {...values, image: fileActive || data?.image}
     let params = (values?.id ?? '') === '' ? {} : { id: values.id };
     if(arrayEmpty(values.skus)) {
       message.info("Can't create Product with empty skus .!");
@@ -46,13 +49,13 @@ const Product = ({ closeModal, data }) => {
       }
       arrsku.sku = newSku;
     }
-    const { errorCode } = await RequestUtils.Post("/product/save", values, params);
+    const { errorCode } = await RequestUtils.Post("/product/save", newValue, params);
     const isSuccess = errorCode === 200;
     if(isSuccess) {
       f5List('product/fetch');
     }
     InAppEvent.normalInfo(isSuccess ? "Cập nhật thành công" : "Lỗi cập nhật, vui lòng thử lại sau");
-  }, []);
+  }, [fileActive]);
 
   return <>
     <RestEditModal
@@ -62,7 +65,7 @@ const Product = ({ closeModal, data }) => {
       record={record}
       closeModal={closeModal}
     >
-      <ProductForm />
+      <ProductForm data={data} fileActive={fileActive} setFileActive={setFileActive}/>
     </RestEditModal>
   </>
 }
