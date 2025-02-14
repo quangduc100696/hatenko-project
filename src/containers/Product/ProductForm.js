@@ -21,14 +21,13 @@ const ProductForm = ({ data, fileActive, setFileActive}) => {
   const [ listFile, setListFile ] = useState(data?.imageLists);
   const [ isOpen, setIsOpen ] = useState(false);
   const [ detailImage, setDetailImage ] = useState('');
-
+  
   const onUploadMultiple = (fileList) => {
     let formData = new FormData();
     fileList.forEach((file) => {
       formData.append('files', file);
     });
-    formData.append('productId', data?.id || '');
-    RequestUtils.Post(`/product/upload-file`, formData)
+    RequestUtils.Post(`/product/upload-file?productId=${data?.id}`, formData)
       .then(({ errorCode }) => {
         if (errorCode !== 200) {
           throw new Error("Upload failed");
@@ -51,8 +50,20 @@ const ProductForm = ({ data, fileActive, setFileActive}) => {
   const onHandleAvtiveImage = (file) => setFileActive(file);
   /* Xoá ảnh */
   const onHandleDeleteFile = (file) => {
-    const newListFile = listFile.filter(f => f !== file);
-    setListFile(newListFile);
+    RequestUtils.Post(`/product/remove-file?file=${file}&productId=${data?.id}`)
+      .then(({ errorCode }) => {
+        if (errorCode !== 200) {
+          throw new Error("Xóa file thất bại");
+        }
+        InAppEvent.normalSuccess("Xóa file thành công");
+
+        // Cập nhật danh sách file sau khi xóa thành công
+        const newListFile = listFile.filter(f => f !== file);
+        setListFile(newListFile);
+      })
+      .catch((error) => {
+        InAppEvent.normalError("Lỗi xóa file");
+      });
   }
 
   return (
