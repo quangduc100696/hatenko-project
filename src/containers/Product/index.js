@@ -32,10 +32,20 @@ const Product = ({ closeModal, data }) => {
     })();
     return () => ProductAttrService.empty();
   }, [data]);
+  console.log(record);
   
   const onSubmit = useCallback( async (data) => {
     log(data);
-    let values = cloneDeep(data);
+    /* Map mảng đổi key attributedValueId thành propertyValueId */
+    const newlistProps = data?.listProperties.map(item => {
+      const newListProperties = {attributedId: item?.attributedId, propertyValueId: item?.attributedValueId};
+      return newListProperties;
+    })
+    const newdata = {
+      ...data,
+      listProperties: newlistProps
+    } 
+    let values = cloneDeep(newdata);
     const newValue = {...values, image: fileActive || data?.image}
     let params = (values?.id ?? '') === '' ? {} : { id: values.id };
     if(arrayEmpty(values.skus)) {

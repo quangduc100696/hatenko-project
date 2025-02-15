@@ -4,12 +4,22 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './LeadFilter';
 import useGetList from "hooks/useGetList";
-import { Tag } from 'antd';
+import { Button, Tag } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit } from 'utils/dataUtils';
+// import { InAppEvent } from 'utils/FuseUtils';
+// import { cloneDeep } from 'lodash';
+// import { HASH_MODAL } from 'configs';
 
 const LeadTookCarePage = () => {
 
   const [title] = useState("Danh sách Lead đã chăm sóc");
+
+  const onEdit = (item) => {
+    // let title = 'lead chăm sóc# ' + item.id;
+    // let hash = '#draw/leadNotTake.edit';
+    // let data = cloneDeep(item);
+    // InAppEvent.emit(HASH_MODAL, { hash, title, data });
+  }
   
   const CUSTOM_ACTION = [
     {
@@ -81,6 +91,13 @@ const LeadTookCarePage = () => {
       title: "Thao tác",
       width: 100,
       fixed: 'right',
+      render: (record) => (
+        <div>
+          <Button color="primary"variant="dashed" onClick={() => onEdit(record)} size='small'>
+            Detail
+          </Button>
+        </div>
+      )
     }
   ];
 

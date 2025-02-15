@@ -28,19 +28,6 @@ const LeadNotTakePage = () => {
       dataIndex: 'staff',
       width: 100
     },
-    // {
-    //   title: "Hình thức",
-    //   ataIndex: 'productId',
-    //   width: 200,
-    //   ellipsis: true,
-    //   render: (item) => {
-    //     return (
-    //       <div>
-    //         <Tag color="orange">{item?.productId || 'N/A'}</Tag>
-    //       </div>
-    //     )
-    //   }
-    // },
     {
       title: "Dịch vụ",
       ataIndex: 'serviceId',
@@ -134,12 +121,14 @@ const LeadNotTakePage = () => {
     },
     {
       title: "Thao tác",
-      width: 100,
+      width: 120,
       fixed: 'right',
       render: (record) => (
-        <Button color="danger" variant="dashed" onClick={() => onEdit(record)} size='small'>
-          Tạo lead
-        </Button>
+        <div>
+          <Button color="primary"variant="dashed" onClick={() => onEdit(record)} size='small'>
+            Chăm sóc
+          </Button>
+        </div>
       )
     }
   ];

@@ -4,9 +4,9 @@ import useGetList from "hooks/useGetList";
 import { Helmet } from "react-helmet";
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import Filter from './Filter';
-import { Button } from 'antd';
+import { Button, Image } from 'antd';
 import { InAppEvent } from "utils/FuseUtils";
-import { HASH_MODAL } from 'configs';
+import { GATEWAY, HASH_MODAL } from 'configs';
 import { arrayEmpty, dateFormatOnSubmit, formatTime } from 'utils/dataUtils';
 import ProductAttrService from 'services/ProductAttrService';
 import { cloneDeep } from 'lodash';
@@ -54,6 +54,21 @@ const Index = () => {
       title:"Mã",
       dataIndex:'code',
       width:100
+    },
+    {
+      title:"Hình ảnh",
+      dataIndex:'image',
+      width: 150,
+      ellipsis: true,
+      render: (image) => {
+        return (
+          <Image
+          width={70}
+          src={`${image ? `${GATEWAY}${image}` : '/img/image_not_found.png'}`}
+          alt='image'
+        />
+        )
+      }
     },
 		{
       title:"Sản phẩm",

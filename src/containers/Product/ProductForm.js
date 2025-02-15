@@ -253,7 +253,7 @@ const FormOpenInfo = ({ field }) => {
       <Col md={4} xs={24}>
         <FormInput
           name={[name, 'icon']}
-          required
+          required={false}
           placeholder={"Icon"}
         />
       </Col>

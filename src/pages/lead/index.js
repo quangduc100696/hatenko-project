@@ -48,19 +48,6 @@ const LeadPage = () => {
       dataIndex: 'staff',
       width: 100
     },
-    // {
-    //   title: "Hình thức",
-    //   ataIndex: 'productId',
-    //   width: 200,
-    //   ellipsis: true,
-    //   render: (item) => {
-    //     return (
-    //       <div>
-    //         <Tag color="orange">{item?.productId || 'N/A'}</Tag>
-    //       </div>
-    //     )
-    //   }
-    // },
     {
       title: "Dịch vụ",
       ataIndex: 'serviceId',

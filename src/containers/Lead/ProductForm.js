@@ -61,7 +61,7 @@ const ProductForm = ({ setNewFile, dataUpdate }) => {
       let formData = new FormData();
       formData.append('sessionId', Math.floor(Date.now() / 1000));
       formData.append('file', componentsData.file);
-      formData.append('dataId', '');
+      formData.append('dataId', dataUpdate?.id || '');
       RequestUtils.Post(`/data/uploads-file`, formData)
         .then(async ({ data, errorCode }) => {
           if (errorCode !== 200) {
@@ -174,14 +174,14 @@ const ProductForm = ({ setNewFile, dataUpdate }) => {
                           name={[name]}  // Đây là chỗ bạn cần sửa
                           rules={[{ required: false, message: "Nhập link ảnh!" }]}
                         >
-                          <Input placeholder='Nhập link ảnh'/>
+                          <Input placeholder='url'/>
                         </Form.Item>
                     </div>
                     <MinusCircleOutlined onClick={() => remove(name)} />
                   </div>
                 </Space>
               ))}
-              <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+              <Button type="dashed" style={{width: '100%'}} onClick={() => add()} icon={<PlusOutlined />}>
                 Thêm Input
               </Button>
             </>
