@@ -32,17 +32,16 @@ const Product = ({ closeModal, data }) => {
     })();
     return () => ProductAttrService.empty();
   }, [data]);
-  console.log(record);
-  
-  const onSubmit = useCallback( async (data) => {
-    log(data);
+
+  const onSubmit = useCallback( async (datas) => {
+    log(datas);
     /* Map mảng đổi key attributedValueId thành propertyValueId */
-    const newlistProps = data?.listProperties.map(item => {
+    const newlistProps = data?.listProperties?.map(item => {
       const newListProperties = {attributedId: item?.attributedId, propertyValueId: item?.attributedValueId};
       return newListProperties;
     })
     const newdata = {
-      ...data,
+      ...datas,
       listProperties: newlistProps
     } 
     let values = cloneDeep(newdata);
@@ -65,7 +64,7 @@ const Product = ({ closeModal, data }) => {
       f5List('product/fetch');
     }
     InAppEvent.normalInfo(isSuccess ? "Cập nhật thành công" : "Lỗi cập nhật, vui lòng thử lại sau");
-  }, [fileActive]);
+  }, [data, fileActive]);
 
   return <>
     <RestEditModal

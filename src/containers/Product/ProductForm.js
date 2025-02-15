@@ -27,7 +27,7 @@ const ProductForm = ({ data, fileActive, setFileActive}) => {
     fileList.forEach((file) => {
       formData.append('files', file);
     });
-    RequestUtils.Post(`/product/upload-file?productId=${data?.id}`, formData)
+    RequestUtils.Post(`/product/upload-file?productId=${data?.id ? data?.id : ''}`, formData)
       .then(({ errorCode }) => {
         if (errorCode !== 200) {
           throw new Error("Upload failed");
