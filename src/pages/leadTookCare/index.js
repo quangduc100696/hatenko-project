@@ -6,19 +6,19 @@ import LeadFilter from './LeadFilter';
 import useGetList from "hooks/useGetList";
 import { Button, Tag } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit } from 'utils/dataUtils';
-// import { InAppEvent } from 'utils/FuseUtils';
-// import { cloneDeep } from 'lodash';
-// import { HASH_MODAL } from 'configs';
+import { InAppEvent } from 'utils/FuseUtils';
+import { cloneDeep } from 'lodash';
+import { HASH_MODAL } from 'configs';
 
 const LeadTookCarePage = () => {
 
   const [title] = useState("Danh sách Lead đã chăm sóc");
 
   const onEdit = (item) => {
-    // let title = 'lead chăm sóc# ' + item.id;
-    // let hash = '#draw/leadNotTake.edit';
-    // let data = cloneDeep(item);
-    // InAppEvent.emit(HASH_MODAL, { hash, title, data });
+    let title = 'lead đã chăm sóc# ' + item.id;
+    let hash = '#draw/leadTake.edit';
+    let data = cloneDeep(item);
+    InAppEvent.emit(HASH_MODAL, { hash, title, data });
   }
   
   const CUSTOM_ACTION = [
@@ -105,7 +105,10 @@ const LeadTookCarePage = () => {
     if (arrayEmpty(values.embedded)) {
       return values;
     }
-    const data = values.embedded.map(v => v?.dataCare);
+    const data = values.embedded.map(v => {
+      const newItem = {...v?.dataCare, ...v?.data };
+      return newItem;
+    });
     const newData = {
       embedded: data,
       page: values?.page

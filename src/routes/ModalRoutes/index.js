@@ -6,12 +6,14 @@ import ProductRoute from './ProductRoute.js';
 import OrderRoute from './OrderRoute';
 import LeadRoute from './LeadRouter.js';
 import LeadNotTakeRouter from './LeadNotTakeRouter.js';
+import LeadTakeRouter from './LeadTakeRouter.js';
 
 const modalRoutes = [
   ...ProductRoute,
   ...OrderRoute,
   ...LeadRoute,
-  ...LeadNotTakeRouter
+  ...LeadNotTakeRouter,
+  ...LeadTakeRouter
 ]
 const log = (key, val) => console.log('[routes.draw-routes] ' + key + ' ', val);
 const notFoundHash = { Component: () => <div /> };

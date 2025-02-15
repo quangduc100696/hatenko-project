@@ -2,7 +2,7 @@
  * Authorization Roles
  */
 const authRoles = {
-    admin: '*',
+    admin: ['ROLE_ADMIN'],
     user: ['ROLE_DBA'],
     partner: ['ROLE_PARTNER'],
     provider: ['ROLE_PROVIDER'],

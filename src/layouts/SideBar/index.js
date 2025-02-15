@@ -15,16 +15,26 @@ import useCollapseSidebar from 'hooks/useCollapseSidebar';
 import { useTranslation } from 'react-i18next';
 import { Link } from "react-router-dom";
 import SideBarStyles from './styles';
+import useGetMe from 'hooks/useGetMe';
 
 function getItem(label, key, icon, children) {
   return { key, icon, children, label };
 }
 const { Sider } = Layout;
 
+const roleUserSale = "ROLE_SALE"; 
+const roleUserAdmin = "ROLE_ADMIN";
+const roleUser = "ROLE_USER"
 function SideBar() {
 
+  const { user: profile } = useGetMe();
   const { t } = useTranslation();
   const { isCollapseSidebar: collapsed, toggleCollapse } = useCollapseSidebar();
+  const newRoleUser = profile?.userProfiles?.map(item => item?.type);
+  const hasAdminRole = newRoleUser.some(role => role === roleUserAdmin);
+  const hasSaleRole = newRoleUser.some(role => role === roleUserSale);
+  const hasUserRole = newRoleUser.some(role => role === roleUser);
+  const shouldHideLeadLinks = (hasSaleRole || hasUserRole) && !hasAdminRole;
 
   const items = [
     getItem(<Link to="/">{t('sideBar.dashboard')}</Link>, 'home', <DashboardFIcon />),
@@ -32,10 +42,10 @@ function SideBar() {
 		getItem(<Link to="/project/list">Dự án</Link>, 'project_list', <PieChartOutlined />),
 		// getItem(<Link to="/sale/list-data/tong-lead">Lead</Link>, 'tong_lead', <FolderOpenOutlined />),
     getItem('Lead', 'tong_lead', <FolderOpenOutlined /> , [
-			getItem(<Link to="/lead">Lead mới</Link>, 'newLead', <FileAddOutlined />),
-      getItem(<Link to="/customer-service/lead">Chưa chăm sóc</Link>, 'lead_not_taken_child', <ScheduleOutlined />),
-      getItem(<Link to="/customer-lead/lead">Đã chăm sóc</Link>, 'lead_taken_child', <ScheduleOutlined />),
-		]),
+		  getItem(<Link to="/lead">Lead mới</Link>, 'newLead', <FileAddOutlined />),
+      !shouldHideLeadLinks && getItem(<Link to="/customer-service/lead">Chưa chăm sóc</Link>, "lead_not_taken_child", <ScheduleOutlined />),
+      !shouldHideLeadLinks && getItem(<Link to="/customer-lead/lead">Đã chăm sóc</Link>, "lead_taken_child", <ScheduleOutlined />),
+		].filter(Boolean)),
 		getItem(<Link to="/sale/co-hoi"> Cơ hội</Link>, 'co_hoi', <IncomeFIcon />),
 		getItem(<Link to="/sale/order"> Đơn hàng</Link>, 'list_order', <UnorderedListOutlined />),
 		getItem('Kế toán', 'need_solve', <DollarCircleFilled /> , [

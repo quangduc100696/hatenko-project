@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
-import LeadFilter from './LeadFilter';
+import LeadFilter, { statusData } from './LeadFilter';
 import useGetList from "hooks/useGetList";
 import { Button, Form, Tag } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit } from 'utils/dataUtils';
@@ -13,14 +13,25 @@ import RequestUtils from 'utils/RequestUtils';
 import { cloneDeep } from 'lodash';
 import ModaleStyles from './style';
 import FormSelect from 'components/form/FormSelect';
+import useGetMe from 'hooks/useGetMe';
 
+const roleUserSale = "ROLE_SALE"; 
+const roleUserAdmin = "ROLE_ADMIN";
+const roleUser = "ROLE_USER"
 const LeadPage = () => {
 
+  const { user: profile } = useGetMe();
   const [form] = Form.useForm();
   const [title] = useState("Danh sách Lead");
   const [ listSale, setListSale ] = useState([]);
   const [ isOpen, setIsOpen ] = useState(false);
   const [ detailRecord, setDetailRecord ] = useState({});
+
+  const newRoleUser = profile?.userProfiles?.map(item => item?.type);
+  const hasAdminRole = newRoleUser.some(role => role === roleUserAdmin);
+  const hasSaleRole = newRoleUser.some(role => role === roleUserSale);
+  const hasUserRole = newRoleUser.some(role => role === roleUser);
+  const shouldHideLeadLinks = (hasSaleRole || hasUserRole) && !hasAdminRole;
 
   useEffect(() => {
     (async () => {
@@ -56,7 +67,16 @@ const LeadPage = () => {
       render: (item) => {
         return (
           <div>
-            <Tag color="orange">{getStatusService(item?.serviceId)}</Tag>
+            {!shouldHideLeadLinks ? (
+              <FormSelect
+                name="status"
+                label="Trạng thái"
+                valueProp="id"
+                titleProp='name'
+                resourceData={statusData || []}
+                placeholder='Lọc theo trạng thái'
+            />
+            ) : <Tag color="orange">{getStatusService(item?.serviceId)}</Tag>}
           </div>
         )
       }

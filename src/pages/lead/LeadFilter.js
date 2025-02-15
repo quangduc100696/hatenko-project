@@ -18,7 +18,7 @@ const resourceData = [
   { id: SOURCE.TIKTOK, name: 'Tiktok' },
 ]
 
-const statusData = [
+export const statusData = [
   { id: STATUS_LEAD.CREATE_DATA, name: 'Chưa liên hệ' },
   { id: STATUS_LEAD.DO_NOT_MANUFACTORY, name: 'Không triển khai' },
   { id: STATUS_LEAD.IS_CONTACT, name: 'Đang tư vấn' },
