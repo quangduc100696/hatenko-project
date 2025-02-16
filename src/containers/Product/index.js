@@ -40,9 +40,21 @@ const Product = ({ closeModal, data }) => {
       const newListProperties = {attributedId: item?.attributedId, propertyValueId: item?.attributedValueId};
       return newListProperties;
     })
+    // thêm id vào skus để update còn biết
+    const newSkus = datas.skus.map(item => {
+      return {
+        ...item,
+        id: data?.id || null,
+        sku: {
+          id: data?.id || null,
+          sku: item?.sku,
+        }
+      }
+    })
     const newdata = {
       ...datas,
-      listProperties: newlistProps
+      listProperties: newlistProps,
+      skus: newSkus
     } 
     let values = cloneDeep(newdata);
     const newValue = {...values, image: fileActive || data?.image}
@@ -53,11 +65,11 @@ const Product = ({ closeModal, data }) => {
     }
     for(let arrsku of values.skus) {
       let newSku = []
-      for(let sku of arrsku.sku) {
-        newSku = newSku.concat({attributedId: sku[0], attributedValueId: sku[1]})
+      for(let sku of arrsku.sku?.sku) {
+        newSku = newSku.concat({id: arrsku.sku?.id, attributedId: sku[0], attributedValueId: sku[1]})
       }
       arrsku.sku = newSku;
-    }
+    }    
     const { errorCode } = await RequestUtils.Post("/product/save", newValue, params);
     const isSuccess = errorCode === 200;
     if(isSuccess) {
