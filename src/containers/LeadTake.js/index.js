@@ -4,16 +4,28 @@ import { Col, Row, Table, Tabs } from 'antd';
 import RequestUtils from 'utils/RequestUtils';
 import { columnsTake, TableColumnInteract } from './ColumTable';
 
+const newDataCare = (dataCares, data) => {
+  const newData = dataCares?.map(item => {
+    return {
+      ...item, 
+      newIntime: data?.inTime
+    }
+  });
+  console.log(data);
+  
+  return newData
+}
+
 const TakeLead = ({ data }) => {
   const [customer, setCustomer] = useState({});
-
+ 
   useEffect(() => {
     (async () => {
       const customerData = await RequestUtils.Get(`/customer/find-by-phone?phone=${data?.customerMobile}&withOrder=withOrder`);
       setCustomer(customerData?.data);
     })()
   }, [data])
-
+  console.log(customer?.dataCares);
   return <>
       <div>
         <div style={{ height: 30 }}></div>
@@ -70,7 +82,7 @@ const TakeLead = ({ data }) => {
             {
               label: <div style={{fontSize: 12, fontWeight: 500 }}><FundOutlined style={{ paddingRight: 8}}/>CHƯA CHĂM SÓC</div>,
               key: '1',
-              children: <Table dataSource={customer?.dataCares} pagination={false} columns={columnsTake} />,
+              children: <Table dataSource={newDataCare(customer?.dataCares, data)} pagination={false} columns={columnsTake} />,
             },
             {
               label: <div style={{fontSize: 12,  fontWeight: 500 }}><FundOutlined style={{paddingRight: 8}}/>L/S TƯƠNG TÁC</div>,

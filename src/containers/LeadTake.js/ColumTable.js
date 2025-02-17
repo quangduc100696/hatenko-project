@@ -1,7 +1,7 @@
 import { Tag } from "antd";
 import { getColorStatusLead, getSource, getStatusLead } from "configs/constant";
 import { useEffect, useState } from "react";
-import { dateFormatOnSubmit, formatTime } from "utils/dataUtils";
+import { dateFormatOnSubmit } from "utils/dataUtils";
 import RequestUtils from "utils/RequestUtils";
 
 export const columnsTake = [
@@ -17,12 +17,12 @@ export const columnsTake = [
   },
   {
     title: 'Thời gian',
-    dataIndex: 'inTime',
-    key: 'inTime',
+    dataIndex: 'newIntime',
+    key: 'newIntime',
     render: (inTime) => {
       return (
         <div>
-          {formatTime(inTime)}
+          {getSource(inTime)}
         </div>
       )
     }

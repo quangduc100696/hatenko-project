@@ -57,7 +57,7 @@ const LeadPage = () => {
     {
       title: "Create",
       dataIndex: 'staff',
-      width: 100
+      width: 150
     },
     {
       title: "Dịch vụ",
@@ -67,16 +67,7 @@ const LeadPage = () => {
       render: (item) => {
         return (
           <div>
-            {!shouldHideLeadLinks ? (
-              <FormSelect
-                name="status"
-                label="Trạng thái"
-                valueProp="id"
-                titleProp='name'
-                resourceData={statusData || []}
-                placeholder='Lọc theo trạng thái'
-            />
-            ) : <Tag color="orange">{getStatusService(item?.serviceId)}</Tag>}
+            <Tag color="orange">{getStatusService(item?.serviceId)}</Tag>
           </div>
         )
       }
@@ -141,7 +132,16 @@ const LeadPage = () => {
       render: (item) => {
         return (
           <div>
-             <Tag color={getColorStatusLead(item?.status)}>{getStatusLead(item?.status)}</Tag>
+            {!!shouldHideLeadLinks ? (
+              <FormSelect
+                name="status"
+                label=""
+                valueProp="id"
+                titleProp='name'
+                resourceData={statusData || []}
+                placeholder='Lọc theo trạng thái'
+              /> 
+          ) : <Tag color={getColorStatusLead(item?.status)}>{getStatusLead(item?.status)}</Tag> }
           </div>
         )
       }

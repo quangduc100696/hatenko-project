@@ -32,7 +32,6 @@ const FormSelect = ({
   isLimitWidth = false,
   ...props
 }) => {
-
   const { t } = useTranslation();
   const onSelectOption = useCallback((inputValue, option) => {
     const data = isObject(option.children) ? get(option.children.props?.record, searchKey) : option.children;
@@ -85,6 +84,7 @@ const FormSelect = ({
         { required, message: t(messageRequire)},
         ...rules
       ]}
+      style={{margin: 0}}
       initialValue={initialValue}
       {...formItemProps}
     >

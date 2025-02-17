@@ -16,7 +16,7 @@ import FormStyles, { FormListFile } from './styles';
 import RequestUtils from 'utils/RequestUtils';
 import { InAppEvent } from 'utils/FuseUtils';
 
-const ProductForm = ({ data, fileActive, setFileActive}) => {
+const ProductForm = ({ data, fileActive, setFileActive, setSessionId}) => {
 
   const [ listFile, setListFile ] = useState(data?.imageLists);
   const [ isOpen, setIsOpen ] = useState(false);
@@ -24,11 +24,13 @@ const ProductForm = ({ data, fileActive, setFileActive}) => {
   
   const onUploadMultiple = (fileList) => {
     let formData = new FormData();
+    const sessionId =  Math.floor(Date.now() / 1000);
     fileList.forEach((file) => {
       formData.append('files', file);
     });
-    RequestUtils.Post(`/product/upload-file?productId=${data?.id ? data?.id : ''}`, formData)
-      .then(({ errorCode }) => {
+    RequestUtils.Post(`/product/upload-file?sessionId=${sessionId}&productId=${data?.id ? data?.id : ''}`, formData)
+      .then(({data, errorCode }) => {
+        setSessionId(data);
         if (errorCode !== 200) {
           throw new Error("Upload failed");
         }

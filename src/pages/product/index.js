@@ -29,16 +29,16 @@ const Index = () => {
       }
     }
     for(const iSkus of item.skus) {
-      let item = { name: iSkus.name, listPriceRange: iSkus.listPriceRange }
+      let item = {id: iSkus?.id, name: iSkus.name, listPriceRange: iSkus.listPriceRange }
       let details = [];
       for(const detail of iSkus.skuDetail) {
-        details.push([detail.attributedId, detail.attributedValueId]);
+        details.push({id: detail?.id, attributedId: detail.attributedId, attributedValueId: detail.attributedValueId});
       }
       item.sku = details;
       skus.push(item);
     }
     data.listProperties = listProperties;
-    data.skus = skus;
+    data.skus = skus;    
     InAppEvent.emit(HASH_MODAL, { hash, title, data });
   }
 
