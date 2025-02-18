@@ -61,24 +61,12 @@ const Product = ({ closeModal, data }) => {
         if (!exists) {
           newSku.push({
             id: null, // Giữ ID nếu có, còn không thì null
-            attributedId: null,
+            attributedId: sku[0],
             attributedValueId: sku[1]
           });
         }
       }
-      // for(let arr of arrsku?.listPriceRange) {
-      //   if(!data) {
-      //     newListPriceRange.push({
-      //       ...arr,
-      //       priceImport: arr?.priceImport || 0,
-      //       productId: arr?.productId || null,
-      //       skuId: arr?.skuId || null
-      //     })
-      //   }
-      // }
-
       arrsku.id = arrsku.id || null;
-      // arrsku.listPriceRange = arrsku.id ? arrsku.listPriceRange  : ''
       arrsku.sku = newSku;
       skusAdd.push(arrsku)
     }  
