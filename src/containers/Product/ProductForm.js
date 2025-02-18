@@ -19,6 +19,7 @@ import { InAppEvent } from 'utils/FuseUtils';
 const ProductForm = ({ data, fileActive, setFileActive, setSessionId}) => {
 
   const [ listFile, setListFile ] = useState(data?.imageLists);
+  const [ listImage, setListImage ] = useState([]);
   const [ isOpen, setIsOpen ] = useState(false);
   const [ detailImage, setDetailImage ] = useState('');
   
@@ -30,6 +31,7 @@ const ProductForm = ({ data, fileActive, setFileActive, setSessionId}) => {
     });
     RequestUtils.Post(`/product/upload-file?sessionId=${sessionId}&productId=${data?.id ? data?.id : ''}`, formData)
       .then(({data, errorCode }) => {
+        setListImage(data?.fileNames);
         setSessionId(data?.sessionId);
         if (errorCode !== 200) {
           throw new Error("Upload failed");
@@ -175,7 +177,7 @@ const ProductForm = ({ data, fileActive, setFileActive, setSessionId}) => {
         <Dragger {...props} multiple={true} showUploadList={false} style={{ border: '2px dashed #f2f1fc' }}>
           <FormListFile>
             <div className='upload-image-wrapper' onClick={(e) => e.stopPropagation()}>
-              {listFile?.map((file, i) => (
+              {[...listFile, ...listImage]?.map((file, i) => (
                 <div className='selectedImage' key={i}>
                     <div className='uploadImage'>
                       <img loading='lazy' fetchPriority='high' src={`${GATEWAY}${file}`} width={100} height={100} alt="" />
