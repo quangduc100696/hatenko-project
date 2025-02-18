@@ -50,9 +50,9 @@ const Product = ({ closeModal, data }) => {
   const onSubmit = useCallback( async (datas) => {
     log(datas);
     let values = cloneDeep(datas);
-    let skusAdd = [], newListPriceRange = [];
+    let skusAdd = [];
     for(let arrsku of values.skus) {
-      const newSkus = data?.skus.find(f => f?.id === arrsku?.id);
+      const newSkus = data?.skus?.find(f => f?.id === arrsku?.id);
       let newSku = newSkus?.sku ? [...newSkus.sku] : [];
       for (let sku of arrsku.sku) {
         let exists = newSku.some(
@@ -78,7 +78,7 @@ const Product = ({ closeModal, data }) => {
       // }
 
       arrsku.id = arrsku.id || null;
-      // arrsku.listPriceRange = [...newListPriceRange];
+      // arrsku.listPriceRange = arrsku.id ? arrsku.listPriceRange  : ''
       arrsku.sku = newSku;
       skusAdd.push(arrsku)
     }  
