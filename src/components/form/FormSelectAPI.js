@@ -8,7 +8,7 @@ import MyContext from 'DataContext';
 import { useUpdateEffect, useMount } from "hooks/MyHooks";
 import { PlusOutlined } from '@ant-design/icons';
 import { SUCCESS_CODE } from 'configs';
-import { arrayEmpty, f5List as reloadApi } from "utils/dataUtils"
+import { arrayEmpty } from "utils/dataUtils"
 import { InAppEvent } from 'utils/FuseUtils';
 const { Option } = Select;
 
@@ -38,13 +38,11 @@ const FormSelectAPI = ({
   fnLoadData,
   ...props
 }) => {
-
   const { f5List } = useContext(MyContext);
   const [ localFilter, setLocalFilter ] = useState(filter || {});
   const [ loading, setLoading ] = useState(false);
   const [ resourceData, setData ] = useState([]);
   const [ value, setValue ] = useState('');
-
   useEffect(() => {
     setLocalFilter(filter);
   }, [filter]);
@@ -109,17 +107,18 @@ const FormSelectAPI = ({
     // const value = inputRef?.current?.input?.value ?? '';
     if(value && apiAddNewItem) {
       const dataPost = { [searchKey]: value, ...(createDefaultValues || {})}
-      const { errorCode, message: msg } = await RequestUtils.Post("/" + apiAddNewItem, dataPost);
+      const {data, errorCode, message: msg } = await RequestUtils.Post("/" + apiAddNewItem, dataPost);
       if(errorCode !== SUCCESS_CODE) {
         message.error(msg);
       } else {
-        reloadApi(apiPath);
+        const newData = resourceData.concat(data);
+        setData(newData)
         InAppEvent.normalInfo("Cập nhật thành công");
         setValue('');
       }
     }
     /* eslint-disable-next-line */
-  }, [value, createDefaultValues]);
+  }, [value, createDefaultValues, fnLoadData]);
   const onSearch = useCallback((value) => {
     fetchResource({...localFilter, [searchKey]: value});
     /* eslint-disable-next-line */
