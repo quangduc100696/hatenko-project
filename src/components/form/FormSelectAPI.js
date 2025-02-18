@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import RequestUtils from 'utils/RequestUtils';
 import { Form, Select, Spin, Divider, Input, Button, message } from 'antd';
 import { get } from 'lodash';
@@ -9,6 +9,7 @@ import { useUpdateEffect, useMount } from "hooks/MyHooks";
 import { PlusOutlined } from '@ant-design/icons';
 import { SUCCESS_CODE } from 'configs';
 import { arrayEmpty, f5List as reloadApi } from "utils/dataUtils"
+import { InAppEvent } from 'utils/FuseUtils';
 const { Option } = Select;
 
 const FormSelectAPI = ({
@@ -42,6 +43,7 @@ const FormSelectAPI = ({
   const [ localFilter, setLocalFilter ] = useState(filter || {});
   const [ loading, setLoading ] = useState(false);
   const [ resourceData, setData ] = useState([]);
+  const [ value, setValue ] = useState('');
 
   useEffect(() => {
     setLocalFilter(filter);
@@ -66,7 +68,9 @@ const FormSelectAPI = ({
       if(errorCode !== 200) {
         return Promise.reject("Get not success from server .!");
       }
-      Promise.resolve(onData(data)).then(setData);
+      Promise.resolve(onData(data)).then(data => {
+        setData(data);
+      })
       setLoading(false);
     }).catch(e => {
       console.log('[form.FormSelectAPI] Error ', e);
@@ -81,7 +85,6 @@ const FormSelectAPI = ({
     }
     /* eslint-disable-next-line */
   }, [f5List, localFilter, apiPath]);
-
   const { t } = useTranslation();
   const optionLoading = useMemo(() => {
     return (
@@ -98,13 +101,12 @@ const FormSelectAPI = ({
     );
   }, []);
 
-  const inputRef = useRef(null);
   const addItem = useCallback(async () => {
     if(onCreateNewItem()) {
       /* Open Modal Create Data */
       return;
     }
-    const value = inputRef?.current?.input?.value ?? '';
+    // const value = inputRef?.current?.input?.value ?? '';
     if(value && apiAddNewItem) {
       const dataPost = { [searchKey]: value, ...(createDefaultValues || {})}
       const { errorCode, message: msg } = await RequestUtils.Post("/" + apiAddNewItem, dataPost);
@@ -112,15 +114,20 @@ const FormSelectAPI = ({
         message.error(msg);
       } else {
         reloadApi(apiPath);
+        InAppEvent.normalInfo("Cập nhật thành công");
+        setValue('');
       }
     }
     /* eslint-disable-next-line */
-  }, [inputRef, createDefaultValues]);
-
+  }, [value, createDefaultValues]);
   const onSearch = useCallback((value) => {
     fetchResource({...localFilter, [searchKey]: value});
     /* eslint-disable-next-line */
   }, [localFilter, searchKey]);
+
+  const handleValueInput = (e) => {
+    setValue(e.target.value);
+  }
 
   const handleChange = useCallback((value) => {
     fetchResource(localFilter);
@@ -151,7 +158,8 @@ const FormSelectAPI = ({
                 <Input
                   style={{width: '100%'}}
                   placeholder="Add new item"
-                  ref={inputRef}
+                  value={value}
+                  onChange={handleValueInput}
                   onKeyDown={(e) => e.stopPropagation()}
                 /> 
               }

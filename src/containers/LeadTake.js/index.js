@@ -11,8 +11,6 @@ const newDataCare = (dataCares, data) => {
       newIntime: data?.inTime
     }
   });
-  console.log(data);
-  
   return newData
 }
 
@@ -25,7 +23,7 @@ const TakeLead = ({ data }) => {
       setCustomer(customerData?.data);
     })()
   }, [data])
-  console.log(customer?.dataCares);
+
   return <>
       <div>
         <div style={{ height: 30 }}></div>

@@ -30,7 +30,7 @@ const ProductForm = ({ data, fileActive, setFileActive, setSessionId}) => {
     });
     RequestUtils.Post(`/product/upload-file?sessionId=${sessionId}&productId=${data?.id ? data?.id : ''}`, formData)
       .then(({data, errorCode }) => {
-        setSessionId(data);
+        setSessionId(data?.sessionId);
         if (errorCode !== 200) {
           throw new Error("Upload failed");
         }
@@ -196,7 +196,7 @@ const ProductForm = ({ data, fileActive, setFileActive, setSessionId}) => {
               ))}
             </div>
             <div style={{marginTop: 20}}>
-              <p align="center" sytyle={{margin: 0}}>
+              <p align="center" style={{margin: 0}}>
                 <img src="/img/upload-image.png" width={67} height={50} alt="upload"/>
               </p>
               <p>Tải file hình ảnh</p>
