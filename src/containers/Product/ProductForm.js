@@ -18,7 +18,7 @@ import { InAppEvent } from 'utils/FuseUtils';
 
 const ProductForm = ({ data, fileActive, setFileActive, setSessionId}) => {
 
-  const [ listFile, setListFile ] = useState(data?.imageLists);
+  const [ listFile, setListFile ] = useState(data?.imageLists || []);
   const [ listImage, setListImage ] = useState([]);
   const [ isOpen, setIsOpen ] = useState(false);
   const [ detailImage, setDetailImage ] = useState('');
@@ -31,7 +31,7 @@ const ProductForm = ({ data, fileActive, setFileActive, setSessionId}) => {
     });
     RequestUtils.Post(`/product/upload-file?sessionId=${sessionId}&productId=${data?.id ? data?.id : ''}`, formData)
       .then(({data, errorCode }) => {
-        setListImage(data?.fileNames);
+        setListImage(data?.fileNames || []);
         setSessionId(data?.sessionId);
         if (errorCode !== 200) {
           throw new Error("Upload failed");
