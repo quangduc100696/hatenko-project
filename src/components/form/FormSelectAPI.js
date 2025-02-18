@@ -43,6 +43,7 @@ const FormSelectAPI = ({
   const [ loading, setLoading ] = useState(false);
   const [ resourceData, setData ] = useState([]);
   const [ value, setValue ] = useState('');
+
   useEffect(() => {
     setLocalFilter(filter);
   }, [filter]);
@@ -58,7 +59,9 @@ const FormSelectAPI = ({
       return;
     }
     if(fnLoadData) {
-      Promise.resolve(fnLoadData(values)).then(onData).then(setData);
+      Promise.resolve(fnLoadData(values)).then(onData).then(data => {
+        setData(data)
+      });
       return;
     }
     setLoading(true);
@@ -67,7 +70,7 @@ const FormSelectAPI = ({
         return Promise.reject("Get not success from server .!");
       }
       Promise.resolve(onData(data)).then(data => {
-        setData(data);
+        setData(data)
       })
       setLoading(false);
     }).catch(e => {
@@ -112,7 +115,7 @@ const FormSelectAPI = ({
         message.error(msg);
       } else {
         const newData = resourceData.concat(data);
-        setData(newData)
+        setData(newData);
         InAppEvent.normalInfo("Cập nhật thành công");
         setValue('');
       }
@@ -128,7 +131,7 @@ const FormSelectAPI = ({
     setValue(e.target.value);
   }
 
-  const handleChange = useCallback((value) => {
+  const handleChange = useCallback(async(value) => {
     fetchResource(localFilter);
     /* eslint-disable-next-line */
   }, [localFilter]);

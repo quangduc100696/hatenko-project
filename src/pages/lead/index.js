@@ -4,18 +4,18 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter, { statusData } from './LeadFilter';
 import useGetList from "hooks/useGetList";
-import { Button, Form, Tag } from 'antd';
+import { Button, Form, Select, Tag } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit } from 'utils/dataUtils';
-import { getColorStatusLead, getSource, getStatusLead, getStatusService } from 'configs/constant';
+import { getColorStatusLead, getSource, getStatusLead, getStatusService, STATUS_LEAD } from 'configs/constant';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, map } from 'lodash';
 import ModaleStyles from './style';
 import FormSelect from 'components/form/FormSelect';
 import useGetMe from 'hooks/useGetMe';
 
-const roleUserSale = "ROLE_SALE"; 
+const roleUserSale = "ROLE_SALE";
 const roleUserAdmin = "ROLE_ADMIN";
 const roleUser = "ROLE_USER"
 const LeadPage = () => {
@@ -23,9 +23,9 @@ const LeadPage = () => {
   const { user: profile } = useGetMe();
   const [form] = Form.useForm();
   const [title] = useState("Danh sách Lead");
-  const [ listSale, setListSale ] = useState([]);
-  const [ isOpen, setIsOpen ] = useState(false);
-  const [ detailRecord, setDetailRecord ] = useState({});
+  const [listSale, setListSale] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [detailRecord, setDetailRecord] = useState({});
 
   const newRoleUser = profile?.userProfiles?.map(item => item?.type);
   const hasAdminRole = newRoleUser.some(role => role === roleUserAdmin);
@@ -43,14 +43,23 @@ const LeadPage = () => {
   }, [])
 
   useEffect(() => {
-    form.setFieldsValue({saleId: detailRecord?.saleId})
-  },[form, detailRecord])
+    form.setFieldsValue({ saleId: detailRecord?.saleId })
+  }, [form, detailRecord])
 
   const onEdit = (item) => {
     let title = 'Sửa lead mới # ' + item.id;
     let hash = '#draw/lead.edit';
     let data = cloneDeep(item);
     InAppEvent.emit(HASH_MODAL, { hash, title, data });
+  }
+
+  const onHandleUpdateState = async (data) => {
+    const result = await RequestUtils.Post(`/data/update?leadId=${data?.id}`, data);
+    if (result?.errorCode === 200) {
+      InAppEvent.normalSuccess("Cập nhập thành công");
+    } else {
+      InAppEvent.normalError("Cập nhập thất bại");
+    }
   }
 
   const CUSTOM_ACTION = [
@@ -126,22 +135,29 @@ const LeadPage = () => {
     },
     {
       title: "Trạng thái",
-      ataIndex: 'status',
       width: 200,
       ellipsis: true,
       render: (item) => {
         return (
           <div>
             {!!shouldHideLeadLinks ? (
-              <FormSelect
-                name="status"
-                label=""
-                valueProp="id"
-                titleProp='name'
-                resourceData={statusData || []}
-                placeholder='Lọc theo trạng thái'
-              /> 
-          ) : <Tag color={getColorStatusLead(item?.status)}>{getStatusLead(item?.status)}</Tag> }
+              <Select
+                style={{ width: 170 }}
+                defaultValue={getStatusLead(item?.status)}
+                onChange={() => onHandleUpdateState(item)}
+                disabled={STATUS_LEAD.THANH_CO_HOI === item?.status ? true : false}
+              >
+                {map(statusData, (data, index) => (
+                  <Select.Option
+                    key={String(index)}
+                    value={data?.id}
+                  >
+                    {data?.name}
+                  </Select.Option>
+                ))}
+              </Select>
+
+            ) : <Tag color={getColorStatusLead(item?.status)}>{getStatusLead(item?.status)}</Tag>}
           </div>
         )
       }
@@ -170,7 +186,7 @@ const LeadPage = () => {
             color="primary"
             size='small'
             variant="dashed"
-            style={{width: '60%'}}
+            style={{ width: '60%' }}
             onClick={() => {
               setIsOpen(true);
               setDetailRecord(record)
@@ -204,7 +220,7 @@ const LeadPage = () => {
 
   const onHandleSubmitSaleLead = async (value) => {
     const data = await RequestUtils.Post(`/data/re-assign?dataId=${detailRecord?.id}&saleId=${value?.saleId}`, '');
-    if(data?.errorCode === 200) {
+    if (data?.errorCode === 200) {
       InAppEvent.normalSuccess("Tạo sale chăm sóc lead thành công");
       /* nếu tạo ok thì tắt popup */
       setIsOpen(false);
@@ -254,7 +270,7 @@ const LeadPage = () => {
               valueProp="id"
               titleProp="fullName"
             />
-            <Form.Item style={{display: 'flex', justifyContent: 'end'}}>
+            <Form.Item style={{ display: 'flex', justifyContent: 'end' }}>
               <Button type="primary" htmlType="submit">
                 Submit
               </Button>
