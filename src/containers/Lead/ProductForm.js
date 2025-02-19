@@ -166,22 +166,22 @@ const ProductForm = ({ setNewFile, dataUpdate }) => {
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }) => (
-                <Space key={key} style={{display: "block", marginBottom: 8 }} align="baseline">
-                  <div style={{display: 'flex', alignItems: 'baseline', gap: 10}}>
-                    <div style={{width: '100%'}}>
-                        <Form.Item
-                          {...restField}
-                          name={[name]}  // Đây là chỗ bạn cần sửa
-                          rules={[{ required: false, message: "Nhập link ảnh!" }]}
-                        >
-                          <Input placeholder='url'/>
-                        </Form.Item>
+                <Space key={key} style={{ display: "block", marginBottom: 8 }} align="baseline">
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+                    <div style={{ width: '100%' }}>
+                      <Form.Item
+                        {...restField}
+                        name={[name]}  // Đây là chỗ bạn cần sửa
+                        rules={[{ required: false, message: "Nhập link ảnh!" }]}
+                      >
+                        <Input placeholder='url' />
+                      </Form.Item>
                     </div>
                     <MinusCircleOutlined onClick={() => remove(name)} />
                   </div>
                 </Space>
               ))}
-              <Button type="dashed" style={{width: '100%'}} onClick={() => add()} icon={<PlusOutlined />}>
+              <Button type="dashed" style={{ width: '100%' }} onClick={() => add()} icon={<PlusOutlined />}>
                 Thêm Input
               </Button>
             </>
@@ -189,9 +189,10 @@ const ProductForm = ({ setNewFile, dataUpdate }) => {
         </Form.List>
       </Col>
       <Col md={24} xs={24} style={{ marginTop: 40 }}>
+      { dataUpdate?.note && <div style={{padding: '0px 10px 10px 10px'}} dangerouslySetInnerHTML={{__html: dataUpdate?.note}} /> }
         <FormTextArea
           rows={3}
-          name="note"
+          name="noted"
           label="Ghi chú đơn"
           placeholder="Nhập ghi chú"
         />

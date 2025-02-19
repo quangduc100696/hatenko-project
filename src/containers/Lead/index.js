@@ -44,7 +44,7 @@ const NewLead = ({ closeModal, data }) => {
         customerEmail: data?.customerEmail || data?.customerEmail,
         customerFacebook: data?.customerFacebook || data?.customerFacebook,
         staff: data?.staff || dataCreate?.staff,
-        note: data?.note || dataCreate?.note,
+        note: dataCreate?.noted,
         fileUrls: data?.fileUrls.length > 0 ? data?.fileUrls : dataCreate?.fileUrls
       };
       const result = await RequestUtils.Post(`/data/update?leadId=${data?.id}`, param);
