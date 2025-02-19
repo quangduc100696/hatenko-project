@@ -33,7 +33,7 @@ const NewLead = ({ closeModal, data }) => {
   }, [data]);
   const onSubmit = async (dataCreate) => {
     log(dataCreate);
-    if(data) {
+    if(Object.entries(data)?.length > 0) {
       const param = {
         ...data,
         provinceName: data?.provinceName || dataCreate?.provinceName,
@@ -44,8 +44,8 @@ const NewLead = ({ closeModal, data }) => {
         customerEmail: data?.customerEmail || data?.customerEmail,
         customerFacebook: data?.customerFacebook || data?.customerFacebook,
         staff: data?.staff || dataCreate?.staff,
-        note: dataCreate?.noted,
-        fileUrls: data?.fileUrls.length > 0 ? data?.fileUrls : dataCreate?.fileUrls
+        note: dataCreate?.noted || null,
+        fileUrls: data?.fileUrls?.length > 0 ? data?.fileUrls : dataCreate?.fileUrls
       };
       const result = await RequestUtils.Post(`/data/update?leadId=${data?.id}`, param);
       if(result?.errorCode === 200) {
