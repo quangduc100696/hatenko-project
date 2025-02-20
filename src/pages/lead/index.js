@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
+import { SelectOutlined, EditTwoTone } from '@ant-design/icons';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter, { statusData } from './LeadFilter';
 import useGetList from "hooks/useGetList";
-import { Button, Form, Select, Tag } from 'antd';
+import { Button, Form, Select, Tag, Tooltip } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit } from 'utils/dataUtils';
 import { getColorStatusLead, getSource, getStatusLead, getStatusService, STATUS_LEAD } from 'configs/constant';
 import { HASH_MODAL } from 'configs';
@@ -46,8 +47,8 @@ const LeadPage = () => {
     form.setFieldsValue({ saleId: detailRecord?.saleId })
   }, [form, detailRecord])
 
-  const onEdit = (item) => {
-    let title = 'Sửa lead mới # ' + item.id;
+  const onEdit = (item, text) => {
+    let title = text === 'base' ? 'Tạo cơ hội' : 'Sửa lead mới # ' + item.id;
     let hash = '#draw/lead.edit';
     let data = cloneDeep(item);
     InAppEvent.emit(HASH_MODAL, { hash, title, data });
@@ -177,24 +178,49 @@ const LeadPage = () => {
       }
     },
     {
-      title: "Thao tác",
-      width: 200,
+      title: "Tạo cơ hội",
+      width: 120,
       fixed: 'right',
       render: (record) => (
         <div style={{ display: 'flex', gap: 10 }}>
-          <Button
-            color="primary"
-            size='small'
-            variant="dashed"
-            style={{ width: '60%' }}
-            onClick={() => {
-              setIsOpen(true);
-              setDetailRecord(record)
-            }}
-          >
-            {record?.saleId ? 'Chuyển sale' : 'Tạo sale'}
-          </Button>
-          <Button color="danger" variant="dashed" onClick={() => onEdit(record)} size='small'>Detail</Button>
+          {record?.saleId && (
+            <div>
+              <Button color="danger" variant="dashed" onClick={() => onEdit(record, 'base')} size='small'>Tạo cơ hội</Button>
+            </div>
+          )}
+        </div>
+      )
+    },
+    {
+      title: "Thao tác",
+      width: 100,
+      fixed: 'right',
+      ellipsis: true,
+      render: (record) => (
+        <div>
+          <div style={{ display: 'flex', gap: 20 }}>
+            {/* <Button
+              color="primary"
+              size='small'
+              variant="dashed"
+              style={{ width: '100px' }}
+              onClick={() => {
+                setIsOpen(true);
+                setDetailRecord(record)
+              }}
+            >
+              {record?.saleId ? 'Chuyển sale' : 'Tạo sale'}
+            </Button> */}
+             <Tooltip style={{cursor: 'pointer'}} title={record?.saleId ? 'Chuyển sale' : 'Tạo sale'}>
+              <EditTwoTone style={{ color: '#1677ff', fontSize: 20 }} onClick={() => {
+                setIsOpen(true);
+                setDetailRecord(record)
+              }}/>
+             </Tooltip>
+             <Tooltip style={{cursor: 'pointer'}} title={'Detail'}>
+              <SelectOutlined style={{ color: '#1677ff', fontSize: 20 }} onClick={() => onEdit(record, 'detail')}/>
+             </Tooltip>
+          </div>
         </div>
       )
     }
@@ -270,7 +296,7 @@ const LeadPage = () => {
               valueProp="id"
               titleProp="fullName"
             />
-            <Form.Item style={{ display: 'flex', justifyContent: 'end' }}>
+            <Form.Item style={{ display: 'flex', justifyContent: 'end', marginTop: 10 }}>
               <Button type="primary" htmlType="submit">
                 Submit
               </Button>
