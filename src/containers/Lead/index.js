@@ -15,7 +15,6 @@ const NewLead = ({ title, closeModal, data }) => {
   const [ record, setRecord] = useState({});
   const [ detailCohoi, setDetailCohoi ] = useState({});
   const [ detailSp, setDetailSp ] = useState({});
-  const [ listCohoi, setListCohoi ] = useState({});
 
   useEffect(() => {
     (async () => {
@@ -72,8 +71,6 @@ const NewLead = ({ title, closeModal, data }) => {
   }
 
   const onHandleSubmitBase = async(values) => {
-    // console.log('111', values);
-    // console.log(detailSp);
     let skus = [];
     for (const item of detailSp?.skus) {
       for (const element of item?.skuDetail) {
@@ -99,8 +96,14 @@ const NewLead = ({ title, closeModal, data }) => {
       details: [newValue]
     }
     const datas = await RequestUtils.Post('/customer-order/sale-create-co-hoi', params);
+    console.log(datas?.data);
+    
     if(datas?.errorCode === 200) {
-      setDetailCohoi(datas?.data)
+      setDetailCohoi(curvals => ({
+        ...curvals, 
+        ...datas?.data,
+        details: [...(curvals.details || []), ...(datas?.data?.details || [])]
+      }))
       InAppEvent.normalSuccess("Tạo cơ hội thành công");
     }else {
       InAppEvent.normalError("Tạo cơ hội thất bại");
@@ -119,7 +122,6 @@ const NewLead = ({ title, closeModal, data }) => {
         {/* <ProductForm setNewFile={setNewFile} dataUpdate={data} /> */}
         <FormBase setDetailSp={setDetailSp} 
           record={record}
-          listCohoi={listCohoi} 
           detailCohoi={detailCohoi} 
           setDetailCohoi={setDetailCohoi}
           detailSp={detailSp}

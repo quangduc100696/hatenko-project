@@ -19,35 +19,45 @@ import CustomButton from 'components/CustomButton';
 import { useMount } from 'hooks/MyHooks';
 import { generateInForm } from 'containers/Order/utils';
 
-const FormBase = ({setDetailSp, record, listCohoi, detailCohoi, setDetailCohoi, detailSp}) => {
+const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp }) => {
+  const [detailArr, setDetailArr] = useState([])
 
   const onClickAddNewOrder = async () => {
-      if(arrayEmpty(detailCohoi?.details ?? [])) {
-        return;
-      }
-      let nRecord = cloneDeep(detailCohoi);
-      let details = nRecord.details;
-      let detail = cloneDeep(details[details.length - 1]);
-      if(detail.code === "New") {
-        return;
-      }
-      detail.id = "";
-      detail.code = "New"
-      detail.productName = "(Thêm cơ hội)"
-      detail.skuId = null;
-      detail.quantity = "";
-      detail.price = "";
-      detail.discount = {
-        discountUnit: null,
-        discountValue: ""
-      }
-      detail.note = "";
-      detail.name = "";
-      detail.status = null;
+    if (arrayEmpty(detailCohoi?.details ?? [])) {
+      return;
+    }
+    let nRecord = cloneDeep(detailCohoi);
+    let details = nRecord.details;
+    // Kiểm tra nếu có "New" ở cuối
+    if (details.length > 0 && details[details.length - 1].code === "New") {
+      return;
+    }
+    let detail = cloneDeep(details[details.length - 1]);
+    detail.id = "";
+    detail.code = "New";
+    detail.productName = "(Thêm cơ hội)";
+    detail.skuId = null;
+    detail.quantity = "";
+    detail.price = "";
+    detail.discount = {
+      discountUnit: null,
+      discountValue: ""
+    };
+    detail.noted = "";
+    detail.name = "";
+    detail.status = null;
+
+    if (details.some(item => item.code === "New")) {
+      let rForm = await generateInForm(nRecord, details.length - 1);
+      setDetailCohoi(rForm);
+      setDetailArr(rForm);
+    } else {
       details.push(detail);
       let rForm = await generateInForm(nRecord, details.length - 1);
       setDetailCohoi(rForm);
-    };
+      setDetailArr(rForm);
+    }
+  };
 
   return (
     <Row gutter={16} style={{ marginTop: 20 }}>
@@ -56,7 +66,7 @@ const FormBase = ({setDetailSp, record, listCohoi, detailCohoi, setDetailCohoi, 
         shouldUpdate={(prevValues, curValues) => prevValues.detailCode !== curValues.detailCode}
       >
         {({ getFieldValue }) => (
-          <HeadDetail details={detailCohoi?.details ?? []} setDetailCohoi={setDetailCohoi} currentCode={detailCohoi?.detailCode} />
+          <HeadDetail details={detailArr ?? []} detailCohoi={detailCohoi} setDetailCohoi={setDetailCohoi} setDetailSp={setDetailSp} />
         )}
       </Form.Item>
       <Col md={24} xs={24}>
@@ -184,54 +194,55 @@ const FormBase = ({setDetailSp, record, listCohoi, detailCohoi, setDetailCohoi, 
       <Col md={24} xs={24} style={{ display: 'flex', justifyContent: 'end', marginBottom: 20 }}>
         <CustomButton htmlType="submit" />
         <CustomButton
-          disabled={detailCohoi?.details?.length > 0 ? false :  true}
+          disabled={(detailCohoi?.id || 0) === 0}
           color="primary"
           variant="outlined"
           title="Thêm cơ hội mới"
           style={{ marginLeft: 20 }}
-         onClick={() => onClickAddNewOrder()}
+          onClick={() => onClickAddNewOrder()}
         />
       </Col>
     </Row>
   )
 }
 
-const HeadDetail = ({ details, currentCode, setDetailCohoi}) => {
-  const { form, record, updateRecord } = useContext(FormContextCustom);
-  const [ code, setCode ] = useState('')
-  const onClick = async (item, index) => {
+const HeadDetail = ({ details, detailCohoi, setDetailSp, setDetailCohoi }) => {
+  const { form } = useContext(FormContextCustom);
+  const [code, setCode] = useState('')
 
-    if(arrayNotEmpty(details)) {
+  const onClick = async (item, index) => {
+    if (arrayNotEmpty(details?.details)) {
       /* SeT value In Current Form */
-      let rForm = await generateInForm(item, index);
+      let rForm = await generateInForm(details, index);
       setDetailCohoi(rForm)
+      setDetailSp(rForm?.product)
       setCode(item.code)
     }
   };
 
   useMount(() => {
-    if(record?.id && arrayNotEmpty(details ?? [])) {
-      form.setFieldsValue({ detailId: details[0].id });
+    if (detailCohoi?.id && arrayNotEmpty(details?.details ?? [])) {
+      form.setFieldsValue({ detailId: details?.details[0].id });
     }
   });
 
-	return arrayEmpty(details) 
-  ? <Tag size="small" style={{ cursor: "pointer" }} color={'#2db7f5'}>{ (details.length + 1) } - Cơ hội mới</Tag>
-  : details.map((item, id) => {
-    let color = item.code === code ? '#2db7f5' : '#ccc';
-    const newName = item.productName;
-    return (
-      <Tag 
-        onClick={()=> onClick(item, id)}
-        key={id} 
-        size="small" 
-        style={{ textAlign: 'center', cursor: "pointer" }} 
-        color={color}
-      >
-        {item.code} {!newName ? `${id + 1} Cơ hội mới` : <span><br/>{newName}</span>}
-      </Tag>
-    )
-  })
+  return arrayEmpty(details?.details)
+    ? <Tag size="small" style={{ cursor: "pointer" }} color={'#2db7f5'}>{(details.length + 1)} - Cơ hội mới</Tag>
+    : details?.details.sort((a, b) => (a.code === "New" ? 1 : b.code === "New" ? -1 : 0)).map((item, id) => {
+      let color = item.code === code ? '#2db7f5' : '#ccc';
+      const newName = item.productName;
+      return (
+        <Tag
+          onClick={() => onClick(item, id)}
+          key={id}
+          size="small"
+          style={{ textAlign: 'center', cursor: "pointer" }}
+          color={color}
+        >
+          {item.code} {!newName ? `${id + 1} Cơ hội mới` : <span><br />{newName}</span>}
+        </Tag>
+      )
+    })
 }
 
 

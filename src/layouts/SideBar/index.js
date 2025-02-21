@@ -46,7 +46,7 @@ function SideBar() {
       !shouldHideLeadLinks && getItem(<Link to="/customer-service/lead">Chưa chăm sóc</Link>, "lead_not_taken_child", <ScheduleOutlined />),
       !shouldHideLeadLinks && getItem(<Link to="/customer-lead/lead">Đã chăm sóc</Link>, "lead_taken_child", <ScheduleOutlined />),
 		].filter(Boolean)),
-		getItem(<Link to="/sale/co-hoi"> Cơ hội</Link>, 'co_hoi', <IncomeFIcon />),
+		getItem(<Link to="/sale/co-hoi"> Cơ hội </Link>, 'co_hoi', <IncomeFIcon />),
 		getItem(<Link to="/sale/order"> Đơn hàng</Link>, 'list_order', <UnorderedListOutlined />),
 		getItem('Kế toán', 'need_solve', <DollarCircleFilled /> , [
 			getItem(<Link to="/ke-toan/confirm">Duyệt tiền</Link>, 'list_order_update', <UnorderedListOutlined />),
