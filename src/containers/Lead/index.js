@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import RestEditModal from 'components/RestLayout/RestEditModal';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
-import { arrayNotEmpty, f5List } from 'utils/dataUtils';
+import { arrayNotEmpty, f5List, formatMoney } from 'utils/dataUtils';
 import ProductForm from './ProductForm';
 import ProductAttrService from 'services/ProductAttrService';
 import { HASH_MODAL_CLOSE } from 'configs';
-import FormBase from './FormBase';
+import FormBase, { handleDistancePrice } from './FormBase';
+import { calPriceOff } from 'utils/tools';
 
 const log = (value) => console.log('[container.product.index] ', value);
 const NewLead = ({ title, closeModal, data }) => {
@@ -78,13 +79,20 @@ const NewLead = ({ title, closeModal, data }) => {
       }
     }
     const customer = await RequestUtils.Get(`/customer/find-by-phone?phone=${data?.customerMobile}&withOrder=withOrder`);
+    const total = values?.quantity * values?.price;
+    const discountValue = values?.discountValue;
+    const discountUnit = values?.discountUnit;
+    const pOff = calPriceOff({discountValue, discountUnit, total });
+    const totalAFD = total - pOff;
+    const priceText = formatMoney(values?.skuId ? (totalAFD > 0 ? totalAFD : 0) : 0);
+    const newPrice = handleDistancePrice(values?.skuId, detailSp, values?.quantity, priceText, discountValue, discountUnit).replace('VND', '');
     const newValue = {
       productId: detailSp?.id,
       skuInfo: JSON.stringify(skus),
       productName: values?.productName,
       skuId: values?.skuId,
       quantity: values?.quantity,
-      price: values?.price,
+      price: parseFloat(newPrice.replace(/\./g, '').trim()),
       note: values?.noted,
       name: values?.name,
       status: values?.status

@@ -20,7 +20,7 @@ import { useMount } from 'hooks/MyHooks';
 import { generateInForm } from 'containers/Order/utils';
 
 /* Hàm này check nếu số lượng có trong khoảng giá sp thì lấy giá đó ngược lại lấy giá nhập  */
-const handleDistancePrice = (skuId, detailSp, quantity, priceText, discountValue, discountUnit) => {
+export const handleDistancePrice = (skuId, detailSp, quantity, priceText, discountValue, discountUnit) => {
   if(detailSp?.skus) {
     for (const item of detailSp?.skus) {
       if(arrayNotEmpty(item?.listPriceRange)) {
