@@ -96,8 +96,7 @@ const NewLead = ({ title, closeModal, data }) => {
       details: [newValue]
     }
     const datas = await RequestUtils.Post('/customer-order/sale-create-co-hoi', params);
-    console.log(datas?.data);
-    
+
     if(datas?.errorCode === 200) {
       setDetailCohoi(curvals => ({
         ...curvals, 

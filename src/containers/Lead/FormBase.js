@@ -19,6 +19,32 @@ import CustomButton from 'components/CustomButton';
 import { useMount } from 'hooks/MyHooks';
 import { generateInForm } from 'containers/Order/utils';
 
+/* Hàm này check nếu số lượng có trong khoảng giá sp thì lấy giá đó ngược lại lấy giá nhập  */
+const handleDistancePrice = (skuId, detailSp, quantity, priceText, discountValue, discountUnit) => {
+  if(detailSp?.skus) {
+    for (const item of detailSp?.skus) {
+      if(arrayNotEmpty(item?.listPriceRange)) {
+        for (const element of item?.listPriceRange) {
+          if(quantity) {
+            if(quantity >= element?.quantityFrom && quantity <= element?.quantityTo) {
+              const total = element?.price;
+              const pOff = calPriceOff({ discountValue, discountUnit, total });
+              const totalAFD = total - pOff;
+              return formatMoney(skuId ? (totalAFD > 0 ? totalAFD : element?.price) : element?.price);
+            } else {
+              return priceText;
+            }
+          }
+        }
+      } else {
+        return priceText;
+      }
+    }
+  } else {
+    return priceText;
+  }
+}
+
 const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp }) => {
   const [detailArr, setDetailArr] = useState([])
 
@@ -152,13 +178,15 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp }) => {
         )}
       >
         {({ getFieldValue }) => {
-          const { skuId, quantity, discountValue, discountUnit, price } = getFieldValue();
+          const { skuId, quantity, discountValue, discountUnit, price } = getFieldValue();  
           const total = quantity * price;
           const pOff = calPriceOff({ discountValue, discountUnit, total });
           const totalAFD = total - pOff;
+          const priceText = formatMoney(skuId ? (totalAFD > 0 ? totalAFD : 0) : 0);
+          handleDistancePrice(detailSp, quantity);
           return (
             <ShowPriceStyles md={24} xs={24}>
-              <h3 className="lo-order">Thành tiền: {formatMoney(skuId ? (totalAFD > 0 ? totalAFD : 0) : 0)}</h3>
+              <h3 className="lo-order">Thành tiền: {handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit)}</h3>
             </ShowPriceStyles>
           )
         }}
