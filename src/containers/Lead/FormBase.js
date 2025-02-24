@@ -27,7 +27,7 @@ export const handleDistancePrice = (skuId, detailSp, quantity, priceText, discou
         for (const element of item?.listPriceRange) {
           if(quantity) {
             if(quantity >= element?.quantityFrom && quantity <= element?.quantityTo) {
-              const total = element?.price;
+              const total = element?.price * quantity;
               const pOff = calPriceOff({ discountValue, discountUnit, total });
               const totalAFD = total - pOff;
               return formatMoney(skuId ? (totalAFD > 0 ? totalAFD : element?.price) : element?.price);
