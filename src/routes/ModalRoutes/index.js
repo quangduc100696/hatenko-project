@@ -7,13 +7,15 @@ import OrderRoute from './OrderRoute';
 import LeadRoute from './LeadRouter.js';
 import LeadNotTakeRouter from './LeadNotTakeRouter.js';
 import LeadTakeRouter from './LeadTakeRouter.js';
+import CohoiRouter from './CohoiRouter.js';
 
 const modalRoutes = [
   ...ProductRoute,
   ...OrderRoute,
   ...LeadRoute,
   ...LeadNotTakeRouter,
-  ...LeadTakeRouter
+  ...LeadTakeRouter,
+  ...CohoiRouter
 ]
 const log = (key, val) => console.log('[routes.draw-routes] ' + key + ' ', val);
 const notFoundHash = { Component: () => <div /> };

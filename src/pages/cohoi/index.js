@@ -2,15 +2,24 @@ import React, { useCallback, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
-import LeadFilter from './Filter';
+import Filter from './Filter';
 import useGetList from "hooks/useGetList";
 import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
+import { Button } from 'antd';
+import { cloneDeep } from 'lodash';
 
 const CohoiPage = () => {
 
     const [title] = useState("Danh sách cơ hội");
+
+    const onEdit = (item) => {
+        let title = 'Chi tiết cơ hội# ' + item.id;
+        let hash = '#draw/cohoi.edit';
+        let data = cloneDeep(item);
+        InAppEvent.emit(HASH_MODAL, { hash, title, data });
+    }
 
     const CUSTOM_ACTION = [
         // {
@@ -139,6 +148,9 @@ const CohoiPage = () => {
             ellipsis: true,
             render: (record) => (
                 <div>
+                    <Button color="primary" variant="dashed" onClick={() => onEdit(record)} size='small'>
+                        Detail
+                    </Button>
                 </div>
             )
         }
@@ -174,7 +186,7 @@ const CohoiPage = () => {
                 xScroll={1200}
                 onData={onData}
                 initialFilter={{ limit: 10, page: 1 }}
-                filter={<LeadFilter />}
+                filter={<Filter />}
                 beforeSubmitFilter={beforeSubmitFilter}
                 useGetAllQuery={useGetList}
                 apiPath={'customer-order/fetch-cohoi'}

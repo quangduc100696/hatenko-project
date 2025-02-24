@@ -1,10 +1,11 @@
 import { Tag, Form, Row, Col } from "antd";
 import { FormContextCustom } from "components/context/FormContextCustom";
+import FormAutoCompleteCustomer from "components/form/AutoCompleteInfinite/FormAutoCompleteCustomer";
 import FormAutoCompleteInfinite from "components/form/AutoCompleteInfinite/FormAutoCompleteInfinite";
 import FormInput from "components/form/FormInput";
 import FormInputNumber from "components/form/FormInputNumber";
 import FormSelect from "components/form/FormSelect";
-import { DISCOUNT_UNIT_CONST } from "configs/localData";
+import { DISCOUNT_UNIT_CONST, VAT_UNIT_CONST } from "configs/localData";
 import ProductSumary from "containers/Product/ProductSumary";
 import { useGetAllProductQuery } from "hooks/useData";
 import { useContext } from "react";
@@ -13,9 +14,11 @@ import CustomButton from 'components/CustomButton';
 import FormTextArea from "components/form/FormTextArea";
 import { ShowPriceStyles } from "./styles";
 import { calPriceOff } from "utils/tools";
+import { UserIcon } from "icons/SVGIcons";
 import FormHidden from "components/form/FormHidden";
 import ShowCustomerInfo from "containers/Customer/ShowCustomerInfo";
 import { useMount } from "hooks/MyHooks";
+import FormRadioGroup from "components/form/FormRadioGroup";
 import OrderService from "services/OrderService";
 import { generateInForm } from "./utils";
 import { cloneDeep } from "lodash";
@@ -63,10 +66,7 @@ const ORderDetailForm = () => {
         <HeadDetail  details={record?.details ?? []} currentCode={getFieldValue('detailCode')} />
       )}
     </Form.Item>
-    <Row gutter={16} style={{marginTop: 20}}>  
-      <Col md={24} xs={24}>
-        <ShowCustomerInfo customer={record?.customer ?? {}} />
-      </Col>
+    <Row gutter={16} style={{marginTop: 20}}>
       <Col md={24} xs={24}>
         <ProductSumary data={record?.product ?? {}} />
         <div style={{ margin: '20px 0px' }}>

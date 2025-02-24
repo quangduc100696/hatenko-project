@@ -21,7 +21,7 @@ const Filter = () => {
             name="productName"
             valueProp="name"
             searchKey="name"
-            required
+            required={false}
             placeholder="Tìm kiếm Sản phẩm"
             customGetValueFromEvent={(productName, product) => {
               return productName;
