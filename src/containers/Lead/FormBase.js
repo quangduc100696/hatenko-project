@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Col, Form, Row, Tag } from 'antd';
 import { cloneDeep } from "lodash";
 // import FormHidden from 'components/form/FormHidden';
@@ -46,7 +46,32 @@ export const handleDistancePrice = (skuId, detailSp, quantity, priceText, discou
 }
 
 const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp }) => {
-  const [detailArr, setDetailArr] = useState([])
+  const [ detailArr, setDetailArr ] = useState([]);
+  const [ priceSp, setPriceSp ] = useState(null);
+  const { form } = useContext(FormContextCustom);
+
+  useEffect(() => {
+    (() => {
+      if(detailSp?.skus) {
+        const { quantity } = form.getFieldsValue();
+        let price = "";
+        for (const item of detailSp?.skus) {
+          if(arrayNotEmpty(item?.listPriceRange)) {
+            for (const element of item?.listPriceRange) {
+              if(quantity >= element?.quantityFrom && quantity <= element?.quantityTo) {
+                price = priceSp;
+                break;
+              } 
+            }
+          }
+        }
+        if(price) {
+          form.setFieldsValue({price: price})
+        }
+      }
+    })()
+    // eslint-disable-next-line
+  },[priceSp])
 
   const onClickAddNewOrder = async () => {
     if (arrayEmpty(detailCohoi?.details ?? [])) {
@@ -184,6 +209,8 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp }) => {
           const totalAFD = total - pOff;
           const priceText = formatMoney(skuId ? (totalAFD > 0 ? totalAFD : 0) : 0);
           handleDistancePrice(detailSp, quantity);
+          const newPrice = quantity ? handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit).replace('VND', '') : '0';
+          setPriceSp(parseFloat(newPrice.replace(/\./g, '').trim()))
           return (
             <ShowPriceStyles md={24} xs={24}>
               <h3 className="lo-order">Thành tiền: {handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit)}</h3>
