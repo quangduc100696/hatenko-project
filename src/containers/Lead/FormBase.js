@@ -20,16 +20,16 @@ import { useMount } from 'hooks/MyHooks';
 import { generateInForm } from 'containers/Order/utils';
 
 /* Hàm này check nếu số lượng có trong khoảng giá sp thì lấy giá đó ngược lại lấy giá nhập  */
-export const handleDistancePrice = (skuId, detailSp, quantity, priceText, discountValue, discountUnit) => {
+export const handleDistancePrice = (skuId, detailSp, quantity, priceText, discountValue, discountUnit, text) => {
   if(detailSp?.skus) {
     for (const item of detailSp?.skus) {
       if(arrayNotEmpty(item?.listPriceRange)) {
         for (const element of item?.listPriceRange) {
           if(quantity) {
             if(quantity >= element?.quantityFrom && quantity <= element?.quantityTo) {
-              const total = element?.price * quantity;
+              const total = text === 'yes' ? element?.price * quantity : element?.price;
               const pOff = calPriceOff({ discountValue, discountUnit, total });
-              const totalAFD = total - pOff;
+              const totalAFD = text === 'yes' ? total - pOff : total;
               return formatMoney(skuId ? (totalAFD > 0 ? totalAFD : element?.price) : element?.price);
             } else {
               return priceText;
@@ -209,11 +209,11 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp }) => {
           const totalAFD = total - pOff;
           const priceText = formatMoney(skuId ? (totalAFD > 0 ? totalAFD : 0) : 0);
           handleDistancePrice(detailSp, quantity);
-          const newPrice = quantity ? handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit).replace('VND', '') : '0';
+          const newPrice = quantity ? handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit, 'not').replace('VND', '') : '0';
           setPriceSp(parseFloat(newPrice.replace(/\./g, '').trim()))
           return (
             <ShowPriceStyles md={24} xs={24}>
-              <h3 className="lo-order">Thành tiền: {handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit)}</h3>
+              <h3 className="lo-order">Thành tiền: {handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit, 'yes')}</h3>
             </ShowPriceStyles>
           )
         }}
