@@ -92,7 +92,7 @@ const NewLead = ({ title, closeModal, data }) => {
       productName: values?.productName,
       skuId: values?.skuId,
       quantity: values?.quantity,
-      price: parseFloat(newPrice.replace(/\./g, '').trim()),
+      price: values?.price,
       note: values?.noted,
       name: values?.name,
       status: values?.status
