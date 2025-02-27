@@ -1,8 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Col, Form, Row, Tag } from 'antd';
 import { cloneDeep } from "lodash";
-// import FormHidden from 'components/form/FormHidden';
-import FormInput from 'components/form/FormInput';
 import ProductSumary from 'containers/Product/ProductSumary';
 import FormAutoCompleteInfinite from 'components/form/AutoCompleteInfinite/FormAutoCompleteInfinite';
 import { useGetAllProductQuery } from 'hooks/useData';
@@ -14,7 +12,6 @@ import FormTextArea from 'components/form/FormTextArea';
 import { ShowPriceStyles } from 'containers/Order/styles';
 import { calPriceOff } from 'utils/tools';
 import { arrayEmpty, arrayNotEmpty, formatMoney } from 'utils/dataUtils';
-import OrderService from 'services/OrderService';
 import CustomButton from 'components/CustomButton';
 import { useMount } from 'hooks/MyHooks';
 import { generateInForm } from 'containers/Order/utils';
@@ -227,25 +224,6 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp }) => {
           placeholder="Nhập ghi chú"
         />
       </Col>
-
-      <Col md={12} xs={24}>
-        <FormInput
-          required
-          name="name"
-          label="Tên đơn"
-          placeholder="Nhập tên đơn"
-        />
-      </Col>
-      <Col md={12} xs={24}>
-        <FormSelect
-          resourceData={OrderService.allStatus}
-          required
-          name="status"
-          label="Trạng thái"
-          placeholder="Chọn trạng thái"
-        />
-      </Col>
-
       <Col md={24} xs={24} style={{ display: 'flex', justifyContent: 'end', marginBottom: 20 }}>
         <CustomButton htmlType="submit" />
         <CustomButton

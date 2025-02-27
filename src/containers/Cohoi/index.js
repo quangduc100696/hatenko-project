@@ -1,13 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { message } from 'antd';
 import RestEditModal from 'components/RestLayout/RestEditModal';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
-import { arrayEmpty, encodeProperty, f5List } from 'utils/dataUtils';
 import ProductAttrService from 'services/ProductAttrService';
-import { cloneDeep, merge } from 'lodash';
-import ORderDetailForm from 'containers/Order/ORderDetailForm';
 import { generateInForm } from 'containers/Order/utils';
+import OrderDtailForm from './OrderDtailForm';
 
 const NewCoHoi = ({ closeModal, data }) => {
   const [record, setRecord] = useState({});
@@ -20,63 +17,33 @@ const NewCoHoi = ({ closeModal, data }) => {
     return () => ProductAttrService.empty();
   }, [data]);
 
-  const onSubmit = useCallback(async (data) => {
-    const product = record.product;
-    if (!product) {
-      message.info("Can't create Order with empty Product .!");
-      return;
+  const onSubmit = useCallback(async (value) => {
+    const customer = await RequestUtils.Get(`/customer/find-by-phone?phone=${data?.customerMobilePhone}&withOrder=withOrder`);
+    const newValue = {
+      productId: data?.details[0]?.id,
+      skuInfo: data?.details[0]?.skuInfo,
+      productName: value?.productName,
+      skuId: value?.skuId,
+      quantity: value?.quantity,
+      price: value?.price,
+      note: value?.note,
+      name: value?.name,
+      status: value?.status
     }
-    if (!record?.customer) {
-      message.info("Please Choise a Customer .!");
-      return;
+    const params = {
+      vat: 0,
+      id: data?.id,
+      dataId: data?.dataId,
+      customer: customer?.data?.iCustomer || null,
+      details: [newValue]
     }
-    let values = cloneDeep(data);
-    const { id, vat, discountUnit, discountValue, ...rest } = values;
-    let discount = { discountUnit, discountValue };
-    let input = {
-      id,
-      vat: vat || 0,
-      customer: record?.customer
-    };
-    /* Loại bỏ detailCode, customerName */
-    const { detailId, detailCode, customerName, ...detail } = rest;
-
-    let details = record?.details ?? [];
-    let entity = details.find(i => i.id === detailId) || {};
-    if (!entity?.id && detailId !== "") {
-      details.push(entity);
-    }
-
-    entity.productId = product.id;
-    entity.skuInfo = product?.skus?.find(s => s.id === rest.skuId)?.skuDetail ?? [];
-    entity.discount = discount;
-
-    /* Xoá Id, code cho đơn thêm mới */
-    if (detailId === "") {
-      delete entity.id;
-      delete entity.code;
-    }
-
-    encodeProperty(entity, ['skuInfo', 'discount']);
-    merge(entity, detail); /* Copy detail to entity */
-    if (!discountValue) {
-      delete entity.discount;
-    }
-
-    input.details = details;
-    if (arrayEmpty(input.details)) {
-      message.info("Can't create Order with empty skus .!");
-      return;
-    }
-
-    let params = (input?.id ?? '') === '' ? {} : { id: input.id };
-    const { errorCode } = await RequestUtils.Post("/order/save", input, params);
-    const isSuccess = errorCode === 200;
-    if (isSuccess) {
-      f5List('order/fetch');
-    }
-    InAppEvent.normalInfo(isSuccess ? "Cập nhật thành công" : "Lỗi cập nhật, vui lòng thử lại sau");
-  }, [record]);
+    const datas = await RequestUtils.Post(`/customer-order/update-cohoi`, params);
+    if(datas?.errorCode === 200) {
+      InAppEvent.normalSuccess("Cập nhật cơ hội thành công");
+    }else {
+      InAppEvent.normalError("Cập nhật cơ hội thất bại");
+    } 
+  }, [data]);
 
   return (
     <div>
@@ -87,7 +54,7 @@ const NewCoHoi = ({ closeModal, data }) => {
         record={record}
         closeModal={closeModal}
       >
-        <ORderDetailForm/>
+        <OrderDtailForm/>
       </RestEditModal>
     </div>
   )

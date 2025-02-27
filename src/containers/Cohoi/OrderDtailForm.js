@@ -1,30 +1,25 @@
+import { useContext } from "react";
 import { Tag, Form, Row, Col } from "antd";
 import { FormContextCustom } from "components/context/FormContextCustom";
-import FormAutoCompleteCustomer from "components/form/AutoCompleteInfinite/FormAutoCompleteCustomer";
-import FormAutoCompleteInfinite from "components/form/AutoCompleteInfinite/FormAutoCompleteInfinite";
-import FormInput from "components/form/FormInput";
 import FormInputNumber from "components/form/FormInputNumber";
 import FormSelect from "components/form/FormSelect";
-import { DISCOUNT_UNIT_CONST, VAT_UNIT_CONST } from "configs/localData";
+import { DISCOUNT_UNIT_CONST } from "configs/localData";
 import ProductSumary from "containers/Product/ProductSumary";
 import { useGetAllProductQuery } from "hooks/useData";
-import { useContext } from "react";
 import { arrayEmpty, arrayNotEmpty, formatMoney } from "utils/dataUtils";
 import CustomButton from 'components/CustomButton';
 import FormTextArea from "components/form/FormTextArea";
-import { ShowPriceStyles } from "./styles";
+import { ShowPriceStyles } from "../Order/styles";
 import { calPriceOff } from "utils/tools";
-import { UserIcon } from "icons/SVGIcons";
 import FormHidden from "components/form/FormHidden";
-import ShowCustomerInfo from "containers/Customer/ShowCustomerInfo";
 import { useMount } from "hooks/MyHooks";
-import FormRadioGroup from "components/form/FormRadioGroup";
-import OrderService from "services/OrderService";
-import { generateInForm } from "./utils";
+import { generateInForm } from "../Order/utils";
 import { cloneDeep } from "lodash";
+import FormAutoCompleteInfinite from "components/form/AutoCompleteInfinite/FormAutoCompleteInfinite";
 
-const ORderDetailForm = () => {
+const OrderDtailForm = () => {
   const { record, updateRecord } = useContext(FormContextCustom);
+
   const onClickAddNewOrder = async () => {
     if(arrayEmpty(record?.details ?? [])) {
       return;
@@ -76,7 +71,7 @@ const ORderDetailForm = () => {
       </Col>
       
       <Col md={12} xs={24}>
-        <FormAutoCompleteInfinite 
+        <FormAutoCompleteInfinite
           useGetAllQuery={useGetAllProductQuery}
           label="Sản phẩm"
           filterField="name"
@@ -169,25 +164,6 @@ const ORderDetailForm = () => {
           placeholder="Nhập ghi chú"
         />
       </Col>
-
-      <Col md={12} xs={24}>
-        <FormInput 
-          required
-          name="name" 
-          label="Tên đơn"
-          placeholder="Nhập tên đơn"
-        />
-      </Col>
-      <Col md={12} xs={24}>
-        <FormSelect 
-          resourceData={OrderService.allStatus}
-          required
-          name="status" 
-          label="Trạng thái"
-          placeholder="Chọn trạng thái"
-        />
-      </Col>
-
       <Col md={24} xs={24} style={{display: 'flex', justifyContent:'end', marginBottom: 20}}>
         <CustomButton htmlType="submit" />
         <CustomButton 
@@ -239,4 +215,4 @@ const HeadDetail = ({ details, currentCode }) => {
   })
 }
 
-export default ORderDetailForm;
+export default OrderDtailForm;

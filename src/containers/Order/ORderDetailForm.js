@@ -16,9 +16,9 @@ import { calPriceOff } from "utils/tools";
 import FormHidden from "components/form/FormHidden";
 import ShowCustomerInfo from "containers/Customer/ShowCustomerInfo";
 import { useMount } from "hooks/MyHooks";
-import OrderService from "services/OrderService";
 import { generateInForm } from "./utils";
 import { cloneDeep } from "lodash";
+import FormSelectAPI from "components/form/FormSelectAPI";
 
 const ORderDetailForm = () => {
   const { record, updateRecord } = useContext(FormContextCustom);
@@ -179,11 +179,20 @@ const ORderDetailForm = () => {
         />
       </Col>
       <Col md={12} xs={24}>
-        <FormSelect 
+        {/* <FormSelect 
           resourceData={OrderService.allStatus}
           required
           name="status" 
           label="Trạng thái"
+          placeholder="Chọn trạng thái"
+        /> */}
+         <FormSelectAPI
+          required
+          apiPath='status-order/fetch'
+          apiAddNewItem='status-order/save'
+          onData={(data) => data ?? []}
+          label="Trạng thái"
+          name="status"
           placeholder="Chọn trạng thái"
         />
       </Col>

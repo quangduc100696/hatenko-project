@@ -22,19 +22,6 @@ const CohoiPage = () => {
     }
 
     const CUSTOM_ACTION = [
-        // {
-        //   title: "Dich vụ",
-        //   dataIndex: 'service',
-        //   width: 150,
-        //   ellipsis: true,
-        //   render: (item) => {
-        //     return (
-        //         <div>
-        //             {getStatusService(item?.serviceId)}
-        //         </div>
-        //     )
-        //   }
-        // },
         {
             title: "Mã đơn",
             ataIndex: 'code',
@@ -187,6 +174,7 @@ const CohoiPage = () => {
                 onData={onData}
                 initialFilter={{ limit: 10, page: 1 }}
                 filter={<Filter />}
+                hasCreate={false}
                 beforeSubmitFilter={beforeSubmitFilter}
                 useGetAllQuery={useGetList}
                 apiPath={'customer-order/fetch-cohoi'}
