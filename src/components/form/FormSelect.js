@@ -84,7 +84,6 @@ const FormSelect = ({
         { required, message: t(messageRequire)},
         ...rules
       ]}
-      style={{margin: 0}}
       initialValue={initialValue}
       {...formItemProps}
     >

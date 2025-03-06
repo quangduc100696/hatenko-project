@@ -4,7 +4,7 @@ const CohoiRouter = [
   {
     path: 'cohoi.edit',
     Component: React.lazy(() => import('containers/Cohoi')),
-    modalOptions: { title: '', width: 750 }
+    modalOptions: { title: '', widh: 750 }
   }
 ];
 

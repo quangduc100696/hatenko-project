@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Col, Form, Row, Tag } from 'antd';
+import { Button, Col, Form, Row, Tag } from 'antd';
 import { cloneDeep } from "lodash";
+import { CloseCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import ProductSumary from 'containers/Product/ProductSumary';
 import FormAutoCompleteInfinite from 'components/form/AutoCompleteInfinite/FormAutoCompleteInfinite';
 import { useGetAllProductQuery } from 'hooks/useData';
@@ -18,12 +19,12 @@ import { generateInForm } from 'containers/Order/utils';
 
 /* Hàm này check nếu số lượng có trong khoảng giá sp thì lấy giá đó ngược lại lấy giá nhập  */
 export const handleDistancePrice = (skuId, detailSp, quantity, priceText, discountValue, discountUnit, text) => {
-  if(detailSp?.skus) {
+  if (detailSp?.skus) {
     for (const item of detailSp?.skus) {
-      if(arrayNotEmpty(item?.listPriceRange)) {
+      if (arrayNotEmpty(item?.listPriceRange)) {
         for (const element of item?.listPriceRange) {
-          if(quantity) {
-            if(quantity >= element?.quantityFrom && quantity <= element?.quantityTo) {
+          if (quantity) {
+            if (quantity >= element?.quantityFrom && quantity <= element?.quantityTo) {
               const total = text === 'yes' ? element?.price * quantity : element?.price;
               const pOff = calPriceOff({ discountValue, discountUnit, total });
               const totalAFD = text === 'yes' ? total - pOff : total;
@@ -42,33 +43,41 @@ export const handleDistancePrice = (skuId, detailSp, quantity, priceText, discou
   }
 }
 
-const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp }) => {
-  const [ detailArr, setDetailArr ] = useState([]);
-  const [ priceSp, setPriceSp ] = useState(null);
+const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal }) => {
+  const [detailArr, setDetailArr] = useState([]);
+  const [priceSp, setPriceSp] = useState(null);
+  const [details, setDetails] = useState({});
   const { form } = useContext(FormContextCustom);
 
   useEffect(() => {
     (() => {
-      if(detailSp?.skus) {
+      if (detailSp?.skus) {
         const { quantity } = form.getFieldsValue();
         let price = "";
         for (const item of detailSp?.skus) {
-          if(arrayNotEmpty(item?.listPriceRange)) {
+          if (arrayNotEmpty(item?.listPriceRange)) {
             for (const element of item?.listPriceRange) {
-              if(quantity >= element?.quantityFrom && quantity <= element?.quantityTo) {
+              if (quantity >= element?.quantityFrom && quantity <= element?.quantityTo) {
                 price = priceSp;
                 break;
-              } 
+              }
             }
           }
         }
-        if(price) {
-          form.setFieldsValue({price: price})
+        if (price) {
+          form.setFieldsValue({ price: price })
         }
       }
     })()
     // eslint-disable-next-line
-  },[priceSp])
+  }, [priceSp])
+
+  useEffect(() => {
+    const currentValues = form.getFieldValue("products");
+    if (!currentValues || currentValues.length === 0) {
+      form.setFieldsValue({ products: [{}] });
+    }
+  }, []);
 
   const onClickAddNewOrder = async () => {
     if (arrayEmpty(detailCohoi?.details ?? [])) {
@@ -108,134 +117,255 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp }) => {
   };
 
   return (
-    <Row gutter={16} style={{ marginTop: 20 }}>
-      <Form.Item
-        noStyle
-        shouldUpdate={(prevValues, curValues) => prevValues.detailCode !== curValues.detailCode}
-      >
-        {({ getFieldValue }) => (
-          <HeadDetail details={detailArr ?? []} detailCohoi={detailCohoi} setDetailCohoi={setDetailCohoi} setDetailSp={setDetailSp} />
-        )}
-      </Form.Item>
-      <Col md={24} xs={24}>
-        <ProductSumary data={detailSp ?? {}} />
-        <div style={{ margin: '20px 0px' }}>
-          <p><strong>Thông tin đơn hàng</strong></p>
-          <div className="line-dash"></div>
+    // <Row gutter={16} style={{ marginTop: 20 }}>
+    //   <Col md={12} xs={24}>
+    //     <FormAutoCompleteInfinite
+    //       useGetAllQuery={useGetAllProductQuery}
+    //       label="Sản phẩm"
+    //       filterField="name"
+    //       name="productName"
+    //       valueProp="name"
+    //       searchKey="name"
+    //       required
+    //       placeholder="Tìm kiếm Sản phẩm"
+    //       customGetValueFromEvent={(productName, product) => {
+    //         // setDetailCohoi({ product, productName });
+    //         setDetailSp(product);
+    //         return productName;
+    //       }}
+    //     />
+    //   </Col>
+    //   <Col md={12} xs={24}>
+    //     <FormSelect
+    //       name="skuId"
+    //       label="SKU"
+    //       required
+    //       resourceData={detailSp?.skus ?? []}
+    //       placeholder="Chọn SKU"
+    //     />
+    //   </Col>
+
+    //   <Col md={12} xs={24}>
+    //     <FormInputNumber
+    //       required
+    //       name="quantity"
+    //       label="Số lượng"
+    //       min="0"
+    //       placeholder="Nhập Số lượng"
+    //     />
+    //   </Col>
+    //   <Col md={12} xs={24}>
+    //     <FormInputNumber
+    //       required
+    //       name="price"
+    //       label="Đơn giá"
+    //       min="0"
+    //       placeholder="Nhập Đơn giá"
+    //     />
+    //   </Col>
+
+    //   <Col md={12} xs={24}>
+    //     <FormSelect
+    //       name="discountUnit"
+    //       titleProp="text"
+    //       valueProp="value"
+    //       resourceData={DISCOUNT_UNIT_CONST}
+    //       label="Giảm giá nếu có"
+    //       placeholder="Chọn hình thức giảm"
+    //     />
+    //   </Col>
+    //   <Col md={12} xs={24}>
+    //     <FormInputNumber
+    //       label="Giảm giá % / VND"
+    //       min="0"
+    //       name="discountValue"
+    //       placeholder="Nhập giá trị"
+    //     />
+    //   </Col>
+
+    //   <Form.Item
+    //     noStyle
+    //     shouldUpdate={(prevValues, curValues) => (
+    //       prevValues.quantity !== curValues.quantity
+    //       || prevValues.discountValue !== curValues.discountValue
+    //       || prevValues.discountUnit !== curValues.discountUnit
+    //       || prevValues.price !== curValues.price
+    //     )}
+    //   >
+    //     {({ getFieldValue }) => {
+    //       const { skuId, quantity, discountValue, discountUnit, price } = getFieldValue();  
+    //       const total = quantity * price;
+    //       const pOff = calPriceOff({ discountValue, discountUnit, total });
+    //       const totalAFD = total - pOff;
+    //       const priceText = formatMoney(skuId ? (totalAFD > 0 ? totalAFD : 0) : 0);
+    //       handleDistancePrice(detailSp, quantity);
+    //       const newPrice = quantity ? handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit, 'not').replace('VND', '') : '0';
+    //       setPriceSp(parseFloat(newPrice.replace(/\./g, '').trim()))
+    //       return (
+    //         <ShowPriceStyles md={24} xs={24}>
+    //           <h3 className="lo-order">Thành tiền: {handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit, 'yes')}</h3>
+    //         </ShowPriceStyles>
+    //       )
+    //     }}
+    //   </Form.Item>
+    //   <Col md={24} xs={24} style={{ display: 'flex', justifyContent: 'end', marginBottom: 20 }}>
+    //     <CustomButton htmlType="submit" />
+    //     <CustomButton
+    //       disabled={(detailCohoi?.id || 0) === 0}
+    //       color="primary"
+    //       variant="outlined"
+    //       title="Thêm cơ hội mới"
+    //       style={{ marginLeft: 20 }}
+    //       onClick={() => onClickAddNewOrder()}
+    //     />
+    //   </Col>
+    // </Row>
+    <Form.List name="products">
+      {(fields, { add, remove }) => (
+        <div style={{ marginTop: 20 }}>
+          {fields.map(({ key, name, ...restField }) => (
+            <Row
+              gutter={16}
+              key={key}
+              align="middle"
+              style={{
+                borderRadius: 20,
+                padding: 10,
+                position: "relative",
+                border: "2px dashed #f2f1fc",
+                marginBottom: 30,
+              }}
+            >
+              <Col md={12} xs={24}>
+                <FormAutoCompleteInfinite
+                  useGetAllQuery={useGetAllProductQuery}
+                  label="Sản phẩm"
+                  filterField="name"
+                  name={[name, "productName"]} // Đảm bảo name là unique
+                  valueProp="name"
+                  searchKey="name"
+                  required
+                  placeholder="Tìm kiếm Sản phẩm"
+                  customGetValueFromEvent={(productName, product) => {
+                    setDetailSp((prev) => ({ ...prev, [name]: product })); // Lưu theo từng form
+                    return productName;
+                  }}
+                />
+              </Col>
+
+              <Col md={12} xs={24}>
+                <FormSelect
+                  {...restField}
+                  name={[name, "skuId"]}
+                  label="SKU"
+                  required
+                  resourceData={detailSp[name]?.skus ?? []} // Lấy SKU của sản phẩm cụ thể
+                  placeholder="Chọn SKU"
+                />
+              </Col>
+
+              <Col md={6} xs={24}>
+                <FormInputNumber
+                  {...restField}
+                  required
+                  name={[name, "quantity"]}
+                  label="Số lượng"
+                  min="0"
+                  placeholder="Nhập Số lượng"
+                />
+              </Col>
+
+              <Col md={6} xs={24}>
+                <FormInputNumber
+                  {...restField}
+                  required
+                  name={[name, "price"]}
+                  label="Đơn giá"
+                  min="0"
+                  placeholder="Nhập Đơn giá"
+                />
+              </Col>
+
+              <Col md={6} xs={24}>
+                <FormSelect
+                  {...restField}
+                  name={[name, "discountUnit"]}
+                  titleProp="text"
+                  valueProp="value"
+                  resourceData={DISCOUNT_UNIT_CONST}
+                  label="Giảm giá nếu có"
+                  placeholder="Chọn hình thức giảm"
+                />
+              </Col>
+
+              <Col md={6} xs={24}>
+                <FormInputNumber
+                  {...restField}
+                  label="Giảm giá % / VND"
+                  min="0"
+                  name={[name, "discountValue"]}
+                  placeholder="Nhập giá trị"
+                />
+              </Col>
+
+              <div
+                type="text"
+                style={{
+                  position: "absolute",
+                  top: -10,
+                  right: -10,
+                  cursor: "pointer",
+                }}
+                onClick={() => remove(name)}
+              >
+                <CloseCircleOutlined style={{ fontSize: 24 }} />
+              </div>
+
+            </Row>
+          ))}
+          <Form.Item shouldUpdate={(prev, cur) => JSON.stringify(prev.products) !== JSON.stringify(cur.products)}>
+            {({ getFieldValue }) => {
+              const products = getFieldValue("products") || [];
+              const total = products?.reduce((sum, product) => {
+                // const { quantity = 0, price = 0, discountValue = 0, discountUnit } = product;
+                const subTotal = product?.quantity * product?.price;
+                const discountValue = product?.discountValue;
+                const discountUnit = product?.discountUnit
+                const discount = calPriceOff({ discountValue, discountUnit, total: subTotal });
+                return sum + (subTotal - discount);
+              }, 0);
+              setTotal(total)
+              return (
+                <ShowPriceStyles md={24} xs={24}>
+                  <h3 className="lo-order">Thành tiền: {formatMoney(total)}</h3>
+                </ShowPriceStyles>
+              )
+            }}
+          </Form.Item>
+
+          <Row>
+            <Col span={24} style={{ textAlign: "right" }}>
+            <Button
+              type="dashed"
+              onClick={() => {
+                const currentProducts = form.getFieldValue("products") || [];
+                form.setFieldsValue({
+                  products: [...currentProducts, { quantity: null, price: null, discountValue: null }]
+                });
+              }}
+              block
+              icon={<PlusOutlined />}
+            >
+              Thêm sản phẩm
+            </Button>
+            </Col>
+            <Col md={24} xs={24} style={{ display: 'flex', justifyContent: 'end', marginTop: 50, marginBottom: 20 }}>
+              <CustomButton htmlType="submit" />
+            </Col>
+          </Row>
         </div>
-      </Col>
-
-      <Col md={12} xs={24}>
-        <FormAutoCompleteInfinite
-          useGetAllQuery={useGetAllProductQuery}
-          label="Sản phẩm"
-          filterField="name"
-          name="productName"
-          valueProp="name"
-          searchKey="name"
-          required
-          placeholder="Tìm kiếm Sản phẩm"
-          customGetValueFromEvent={(productName, product) => {
-            // setDetailCohoi({ product, productName });
-            setDetailSp(product);
-            return productName;
-          }}
-        />
-      </Col>
-      <Col md={12} xs={24}>
-        <FormSelect
-          name="skuId"
-          label="SKU"
-          required
-          resourceData={detailSp?.skus ?? []}
-          placeholder="Chọn SKU"
-        />
-      </Col>
-
-      <Col md={12} xs={24}>
-        <FormInputNumber
-          required
-          name="quantity"
-          label="Số lượng"
-          min="0"
-          placeholder="Nhập Số lượng"
-        />
-      </Col>
-      <Col md={12} xs={24}>
-        <FormInputNumber
-          required
-          name="price"
-          label="Đơn giá"
-          min="0"
-          placeholder="Nhập Đơn giá"
-        />
-      </Col>
-
-      <Col md={12} xs={24}>
-        <FormSelect
-          name="discountUnit"
-          titleProp="text"
-          valueProp="value"
-          resourceData={DISCOUNT_UNIT_CONST}
-          label="Giảm giá nếu có"
-          placeholder="Chọn hình thức giảm"
-        />
-      </Col>
-      <Col md={12} xs={24}>
-        <FormInputNumber
-          label="Giảm giá % / VND"
-          min="0"
-          name="discountValue"
-          placeholder="Nhập giá trị"
-        />
-      </Col>
-
-      <Form.Item
-        noStyle
-        shouldUpdate={(prevValues, curValues) => (
-          prevValues.quantity !== curValues.quantity
-          || prevValues.discountValue !== curValues.discountValue
-          || prevValues.discountUnit !== curValues.discountUnit
-          || prevValues.price !== curValues.price
-        )}
-      >
-        {({ getFieldValue }) => {
-          const { skuId, quantity, discountValue, discountUnit, price } = getFieldValue();  
-          const total = quantity * price;
-          const pOff = calPriceOff({ discountValue, discountUnit, total });
-          const totalAFD = total - pOff;
-          const priceText = formatMoney(skuId ? (totalAFD > 0 ? totalAFD : 0) : 0);
-          handleDistancePrice(detailSp, quantity);
-          const newPrice = quantity ? handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit, 'not').replace('VND', '') : '0';
-          setPriceSp(parseFloat(newPrice.replace(/\./g, '').trim()))
-          return (
-            <ShowPriceStyles md={24} xs={24}>
-              <h3 className="lo-order">Thành tiền: {handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit, 'yes')}</h3>
-            </ShowPriceStyles>
-          )
-        }}
-      </Form.Item>
-
-      <Col md={24} xs={24}>
-        <FormTextArea
-          rows={3}
-          name="noted"
-          label="Ghi chú đơn"
-          placeholder="Nhập ghi chú"
-        />
-      </Col>
-      <Col md={24} xs={24} style={{ display: 'flex', justifyContent: 'end', marginBottom: 20 }}>
-        <CustomButton htmlType="submit" />
-        <CustomButton
-          disabled={(detailCohoi?.id || 0) === 0}
-          color="primary"
-          variant="outlined"
-          title="Thêm cơ hội mới"
-          style={{ marginLeft: 20 }}
-          onClick={() => onClickAddNewOrder()}
-        />
-      </Col>
-    </Row>
+      )}
+    </Form.List>
   )
 }
 

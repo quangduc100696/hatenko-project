@@ -15,6 +15,7 @@ const NewLead = ({ title, closeModal, data }) => {
   const [ record, setRecord] = useState({});
   const [ detailCohoi, setDetailCohoi ] = useState({});
   const [ detailSp, setDetailSp ] = useState({});
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -71,38 +72,50 @@ const NewLead = ({ title, closeModal, data }) => {
   }
 
   const onHandleSubmitBase = async(values) => {
-    let skus = [];
-    for (const item of detailSp?.skus) {
-      for (const element of item?.skuDetail) {
-        skus.push(element);
-      }
-    }
+    const newItem = values?.products?.map((item, i) => {
+      const newSkus = detailSp[i];
+      const items = [];
+      const skuDetails = newSkus?.skus?.map(item => item?.skuDetail).flat();
+        items.push({
+          productId: newSkus?.id,
+          skuInfo: JSON.stringify(skuDetails),
+          name: item?.productName,
+          skuId: item?.skuId,
+          quantity: item?.quantity,
+          price: item?.price
+        })
+        return {
+          productName: newSkus?.name,
+          items: items,
+        }
+    })
     const customer = await RequestUtils.Get(`/customer/find-by-phone?phone=${data?.customerMobile}&withOrder=withOrder`);
-    const newValue = {
-      productId: detailSp?.id,
-      skuInfo: JSON.stringify(skus),
-      productName: values?.productName,
-      skuId: values?.skuId,
-      quantity: values?.quantity,
-      price: values?.price,
-      note: values?.noted,
-      name: values?.name,
-      status: values?.status
-    }
+    // const total = values?.products.reduce((sum, product) => sum + (product.price * product.quantity), 0);
     const params = {
       vat: 0,
       dataId: data?.id,
-      customer: customer?.data?.iCustomer || null,
-      details: [newValue]
+      paymentInfo: {
+        amount: total,
+      },
+      customer: {
+        saleId: customer?.data?.iCustomer?.saleId,
+        gender: customer?.data?.iCustomer?.gender,
+        name: customer?.data?.iCustomer?.name,
+        email: customer?.data?.iCustomer?.email,
+        mobile: customer?.data?.iCustomer?.mobile,
+        createdAt: customer?.data?.iCustomer?.createdAt,
+        updatedAt: customer?.data?.iCustomer?.updatedAt,
+      },
+      details: newItem
     }
     const datas = await RequestUtils.Post('/customer-order/sale-create-co-hoi', params);
-
     if(datas?.errorCode === 200) {
       setDetailCohoi(curvals => ({
         ...curvals, 
         ...datas?.data,
         details: [...(curvals.details || []), ...(datas?.data?.details || [])]
       }))
+      InAppEvent.emit(HASH_MODAL_CLOSE);
       InAppEvent.normalSuccess("Tạo cơ hội thành công");
     }else {
       InAppEvent.normalError("Tạo cơ hội thất bại");
@@ -124,6 +137,7 @@ const NewLead = ({ title, closeModal, data }) => {
           detailCohoi={detailCohoi} 
           setDetailCohoi={setDetailCohoi}
           detailSp={detailSp}
+          setTotal={setTotal}
         />
       </RestEditModal>
     ) : (

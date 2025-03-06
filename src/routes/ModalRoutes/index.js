@@ -72,7 +72,7 @@ function ModalRoutes() {
     <DrawerCustom
       {...ModalRoute?.modalOptions}
       title={params?.title || ModalRoute?.modalOptions?.title}
-      open={params.open }
+      open={params.open}
       onClose={closeModal}
     >
       <ModalRoute.Component closeModal={closeModal} {...params} />
