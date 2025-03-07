@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Row } from 'antd';
+import { Modal, Row } from 'antd';
 
 const FormStyles = styled(Row)`
   .form-list {
@@ -68,5 +68,21 @@ export const FormPriceStyle = styled.div`
 export const SKUContent = styled.div`
   .ant-typography {
     margin-bottom: 0px;
+  }
+`
+
+export const ModaleCreateCohoiStyle = styled(Modal)`
+
+  .ant-input-number {
+    width: 100%;
+  }
+  .ant-modal-title {
+    background: #ffc016;
+    padding: 15px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+  }
+  .ant-modal-content {
+    padding: 0;
   }
 `

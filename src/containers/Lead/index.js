@@ -124,22 +124,31 @@ const NewLead = ({ title, closeModal, data }) => {
 
   return <>
     {title === 'Tạo cơ hội' ? (
-      <RestEditModal
-        isMergeRecordOnSubmit={false}
-        updateRecord={(values) => setDetailCohoi(curvals => ({ ...curvals, ...values }))}
-        onSubmit={onHandleSubmitBase}
-        record={detailCohoi}
-        closeModal={closeModal}
-      >
-        {/* <ProductForm setNewFile={setNewFile} dataUpdate={data} /> */}
-        <FormBase setDetailSp={setDetailSp} 
-          record={record}
-          detailCohoi={detailCohoi} 
-          setDetailCohoi={setDetailCohoi}
-          detailSp={detailSp}
-          setTotal={setTotal}
-        />
-      </RestEditModal>
+      // <RestEditModal
+      //   isMergeRecordOnSubmit={false}
+      //   updateRecord={(values) => setDetailCohoi(curvals => ({ ...curvals, ...values }))}
+      //   onSubmit={onHandleSubmitBase}
+      //   record={detailCohoi}
+      //   closeModal={closeModal}
+      // >
+      //   {/* <ProductForm setNewFile={setNewFile} dataUpdate={data} /> */}
+      // <FormBase setDetailSp={setDetailSp} 
+      //     record={record}
+      //     detailCohoi={detailCohoi} 
+      //     setDetailCohoi={setDetailCohoi}
+      //     detailSp={detailSp}
+      //     setTotal={setTotal}
+      //     data={data}
+      //   />
+      // </RestEditModal>
+      <FormBase setDetailSp={setDetailSp} 
+        record={record}
+        detailCohoi={detailCohoi} 
+        setDetailCohoi={setDetailCohoi}
+        detailSp={detailSp}
+        setTotal={setTotal}
+        data={data}
+      />
     ) : (
       <RestEditModal
         isMergeRecordOnSubmit={false}
