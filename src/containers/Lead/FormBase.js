@@ -50,9 +50,10 @@ export const handleDistancePrice = (skuId, detailSp, quantity, priceText, discou
 }
 
 const newSp = (data) => {
-  const mergedData = data.map(item => ({
+  const mergedData = data.map((item, i) => ({
     ...item.value,
     ...item.detail,
+    key: i,
     price: item.value?.price,
     discountValue: item.value?.discountValue,
     discountUnit: item.value?.discountUnit,
@@ -61,41 +62,50 @@ const newSp = (data) => {
   return mergedData
 }
 
+const thStyle  = {
+  padding: "8px 12px",
+  borderBottom: "2px solid #ddd",
+  fontWeight: "bold",
+};
+
+const tdStyle = {
+  padding: "8px 12px",
+  borderBottom: "1px solid #ddd",
+};
+
 const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal, data }) => {
   const [detailArr, setDetailArr] = useState([]);
   const [priceSp, setPriceSp] = useState(null);
-  const [details, setDetails] = useState({});
   const [form] = Form.useForm();
   const [customer, setCustomer] = useState({});
   const [isOpen, setIsOpen] = useState(false);
   const [listSp, setListSp] = useState([]);
-  const [totalPrices, setTotalPrices] = useState(null);
 
   let totalPrice = newSp(listSp)?.reduce((sum, item) => sum + item.price, 0);
   let totalQuanlity = newSp(listSp)?.reduce((sum, item) => sum + item.quantity, 0);
 
-  // useEffect(() => {
-  //   (() => {
-  //     if (detailSp?.skus) {
-  //       const { quantity } = form.getFieldsValue();
-  //       let price = "";
-  //       for (const item of detailSp?.skus) {
-  //         if (arrayNotEmpty(item?.listPriceRange)) {
-  //           for (const element of item?.listPriceRange) {
-  //             if (quantity >= element?.quantityFrom && quantity <= element?.quantityTo) {
-  //               price = priceSp;
-  //               break;
-  //             }
-  //           }
-  //         }
-  //       }
-  //       if (price) {
-  //         form.setFieldsValue({ price: price })
-  //       }
-  //     }
-  //   })()
-  //   // eslint-disable-next-line
-  // }, [priceSp])
+  useEffect(() => {
+    (() => {
+      if (detailSp?.skus) {
+        const { quantity } = form.getFieldsValue();
+        let price = "";
+        for (const item of detailSp?.skus) {
+          if (arrayNotEmpty(item?.listPriceRange)) {
+            for (const element of item?.listPriceRange) {
+              if (quantity >= element?.quantityFrom && quantity <= element?.quantityTo) {
+                price = priceSp;
+                break;
+              }
+            }
+          }
+        }
+        if (price) {
+          form.setFieldsValue({ price: price })
+        }
+      }
+    })()
+    // eslint-disable-next-line
+  }, [priceSp])
 
   useEffect(() => {
     (async () => {
@@ -148,11 +158,16 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     }
   };
 
+  const onHandleDeleteSp = (record) => {
+    const newData = newSp(listSp)?.filter(f => f?.key !== record?.key);
+    setListSp(newData)
+  }
+
   const columns = [
     {
       title: 'Sản phẩm',
-      dataIndex: 'productName',
-      key: 'productName',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
       title: 'Mã sản phẩm',
@@ -164,15 +179,21 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       dataIndex: 'unit',
       key: 'unit',
     },
+    Table.EXPAND_COLUMN,
     {
       title: 'Thông tin sản phẩm',
-      dataIndex: 'address',
-      key: 'address',
+      dataIndex: 'productName',
+      key: 'productName',
     },
     {
       title: 'Đơn giá',
-      dataIndex: 'price',
-      key: 'price',
+      render: (item) => {
+        return (
+          <div>
+            {formatMoney(item?.price)}
+          </div>
+        )
+      }
     },
     {
       title: 'Số lượng',
@@ -183,7 +204,11 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       title: 'Hành động',
       dataIndex: '',
       key: 'x',
-      render: () => <a>Delete</a>,
+      render: (record) => (
+        <div onClick={() => onHandleDeleteSp(record)}>
+          <a>Xoá sản phẩm</a>
+        </div>
+      ),
     },
   ];
 
@@ -197,7 +222,12 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     setIsOpen(false)
   }
 
-  const onHandleCreateOdder = async() => {
+  const onHandleCreateOdder = async () => {
+
+    if(arrayEmpty(newSp(listSp))) {
+      return  InAppEvent.normalInfo("Vui lòng thêm sản phẩm");
+    }
+    const tongdon = newSp(listSp).reduce((total, item) => total + item.price, 0);
     const newItem = newSp(listSp)?.map((item, i) => {
       const items = [];
       const skuDetails = item?.skus?.map(item => item?.skuDetail).flat();
@@ -218,7 +248,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       vat: 0,
       dataId: data?.id,
       paymentInfo: {
-        amount: totalPrices,
+        amount: tongdon,
       },
       customer: {
         saleId: customer?.iCustomer?.saleId,
@@ -545,16 +575,49 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
         scroll={{ x: 1700 }}
         expandable={{
           expandedRowRender: (record) => (
-            <p
-              style={{
-                margin: 0,
-              }}
-            >
-              {record.description}
-            </p>
+            <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
+              {record.skus && record.skus.length > 0 ? (
+                <table
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    background: "#fff",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                  }}
+                >
+                  <thead>
+                    <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
+                      <th style={thStyle}>Tên SKU</th>
+                      <th style={thStyle}>Giá bán</th>
+                      <th style={thStyle}>Chi tiết</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {record.skus.map((sku) => (
+                      <tr key={sku.id} style={{ borderBottom: "1px solid #ddd" }}>
+                        <td style={tdStyle}>{sku.name}</td>
+                        <td style={tdStyle}>
+                          {sku.listPriceRange.map((price) => price.price.toLocaleString() + " VND").join(", ")}
+                        </td>
+                        <td style={tdStyle}>
+                          {sku.skuDetail.map((detail) => (
+                            <p key={detail.id} style={{ marginRight: "10px" }}>
+                              <strong>{detail.name}:</strong> {detail.value}
+                            </p>
+                          ))}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p>Không có SKU nào</p>
+              )}
+            </div>
           ),
-          rowExpandable: (record) => record.name !== 'Not Expandable',
         }}
+        
         dataSource={newSp(listSp)}
         pagination={false}
       />
@@ -677,9 +740,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                   const priceText = formatMoney(skuId ? (totalAFD > 0 ? totalAFD : 0) : 0);
                   handleDistancePrice(detailSp, quantity);
                   const newPrice = quantity ? handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit, 'not').replace('VND', '') : '0';
-                  setPriceSp(parseFloat(newPrice.replace(/\./g, '').trim()))
-                  const newPrices = handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit, 'yes');
-                  setTotalPrices(newPrices);
+                  setPriceSp(parseFloat(newPrice.replace(/\./g, '').trim()));
                   return (
                     <ShowPriceStyles md={24} xs={24}>
                       <h3 className="lo-order">Thành tiền: {handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit, 'yes')}</h3>
