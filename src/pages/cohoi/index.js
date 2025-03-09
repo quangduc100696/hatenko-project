@@ -10,12 +10,23 @@ import { InAppEvent } from 'utils/FuseUtils';
 import { Button } from 'antd';
 import { cloneDeep } from 'lodash';
 
+const thStyle = {
+    padding: "8px 12px",
+    borderBottom: "2px solid #ddd",
+    fontWeight: "bold",
+};
+
+const tdStyle = {
+    padding: "8px 12px",
+    borderBottom: "1px solid #ddd",
+};
+
 const CohoiPage = () => {
 
     const [title] = useState("Danh sách cơ hội");
 
     const onEdit = (item) => {
-        let title = 'Chi tiết cơ hội# ' + item.id;
+        let title = 'Chi tiết cơ hội# ';
         let hash = '#draw/cohoi.edit';
         let data = cloneDeep(item);
         InAppEvent.emit(HASH_MODAL, { hash, title, data });
@@ -130,13 +141,13 @@ const CohoiPage = () => {
         },
         {
             title: "Thao tác",
-            width: 100,
+            width: 150,
             fixed: 'right',
             ellipsis: true,
             render: (record) => (
                 <div>
                     <Button color="primary" variant="dashed" onClick={() => onEdit(record)} size='small'>
-                        Detail
+                        Thanh toán
                     </Button>
                 </div>
             )
@@ -179,6 +190,68 @@ const CohoiPage = () => {
                 useGetAllQuery={useGetList}
                 apiPath={'customer-order/fetch-cohoi'}
                 customClickCreate={onCreateLead}
+                expandable={{
+                    expandedRowRender: (record) => {
+                        return (
+                            <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
+                                {record.details && record.details.length > 0 ? (
+                                    <table
+                                        style={{
+                                            width: "100%",
+                                            borderCollapse: "collapse",
+                                            background: "#fff",
+                                            borderRadius: "8px",
+                                            overflow: "hidden",
+                                        }}
+                                    >
+                                        <thead>
+                                            <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
+                                                <th style={thStyle}>Mã đơn</th>
+                                                <th style={thStyle}>Tên Sản phẩm</th>
+                                                <th style={thStyle}>Giá bán</th>
+                                                <th style={thStyle}>Chi tiết</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {record.details.map((sku) => {
+                                                return (
+                                                    <tr key={sku.id} style={{ borderBottom: "1px solid #ddd" }}>
+                                                        <td style={tdStyle}>{sku?.code}</td>
+                                                        { }
+                                                        <td style={tdStyle}>{sku?.items[0]?.name || 'N/A'}</td>
+                                                        <td style={tdStyle}>
+                                                            {formatMoney(sku?.items[0]?.price) || 'N/A'}
+                                                        </td>
+                                                        <td style={tdStyle}>
+                                                            {(() => {
+                                                                let parsedSkuInfo = [];
+                                                                try {
+                                                                    if (sku?.items?.[0]?.skuInfo) {
+                                                                        parsedSkuInfo = JSON.parse(sku.items[0].skuInfo);
+                                                                    }
+                                                                } catch (error) {
+                                                                    console.error("Lỗi parse JSON:", error);
+                                                                }
+
+                                                                return parsedSkuInfo.map((detail) => (
+                                                                    <p key={detail.id} style={{ marginRight: "10px" }}>
+                                                                        <strong>{detail.name}:</strong> {detail.value}
+                                                                    </p>
+                                                                ));
+                                                            })()}
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <p>Không có SKU nào</p>
+                                )}
+                            </div>
+                        )
+                    },
+                }}
                 columns={CUSTOM_ACTION}
             />
         </div>

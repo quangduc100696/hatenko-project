@@ -4,6 +4,8 @@ const DrawerMaxWidth = (title) => {
   switch (title) {
     case 'Tạo cơ hội':
       return 1250;
+    case 'Chi tiết cơ hội# ':
+      return 1250;
     default:
       return 750;
   }

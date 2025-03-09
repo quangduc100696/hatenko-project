@@ -76,6 +76,7 @@ const RestList = ({
         data={data?.embedded || []}
         totalItems={data?.page?.totalElements ?? 0}
         loading={loading}
+        expandable={props.expandable} 
         setTableFilter={onSetTableFilter}
         {...props}
       />
