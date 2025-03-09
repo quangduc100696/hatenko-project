@@ -232,7 +232,7 @@ const OrderDtailForm = ({ data }) => {
     const datas = await RequestUtils.Post('/customer-order/update-cohoi', params);
     if (datas?.errorCode === 200) {
       InAppEvent.emit(HASH_MODAL_CLOSE);
-      InAppEvent.normalSuccess("Tạo cơ hội thành công");
+      InAppEvent.normalSuccess("Cập nhật cơ hội thành công");
     } else {
       InAppEvent.normalError("Tạo cơ hội thất bại");
     }
