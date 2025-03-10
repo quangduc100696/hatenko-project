@@ -195,22 +195,41 @@ const OrderDtailForm = ({ data }) => {
       return InAppEvent.normalInfo("Vui lòng thêm sản phẩm");
     }
     const tongdon = newSp(listSp).reduce((total, item) => total + item.price, 0);
-    const newItem = newSp(listSp)?.map((item, i) => {
-      const items = [];
-      const skuDetails = item?.skus?.map(item => item?.skuDetail).flat();
-      items.push({
-        productId: item?.id,
-        skuInfo: item?.skuInfo,
-        name: item?.name,
-        skuId: item?.skuId,
-        quantity: item?.quantity,
-        price: item?.price
-      })
-      return {
-        productName: item?.name,
-        items: items,
-      }
-    })
+    const newItem = (() => {
+      const mergedItems = [];
+      newSp(listSp)?.forEach(item => {
+        mergedItems.push({
+          productId: item?.id,
+          skuInfo: item?.skuInfo,
+          name: item?.productName,
+          skuId: item?.skuId,
+          quantity: item?.quantity,
+          price: item?.price
+        });
+      });
+      return [
+        {
+          productName: newSp(listSp)?.map(f => f?.name).join(", "), // Hoặc có thể lấy từ listSp[0]?.productName nếu cần động
+          items: mergedItems
+        }
+      ];
+    })();
+    // const newItem = newSp(listSp)?.map((item, i) => {
+    //   const items = [];
+    //   const skuDetails = item?.skus?.map(item => item?.skuDetail).flat();
+    //   items.push({
+    //     productId: item?.id,
+    //     skuInfo: item?.skuInfo,
+    //     name: item?.name,
+    //     skuId: item?.skuId,
+    //     quantity: item?.quantity,
+    //     price: item?.price
+    //   })
+    //   return {
+    //     productName: item?.name,
+    //     items: items,
+    //   }
+    // })
     const params = {
       vat: 0,
       id: data?.id,

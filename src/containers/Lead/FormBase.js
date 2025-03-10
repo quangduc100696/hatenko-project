@@ -62,7 +62,7 @@ const newSp = (data) => {
   return mergedData
 }
 
-const thStyle  = {
+const thStyle = {
   padding: "8px 12px",
   borderBottom: "2px solid #ddd",
   fontWeight: "bold",
@@ -224,26 +224,48 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
 
   const onHandleCreateOdder = async () => {
 
-    if(arrayEmpty(newSp(listSp))) {
-      return  InAppEvent.normalInfo("Vui lòng thêm sản phẩm");
+    if (arrayEmpty(newSp(listSp))) {
+      return InAppEvent.normalInfo("Vui lòng thêm sản phẩm");
     }
     const tongdon = newSp(listSp).reduce((total, item) => total + item.price, 0);
-    const newItem = newSp(listSp)?.map((item, i) => {
-      const items = [];
-      const skuDetails = item?.skus?.map(item => item?.skuDetail).flat();
-        items.push({
+    const newItem = (() => {
+      const mergedItems = [];
+
+      newSp(listSp)?.forEach(item => {
+        const skuDetails = item?.skus?.map(sku => sku?.skuDetail).flat();
+        mergedItems.push({
           productId: item?.id,
           skuInfo: JSON.stringify(skuDetails),
           name: item?.productName,
           skuId: item?.skuId,
           quantity: item?.quantity,
           price: item?.price
-        })
-        return {
-          productName: item?.name,
-          items: items,
+        });
+      });
+      return [
+        {
+          productName: mergedItems?.map(f => f?.name).join(", "), // Hoặc có thể lấy từ listSp[0]?.productName nếu cần động
+          items: mergedItems
         }
-    })
+      ];
+    })();
+
+    // const newItem = newSp(listSp)?.map((item, i) => {
+    //   const items = [];
+    //   const skuDetails = item?.skus?.map(item => item?.skuDetail).flat();
+    //     items.push({
+    //       productId: item?.id,
+    //       skuInfo: JSON.stringify(skuDetails),
+    //       name: item?.productName,
+    //       skuId: item?.skuId,
+    //       quantity: item?.quantity,
+    //       price: item?.price
+    //     })
+    //     return {
+    //       productName: item?.name,
+    //       items: items,
+    //     }
+    // })
     const params = {
       vat: 0,
       dataId: data?.id,
@@ -617,11 +639,11 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
             </div>
           ),
         }}
-        
+
         dataSource={newSp(listSp)}
         pagination={false}
       />
-            <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
+      <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
       <Row justify={'end'}>
         <Col md={6} xs={6}>
           <p>
@@ -646,7 +668,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
           </p>
         </Col>
       </Row>
-      <div style={{float: 'right', marginTop: 20}} onClick={onHandleCreateOdder}>
+      <div style={{ float: 'right', marginTop: 20 }} onClick={onHandleCreateOdder}>
         <CustomButton title="Tạo đơn" htmlType="submit" />
       </div>
       <ModaleCreateCohoiStyle title={
@@ -685,7 +707,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                 />
               </Col>
 
-              <Col md={12} xs={24} style={{width: '100%'}}>
+              <Col md={12} xs={24} style={{ width: '100%' }}>
                 <FormInputNumber
                   required
                   name="quantity"
