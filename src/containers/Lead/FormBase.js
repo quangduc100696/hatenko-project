@@ -22,6 +22,7 @@ import ModaleStyles from 'pages/lead/style';
 import { ModaleCreateCohoiStyle } from './styles';
 import { InAppEvent } from 'utils/FuseUtils';
 import { HASH_MODAL_CLOSE } from 'configs';
+import FormInput from 'components/form/FormInput';
 
 /* Hàm này check nếu số lượng có trong khoảng giá sp thì lấy giá đó ngược lại lấy giá nhập  */
 export const handleDistancePrice = (skuId, detailSp, quantity, priceText, discountValue, discountUnit, text) => {
@@ -77,12 +78,22 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
   const [detailArr, setDetailArr] = useState([]);
   const [priceSp, setPriceSp] = useState(null);
   const [form] = Form.useForm();
+  const [FormQuanlity] = Form.useForm();
   const [customer, setCustomer] = useState({});
   const [isOpen, setIsOpen] = useState(false);
   const [listSp, setListSp] = useState([]);
+  const [isOpenQuantity, setIsOpenQuantity] = useState(false);
+  const [recordetail, setRecodetail] = useState({});
 
   let totalPrice = newSp(listSp)?.reduce((sum, item) => sum + item.price, 0);
   let totalQuanlity = newSp(listSp)?.reduce((sum, item) => sum + item.quantity, 0);
+  let total = newSp(listSp)?.reduce((sum, item) => sum + item?.price * item?.quantity, 0);
+
+  useEffect(() => {
+    if(recordetail) {
+      FormQuanlity.setFieldsValue({quantity: recordetail?.quantity})
+    }
+  },[recordetail])
 
   useEffect(() => {
     (() => {
@@ -113,13 +124,6 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       setCustomer(customer?.data);
     })()
   }, [])
-
-  // useEffect(() => {
-  //   const currentValues = form.getFieldValue("products");
-  //   if (!currentValues || currentValues.length === 0) {
-  //     form.setFieldsValue({ products: [{}] });
-  //   }
-  // }, []);
 
   const onClickAddNewOrder = async () => {
     if (arrayEmpty(detailCohoi?.details ?? [])) {
@@ -196,17 +200,57 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       }
     },
     {
+      title: 'Chiết khấu',
+      render: (item) => {
+        return (
+          <div>
+            {item?.discountUnit === "percent" ? `${item?.discountValue || 0}%` : formatMoney(item?.discountValue)}
+          </div>
+        )
+      }
+    },
+    {
       title: 'Số lượng',
       dataIndex: 'quantity',
       key: 'quantity',
+    },
+    {
+      title: 'Tổng tiền',
+      render: (item) => {
+        return (
+          <div>
+            {formatMoney(item?.price * item?.quantity)}
+          </div>
+        )
+      }
+    },
+    {
+      title: 'Kho',
+      dataIndex: 'Kho',
+      key: 'Kho',
+      render: (item) => {
+        return (
+          <div>
+            N/A
+          </div>
+        )
+      }
     },
     {
       title: 'Hành động',
       dataIndex: '',
       key: 'x',
       render: (record) => (
-        <div onClick={() => onHandleDeleteSp(record)}>
-          <a>Xoá sản phẩm</a>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <div onClick={() => {
+            setIsOpenQuantity(true);
+            setRecodetail(record)
+          }}>
+            <a>Sửa số lượng</a>
+          </div>
+          <div onClick={() => onHandleDeleteSp(record)}>
+            <a>Xoá sản phẩm</a>
+          </div>
         </div>
       ),
     },
@@ -222,8 +266,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     setIsOpen(false)
   }
 
-  const onHandleCreateOdder = async () => {
-
+  const onHandleCreateOdder = async (value) => {
     if (arrayEmpty(newSp(listSp))) {
       return InAppEvent.normalInfo("Vui lòng thêm sản phẩm");
     }
@@ -250,28 +293,14 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       ];
     })();
 
-    // const newItem = newSp(listSp)?.map((item, i) => {
-    //   const items = [];
-    //   const skuDetails = item?.skus?.map(item => item?.skuDetail).flat();
-    //     items.push({
-    //       productId: item?.id,
-    //       skuInfo: JSON.stringify(skuDetails),
-    //       name: item?.productName,
-    //       skuId: item?.skuId,
-    //       quantity: item?.quantity,
-    //       price: item?.price
-    //     })
-    //     return {
-    //       productName: item?.name,
-    //       items: items,
-    //     }
-    // })
     const params = {
       vat: 0,
       dataId: data?.id,
       paymentInfo: {
         amount: tongdon,
       },
+      note: value?.note,
+      address: value?.address,
       customer: {
         saleId: customer?.iCustomer?.saleId,
         gender: customer?.iCustomer?.gender,
@@ -284,393 +313,168 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       details: newItem
     }
     const datas = await RequestUtils.Post('/customer-order/sale-create-co-hoi', params);
-    if(datas?.errorCode === 200) {
+    if (datas?.errorCode === 200) {
       InAppEvent.emit(HASH_MODAL_CLOSE);
       InAppEvent.normalSuccess("Tạo cơ hội thành công");
-    }else {
+    } else {
       InAppEvent.normalError("Tạo cơ hội thất bại");
     }
   }
 
+  // thay đổi số lượng
+  const onHandleChangeQuantity = (value) => {
+    const newItem = {...recordetail, quantity: Number(value?.quantity)};
+    const newData = listSp?.map(f => {
+      if(f.detail?.id === newItem?.id) {
+        f.value.quantity = newItem?.quantity;
+      }
+      return f
+    })    
+    setListSp(newData);
+    setIsOpenQuantity(false);
+  }
+
   return (
-    // <Row gutter={16} style={{ marginTop: 20 }}>
-    //   <Col md={12} xs={24}>
-    //     <FormAutoCompleteInfinite
-    //       useGetAllQuery={useGetAllProductQuery}
-    //       label="Sản phẩm"
-    //       filterField="name"
-    //       name="productName"
-    //       valueProp="name"
-    //       searchKey="name"
-    //       required
-    //       placeholder="Tìm kiếm Sản phẩm"
-    //       customGetValueFromEvent={(productName, product) => {
-    //         // setDetailCohoi({ product, productName });
-    //         setDetailSp(product);
-    //         return productName;
-    //       }}
-    //     />
-    //   </Col>
-    //   <Col md={12} xs={24}>
-    //     <FormSelect
-    //       name="skuId"
-    //       label="SKU"
-    //       required
-    //       resourceData={detailSp?.skus ?? []}
-    //       placeholder="Chọn SKU"
-    //     />
-    //   </Col>
-
-    //   <Col md={12} xs={24}>
-    //     <FormInputNumber
-    //       required
-    //       name="quantity"
-    //       label="Số lượng"
-    //       min="0"
-    //       placeholder="Nhập Số lượng"
-    //     />
-    //   </Col>
-    //   <Col md={12} xs={24}>
-    //     <FormInputNumber
-    //       required
-    //       name="price"
-    //       label="Đơn giá"
-    //       min="0"
-    //       placeholder="Nhập Đơn giá"
-    //     />
-    //   </Col>
-
-    //   <Col md={12} xs={24}>
-    //     <FormSelect
-    //       name="discountUnit"
-    //       titleProp="text"
-    //       valueProp="value"
-    //       resourceData={DISCOUNT_UNIT_CONST}
-    //       label="Giảm giá nếu có"
-    //       placeholder="Chọn hình thức giảm"
-    //     />
-    //   </Col>
-    //   <Col md={12} xs={24}>
-    //     <FormInputNumber
-    //       label="Giảm giá % / VND"
-    //       min="0"
-    //       name="discountValue"
-    //       placeholder="Nhập giá trị"
-    //     />
-    //   </Col>
-
-    //   <Form.Item
-    //     noStyle
-    //     shouldUpdate={(prevValues, curValues) => (
-    //       prevValues.quantity !== curValues.quantity
-    //       || prevValues.discountValue !== curValues.discountValue
-    //       || prevValues.discountUnit !== curValues.discountUnit
-    //       || prevValues.price !== curValues.price
-    //     )}
-    //   >
-    //     {({ getFieldValue }) => {
-    //       const { skuId, quantity, discountValue, discountUnit, price } = getFieldValue();  
-    //       const total = quantity * price;
-    //       const pOff = calPriceOff({ discountValue, discountUnit, total });
-    //       const totalAFD = total - pOff;
-    //       const priceText = formatMoney(skuId ? (totalAFD > 0 ? totalAFD : 0) : 0);
-    //       handleDistancePrice(detailSp, quantity);
-    //       const newPrice = quantity ? handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit, 'not').replace('VND', '') : '0';
-    //       setPriceSp(parseFloat(newPrice.replace(/\./g, '').trim()))
-    //       return (
-    //         <ShowPriceStyles md={24} xs={24}>
-    //           <h3 className="lo-order">Thành tiền: {handleDistancePrice(skuId, detailSp, quantity, priceText, discountValue, discountUnit, 'yes')}</h3>
-    //         </ShowPriceStyles>
-    //       )
-    //     }}
-    //   </Form.Item>
-    //   <Col md={24} xs={24} style={{ display: 'flex', justifyContent: 'end', marginBottom: 20 }}>
-    //     <CustomButton htmlType="submit" />
-    //     <CustomButton
-    //       disabled={(detailCohoi?.id || 0) === 0}
-    //       color="primary"
-    //       variant="outlined"
-    //       title="Thêm cơ hội mới"
-    //       style={{ marginLeft: 20 }}
-    //       onClick={() => onClickAddNewOrder()}
-    //     />
-    //   </Col>
-    // </Row>
-    // <Form.List name="products">
-    //   {(fields, { add, remove }) => (
-    //     <div style={{ marginTop: 20 }}>
-    //       {fields.map(({ key, name, ...restField }) => (
-    //         <Row
-    //           gutter={16}
-    //           key={key}
-    //           align="middle"
-    //           style={{
-    //             borderRadius: 20,
-    //             padding: 10,
-    //             position: "relative",
-    //             border: "2px dashed #f2f1fc",
-    //             marginBottom: 30,
-    //           }}
-    //         >
-    //           <Col md={12} xs={24}>
-    //             <FormAutoCompleteInfinite
-    //               useGetAllQuery={useGetAllProductQuery}
-    //               label="Sản phẩm"
-    //               filterField="name"
-    //               name={[name, "productName"]} // Đảm bảo name là unique
-    //               valueProp="name"
-    //               searchKey="name"
-    //               required
-    //               placeholder="Tìm kiếm Sản phẩm"
-    //               customGetValueFromEvent={(productName, product) => {
-    //                 setDetailSp((prev) => ({ ...prev, [name]: product })); // Lưu theo từng form
-    //                 return productName;
-    //               }}
-    //             />
-    //           </Col>
-
-    //           <Col md={12} xs={24}>
-    //             <FormSelect
-    //               {...restField}
-    //               name={[name, "skuId"]}
-    //               label="SKU"
-    //               required
-    //               resourceData={detailSp[name]?.skus ?? []} // Lấy SKU của sản phẩm cụ thể
-    //               placeholder="Chọn SKU"
-    //             />
-    //           </Col>
-
-    //           <Col md={6} xs={24}>
-    //             <FormInputNumber
-    //               {...restField}
-    //               required
-    //               name={[name, "quantity"]}
-    //               label="Số lượng"
-    //               min="0"
-    //               placeholder="Nhập Số lượng"
-    //             />
-    //           </Col>
-
-    //           <Col md={6} xs={24}>
-    //             <FormInputNumber
-    //               {...restField}
-    //               required
-    //               name={[name, "price"]}
-    //               label="Đơn giá"
-    //               min="0"
-    //               placeholder="Nhập Đơn giá"
-    //             />
-    //           </Col>
-
-    //           <Col md={6} xs={24}>
-    //             <FormSelect
-    //               {...restField}
-    //               name={[name, "discountUnit"]}
-    //               titleProp="text"
-    //               valueProp="value"
-    //               resourceData={DISCOUNT_UNIT_CONST}
-    //               label="Giảm giá nếu có"
-    //               placeholder="Chọn hình thức giảm"
-    //             />
-    //           </Col>
-
-    //           <Col md={6} xs={24}>
-    //             <FormInputNumber
-    //               {...restField}
-    //               label="Giảm giá % / VND"
-    //               min="0"
-    //               name={[name, "discountValue"]}
-    //               placeholder="Nhập giá trị"
-    //             />
-    //           </Col>
-
-    //           <div
-    //             type="text"
-    //             style={{
-    //               position: "absolute",
-    //               top: -10,
-    //               right: -10,
-    //               cursor: "pointer",
-    //             }}
-    //             onClick={() => remove(name)}
-    //           >
-    //             <CloseCircleOutlined style={{ fontSize: 24 }} />
-    //           </div>
-
-    //         </Row>
-    //       ))}
-    //       <Form.Item shouldUpdate={(prev, cur) => JSON.stringify(prev.products) !== JSON.stringify(cur.products)}>
-    //         {({ getFieldValue }) => {
-    //           const products = getFieldValue("products") || [];
-    //           const total = products?.reduce((sum, product) => {
-    //             // const { quantity = 0, price = 0, discountValue = 0, discountUnit } = product;
-    //             const subTotal = product?.quantity * product?.price;
-    //             const discountValue = product?.discountValue;
-    //             const discountUnit = product?.discountUnit
-    //             const discount = calPriceOff({ discountValue, discountUnit, total: subTotal });
-    //             return sum + (subTotal - discount);
-    //           }, 0);
-    //           setTotal(total)
-    //           return (
-    //             <ShowPriceStyles md={24} xs={24}>
-    //               <h3 className="lo-order">Thành tiền: {formatMoney(total)}</h3>
-    //             </ShowPriceStyles>
-    //           )
-    //         }}
-    //       </Form.Item>
-
-    //       <Row>
-    //         <Col span={24} style={{ textAlign: "right" }}>
-    //         <Button
-    //           type="dashed"
-    //           onClick={() => {
-    //             const currentProducts = form.getFieldValue("products") || [];
-    //             form.setFieldsValue({
-    //               products: [...currentProducts, { quantity: null, price: null, discountValue: null }]
-    //             });
-    //           }}
-    //           block
-    //           icon={<PlusOutlined />}
-    //         >
-    //           Thêm sản phẩm
-    //         </Button>
-    //         </Col>
-    //         <Col md={24} xs={24} style={{ display: 'flex', justifyContent: 'end', marginTop: 50, marginBottom: 20 }}>
-    //           <CustomButton htmlType="submit" />
-    //         </Col>
-    //       </Row>
-    //     </div>
-    //   )}
-    // </Form.List>
-    <div style={{ marginTop: 15 }}>
-      <p><strong>Thông tin khách hàng</strong></p>
-      <div class="group-inan" style={{ background: '#f4f4f4', borderTop: '1px dashed red' }}></div>
-      <Row style={{ marginTop: 20 }}>
-        <Col md={6} xs={6}>
-          <p>
-            <span style={{ marginRight: 10 }}><UserAddOutlined /></span>
-            <span>User: {customer?.iCustomer?.name}</span>
-          </p>
-        </Col>
-        <Col md={6} xs={6}>
-          <p>
-            <span style={{ marginRight: 10 }}><PhoneOutlined /></span>
-            <span>Số điện thoại: {customer?.iCustomer?.mobile}</span>
-          </p>
-        </Col>
-        <Col md={6} xs={6}>
-          <p>
-            <span style={{ marginRight: 10 }}><MailOutlined /></span>
-            <span>Email: {customer?.iCustomer?.email}</span>
-          </p>
-        </Col>
-      </Row>
-      <Row style={{ marginTop: 10 }}>
-        <Col md={6} xs={6}>
-          <p>
-            <span style={{ marginRight: 10 }}><FacebookOutlined /></span>
-            <span>Facebook: {customer?.iCustomer?.facebookId || 'N/A'}</span>
-          </p>
-        </Col>
-        <Col md={6} xs={6}>
-          <p>
-            <span style={{ marginRight: 10 }}><AimOutlined /></span>
-            <span>Tỉnh T/P: {customer?.iCustomer?.address || 'Chưa cập nhật'}</span>
-          </p>
-        </Col>
-      </Row>
-      <div style={{ height: 15 }}></div>
-      <p>
-        <strong>Thông tin sản phẩm</strong>
-      </p>
-      <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
-      <Button
-        type="dashed"
-        style={{ float: 'right', marginBottom: 20 }}
-        icon={<PlusOutlined />}
-        onClick={() => setIsOpen(true)}
-      >
-        Thêm sản phẩm
-      </Button>
-      <Table
-        columns={columns}
-        scroll={{ x: 1700 }}
-        expandable={{
-          expandedRowRender: (record) => (
-            <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
-              {record.skus && record.skus.length > 0 ? (
-                <table
-                  style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                    background: "#fff",
-                    borderRadius: "8px",
-                    overflow: "hidden",
-                  }}
-                >
-                  <thead>
-                    <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
-                      <th style={thStyle}>Tên SKU</th>
-                      <th style={thStyle}>Giá bán</th>
-                      <th style={thStyle}>Chi tiết</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {record.skus.map((sku) => (
-                      <tr key={sku.id} style={{ borderBottom: "1px solid #ddd" }}>
-                        <td style={tdStyle}>{sku.name}</td>
-                        <td style={tdStyle}>
-                          {sku.listPriceRange.map((price) => price.price.toLocaleString() + " VND").join(", ")}
-                        </td>
-                        <td style={tdStyle}>
-                          {sku.skuDetail.map((detail) => (
-                            <p key={detail.id} style={{ marginRight: "10px" }}>
-                              <strong>{detail.name}:</strong> {detail.value}
-                            </p>
-                          ))}
-                        </td>
+    <div style={{ marginTop: 15 }} layout="">
+      <Form onFinish={onHandleCreateOdder} layout="vertical">
+        <p><strong>Thông tin khách hàng</strong></p>
+        <div class="group-inan" style={{ background: '#f4f4f4', borderTop: '1px dashed red' }}></div>
+        <Row style={{ marginTop: 20 }}>
+          <Col md={6} xs={6}>
+            <p>
+              <span style={{ marginRight: 10 }}><PhoneOutlined /></span>
+              <span>Số điện thoại: {customer?.iCustomer?.mobile}</span>
+            </p>
+          </Col>
+          <Col md={6} xs={6}>
+            <p>
+              <span style={{ marginRight: 10 }}><MailOutlined /></span>
+              <span>Email: {customer?.iCustomer?.email}</span>
+            </p>
+          </Col>
+        </Row>
+        <Row style={{ marginTop: 10 }}>
+          <Col md={6} xs={6}>
+            <p>
+              <span style={{ marginRight: 10 }}><FacebookOutlined /></span>
+              <span>Facebook: {customer?.iCustomer?.facebookId || 'N/A'}</span>
+            </p>
+          </Col>
+          <Col md={6} xs={6}>
+            <p>
+              <span style={{ marginRight: 10 }}><AimOutlined /></span>
+              <span>Tỉnh T/P: {customer?.iCustomer?.address || 'Chưa cập nhật'}</span>
+            </p>
+          </Col>
+        </Row>
+        <div style={{ height: 15 }}></div>
+        <p>
+          <strong>Thông tin sản phẩm</strong>
+        </p>
+        <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
+        <Button
+          type="dashed"
+          style={{ float: 'right', marginBottom: 20 }}
+          icon={<PlusOutlined />}
+          onClick={() => setIsOpen(true)}
+        >
+          Thêm sản phẩm
+        </Button>
+        <Table
+          columns={columns}
+          scroll={{ x: 1700 }}
+          expandable={{
+            expandedRowRender: (record) => (
+              <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
+                {record.skus && record.skus.length > 0 ? (
+                  <table
+                    style={{
+                      width: "100%",
+                      borderCollapse: "collapse",
+                      background: "#fff",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <thead>
+                      <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
+                        <th style={thStyle}>Tên SKU</th>
+                        <th style={thStyle}>Giá bán</th>
+                        <th style={thStyle}>Chi tiết</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p>Không có SKU nào</p>
-              )}
-            </div>
-          ),
-        }}
-
-        dataSource={newSp(listSp)}
-        pagination={false}
-      />
-      <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
-      <Row justify={'end'}>
-        <Col md={6} xs={6}>
-          <p>
-            <strong>Đơn giá tổng: {formatMoney(totalPrice)}</strong>
-          </p>
-        </Col>
-        <Col md={6} xs={6}>
-          <p>
-            <strong> Số lượng tổng: {totalQuanlity} đơn</strong>
-          </p>
-        </Col>
-      </Row>
-      <Row justify={'end'}>
-        <Col md={6} xs={6}>
-          <p>
-            <strong>Hình thức triết khấu </strong>
-          </p>
-        </Col>
-        <Col md={6} xs={6}>
-          <p>
-            <strong>Giá trị triết khấu </strong>
-          </p>
-        </Col>
-      </Row>
-      <div style={{ float: 'right', marginTop: 20 }} onClick={onHandleCreateOdder}>
-        <CustomButton title="Tạo đơn" htmlType="submit" />
-      </div>
+                    </thead>
+                    <tbody>
+                      {record.skus.map((sku) => (
+                        <tr key={sku.id} style={{ borderBottom: "1px solid #ddd" }}>
+                          <td style={tdStyle}>{sku.name}</td>
+                          <td style={tdStyle}>
+                            {sku.listPriceRange.map((price) => price.price.toLocaleString() + " VND").join(", ")}
+                          </td>
+                          <td style={tdStyle}>
+                            {sku.skuDetail.map((detail) => (
+                              <p key={detail.id} style={{ marginRight: "10px" }}>
+                                <strong>{detail.name}:</strong> {detail.value}
+                              </p>
+                            ))}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p>Không có SKU nào</p>
+                )}
+              </div>
+            ),
+          }}
+          dataSource={newSp(listSp)}
+          pagination={false}
+        />
+        <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
+        <Row justify={'end'}>
+          <Col md={24} xs={24}>
+            <FormInput
+              required={false}
+              name="note"
+              label="Note khách hàng"
+              placeholder="Note khách hàng"
+            />
+          </Col>
+          <Col md={24} xs={24}>
+            <FormTextArea
+              rows={3}
+              name="address"
+              label="Địa chỉ giao hàng"
+              placeholder="Địa chỉ giao hàng"
+            />
+          </Col>
+          <Col md={6} xs={6}>
+            <p>
+              <strong>Đơn giá tổng: {formatMoney(totalPrice)}</strong>
+            </p>
+          </Col>
+          <Col md={6} xs={6}>
+            <p>
+              <strong> Số lượng tổng: {totalQuanlity} đơn</strong>
+            </p>
+          </Col>
+        </Row>
+        <Row justify={'end'}>
+          <Col md={6} xs={6}>
+            <p>
+              <strong> Tổng tiền: {formatMoney(total)}</strong>
+            </p>
+          </Col>
+          <Col md={6} xs={6}>
+            <p>
+              <strong>Giá trị triết khấu </strong>
+            </p>
+          </Col>
+        </Row>
+        <div style={{ marginTop: 20, marginBottom: 30, display: 'flex', justifyContent: 'end' }}>
+          <CustomButton title="Tạo đơn" htmlType="submit" />
+        </div>
+      </Form>
       <ModaleCreateCohoiStyle title={
         <div style={{ color: '#fff' }}>
           Tạo sản phẩm
@@ -770,159 +574,44 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                   )
                 }}
               </Form.Item>
-              <Col md={24} xs={24} style={{ display: 'flex', justifyContent: 'end', marginBottom: 20 }}>
+              <Col md={24} xs={24} style={{ display: 'flex', justifyContent: 'end', marginBottom: 50 }}>
                 <CustomButton htmlType="submit" />
               </Col>
             </Row>
           </Form>
-          {/* <Form.List name="products">
-            {(fields, { add, remove }) => (
-              <div style={{ marginTop: 20 }}>
-                {fields.map(({ key, name, ...restField }) => (
-                  <Row
-                    gutter={16}
-                    key={key}
-                    align="middle"
-                    style={{
-                      borderRadius: 20,
-                      padding: 10,
-                      position: "relative",
-                      border: "2px dashed #f2f1fc",
-                      marginBottom: 30,
-                    }}
-                  >
-                    <Col md={12} xs={24}>
-                      <FormAutoCompleteInfinite
-                        useGetAllQuery={useGetAllProductQuery}
-                        label="Sản phẩm"
-                        filterField="name"
-                        name={[name, "productName"]} // Đảm bảo name là unique
-                        valueProp="name"
-                        searchKey="name"
-                        required
-                        placeholder="Tìm kiếm Sản phẩm"
-                        customGetValueFromEvent={(productName, product) => {
-                          setDetailSp((prev) => ({ ...prev, [name]: product })); // Lưu theo từng form
-                          return productName;
-                        }}
-                      />
-                    </Col>
-
-                    <Col md={12} xs={24}>
-                      <FormSelect
-                        {...restField}
-                        name={[name, "skuId"]}
-                        label="SKU"
-                        required
-                        resourceData={detailSp[name]?.skus ?? []} // Lấy SKU của sản phẩm cụ thể
-                        placeholder="Chọn SKU"
-                      />
-                    </Col>
-
-                    <Col md={6} xs={24}>
-                      <FormInputNumber
-                        {...restField}
-                        required
-                        name={[name, "quantity"]}
-                        label="Số lượng"
-                        min="0"
-                        placeholder="Nhập Số lượng"
-                      />
-                    </Col>
-
-                    <Col md={6} xs={24}>
-                      <FormInputNumber
-                        {...restField}
-                        required
-                        name={[name, "price"]}
-                        label="Đơn giá"
-                        min="0"
-                        placeholder="Nhập Đơn giá"
-                      />
-                    </Col>
-
-                    <Col md={6} xs={24}>
-                      <FormSelect
-                        {...restField}
-                        name={[name, "discountUnit"]}
-                        titleProp="text"
-                        valueProp="value"
-                        resourceData={DISCOUNT_UNIT_CONST}
-                        label="Giảm giá nếu có"
-                        placeholder="Chọn hình thức giảm"
-                      />
-                    </Col>
-
-                    <Col md={6} xs={24}>
-                      <FormInputNumber
-                        {...restField}
-                        label="Giảm giá % / VND"
-                        min="0"
-                        name={[name, "discountValue"]}
-                        placeholder="Nhập giá trị"
-                      />
-                    </Col>
-
-                    <div
-                      type="text"
-                      style={{
-                        position: "absolute",
-                        top: -10,
-                        right: -10,
-                        cursor: "pointer",
-                      }}
-                      onClick={() => remove(name)}
-                    >
-                      <CloseCircleOutlined style={{ fontSize: 24 }} />
-                    </div>
-
-                  </Row>
-                ))}
-                <Form.Item shouldUpdate={(prev, cur) => JSON.stringify(prev.products) !== JSON.stringify(cur.products)}>
-                  {({ getFieldValue }) => {
-                    const products = getFieldValue("products") || [];
-                    const total = products?.reduce((sum, product) => {
-                      // const { quantity = 0, price = 0, discountValue = 0, discountUnit } = product;
-                      const subTotal = product?.quantity * product?.price;
-                      const discountValue = product?.discountValue;
-                      const discountUnit = product?.discountUnit
-                      const discount = calPriceOff({ discountValue, discountUnit, total: subTotal });
-                      return sum + (subTotal - discount);
-                    }, 0);
-                    setTotal(total)
-                    return (
-                      <ShowPriceStyles md={24} xs={24}>
-                        <h3 className="lo-order">Thành tiền: {formatMoney(total)}</h3>
-                      </ShowPriceStyles>
-                    )
-                  }}
-                </Form.Item>
-
-                <Row>
-                  <Col span={24} style={{ textAlign: "right" }}>
-                    <Button
-                      type="dashed"
-                      onClick={() => {
-                        const currentProducts = form.getFieldValue("products") || [];
-                        form.setFieldsValue({
-                          products: [...currentProducts, { quantity: null, price: null, discountValue: null }]
-                        });
-                      }}
-                      block
-                      icon={<PlusOutlined />}
-                    >
-                      Thêm sản phẩm
-                    </Button>
-                  </Col>
-                  <Col md={24} xs={24} style={{ display: 'flex', justifyContent: 'end', marginTop: 50, marginBottom: 20 }}>
-                    <CustomButton htmlType="submit" />
-                  </Col>
-                </Row>
-              </div>
-            )}
-          </Form.List> */}
         </div>
       </ModaleCreateCohoiStyle>
+
+      <ModaleStyles title={
+        <div style={{ color: '#fff' }}>
+          Sửa số lượng
+        </div>
+      } open={isOpenQuantity} footer={false} onCancel={() => setIsOpenQuantity(false)}>
+        <div style={{ padding: 15 }}>
+          <Form
+            name="basic"
+            layout='vertical'
+            form={FormQuanlity}
+            onFinish={onHandleChangeQuantity}
+          >
+            <Row>
+              <Col md={24} xs={24}>
+                <FormInput
+                  required={false}
+                  name="quantity"
+                  label="Số lượng"
+                  placeholder="nhập số lượng"
+                />
+              </Col>
+            </Row>
+            <Form.Item style={{ display: 'flex', justifyContent: 'end', marginTop: 10 }}>
+              <Button type="primary" htmlType="submit">
+                Câp nhật
+              </Button>
+            </Form.Item>
+          </Form>
+        </div>
+      </ModaleStyles>
     </div>
   )
 }
