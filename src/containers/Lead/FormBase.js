@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Col, Form, Row, Table, Tag } from 'antd';
+import { Button, Col, Form, Input, Row, Table, Tag } from 'antd';
 import { PhoneOutlined, MailOutlined, UserAddOutlined, FacebookOutlined, AimOutlined, FundOutlined } from '@ant-design/icons';
 import { cloneDeep } from "lodash";
 import { CloseCircleOutlined, PlusOutlined } from '@ant-design/icons';
@@ -84,6 +84,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
   const [listSp, setListSp] = useState([]);
   const [isOpenQuantity, setIsOpenQuantity] = useState(false);
   const [recordetail, setRecodetail] = useState({});
+  const [ value, setValue ] = useState(0);
 
   let totalPrice = newSp(listSp)?.reduce((sum, item) => sum + item.price, 0);
   let totalQuanlity = newSp(listSp)?.reduce((sum, item) => sum + item.quantity, 0);
@@ -211,8 +212,15 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     },
     {
       title: 'Số lượng',
-      dataIndex: 'quantity',
-      key: 'quantity',
+      render: (item) => {
+        return (
+          <div>
+            {isOpenQuantity && item?.id === recordetail?.id ? (
+              <Input value={value} placeholder='Số lương' onChange={(e) => setValue(e.target.value)}/>
+            ) : item.quantity}
+          </div>
+        )
+      }
     },
     {
       title: 'Tổng tiền',
@@ -242,12 +250,21 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       key: 'x',
       render: (record) => (
         <div style={{ display: 'flex', gap: 10 }}>
-          <div onClick={() => {
-            setIsOpenQuantity(true);
-            setRecodetail(record)
-          }}>
-            <a>Sửa số lượng</a>
-          </div>
+          {
+            isOpenQuantity && record?.id === recordetail?.id ? (
+              <div onClick={onHandleChangeQuantity}>
+                <a>Cập nhật</a>
+              </div>
+            ) : (
+              <div onClick={() => {
+                setIsOpenQuantity(true);
+                setRecodetail(record)
+                setValue(record?.quantity)
+              }}>
+                <a>Sửa số lượng</a>
+              </div>
+            )
+          }
           <div onClick={() => onHandleDeleteSp(record)}>
             <a>Xoá sản phẩm</a>
           </div>
@@ -322,8 +339,8 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
   }
 
   // thay đổi số lượng
-  const onHandleChangeQuantity = (value) => {
-    const newItem = {...recordetail, quantity: Number(value?.quantity)};
+  const onHandleChangeQuantity = () => {
+    const newItem = {...recordetail, quantity: Number(value)};
     const newData = listSp?.map(f => {
       if(f.detail?.id === newItem?.id) {
         f.value.quantity = newItem?.quantity;
@@ -582,7 +599,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
         </div>
       </ModaleCreateCohoiStyle>
 
-      <ModaleStyles title={
+      {/* <ModaleStyles title={
         <div style={{ color: '#fff' }}>
           Sửa số lượng
         </div>
@@ -611,7 +628,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
             </Form.Item>
           </Form>
         </div>
-      </ModaleStyles>
+      </ModaleStyles> */}
     </div>
   )
 }
