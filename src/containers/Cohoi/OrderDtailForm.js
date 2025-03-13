@@ -88,8 +88,8 @@ const OrderDtailForm = ({ data }) => {
   const [listSp, setListSp] = useState(data?.details || []);
   const [isOpenQuantity, setIsOpenQuantity] = useState(false);
   const [recordetail, setRecodetail] = useState({});
-  const [ value, setValue ] = useState(0);
-  
+  const [value, setValue] = useState(0);
+
   let totalPrice = newSp(listSp).reduce((sum, item) => sum + item?.price, 0);
   let totalQuanlity = newSp(listSp)?.reduce((sum, item) => sum + item?.quantity, 0);
   let total = newSp(listSp)?.reduce((sum, item) => sum + item?.price * item?.quantity, 0);
@@ -106,6 +106,30 @@ const OrderDtailForm = ({ data }) => {
       FormQuanlity.setFieldsValue({ quantity: recordetail?.quantity })
     }
   }, [recordetail])
+
+  /* bắt đơn giá theo sản phẩm */
+  useEffect(() => {
+    (() => {
+      if (detailSp?.skus) {
+        const { quantity } = form.getFieldsValue();
+        let price = "";
+        for (const item of detailSp?.skus) {
+          if (arrayNotEmpty(item?.listPriceRange)) {
+            for (const element of item?.listPriceRange) {
+              if (quantity >= element?.quantityFrom && quantity <= element?.quantityTo) {
+                price = priceSp;
+                break;
+              }
+            }
+          }
+        }
+        if (price) {
+          form.setFieldsValue({ price: price })
+        }
+      }
+    })()
+    // eslint-disable-next-line
+  }, [priceSp])
 
   const onClickAddNewOrder = async () => {
     if (arrayEmpty(record?.details ?? [])) {
@@ -235,60 +259,23 @@ const OrderDtailForm = ({ data }) => {
     if (arrayEmpty(newSp(listSp))) {
       return InAppEvent.normalInfo("Vui lòng thêm sản phẩm");
     }
-  
     // Tính tổng tiền từ listSp
     const tongdon = newSp(listSp).reduce((total, item) => total + (item.price * item.quantity), 0);
-  
-    // Tạo danh sách details từ data.details
-    const newDetails = (data?.details || []).map((detail, index) => {
-      // Lấy items từ listSp tương ứng với detail (dựa trên code hoặc index)
-      const matchingItems = listSp
-        .filter(sp => sp.code === detail.code) // Lọc theo code của detail
-        .flatMap(sp => sp.items || []);
-  
-      // Nếu không có items từ listSp, dùng items từ BE
-      const items = matchingItems.length > 0
-        ? matchingItems.map(item => ({
-            id: item?.id, 
-            skuInfo: item?.skuInfo,
-            skuId: item?.skuId,
-            quantity: item?.quantity,
-            price: item?.price
-          }))
-        : (detail.items || []).map(item => ({
-            id: item?.id,
-            skuInfo: item?.skuInfo,
-            skuId: item?.skuId,
-            quantity: item?.quantity,
-            price: item?.price
-          }));
-  
+    const newDetails = listSp?.map((detail) => {
+      const allItems = listSp?.flatMap(detail => 
+        detail?.items?.map(v => ({
+          id: v?.id,
+          productId: v?.productId,
+          name: v?.name,
+          skuInfo: v?.skuInfo
+        })) || []
+      );
       return {
-        productName: detail?.productName || detail?.name || "N/A",
-        id: detail?.id || null, // Giữ id của detail từ BE (33957)
-        items: items
-      };
-    });
-  
-    // Thêm các sản phẩm mới từ listSp không có trong data.details
-    const existingCodes = new Set((data?.details || []).map(d => d.code));
-    const newItemsFromListSp = listSp
-      .filter(sp => !existingCodes.has(sp.code))
-      .map(sp => ({
-        productName: sp?.productName || sp?.name || "N/A",
-        id: null, // Để null cho sản phẩm mới, BE sẽ sinh id
-        items: (sp.items || []).map(item => ({
-          id: item?.id,
-          skuInfo: item?.skuInfo,
-          skuId: item?.skuId,
-          quantity: item?.quantity,
-          price: item?.price
-        }))
-      }));
-  
-    // Gộp details từ BE và sản phẩm mới từ listSp
-    const finalDetails = [...newDetails, ...newItemsFromListSp];
-  
+        id: detail?.id,
+        productName: detail?.productName,
+        items: allItems
+      }
+    })
     const params = {
       vat: 0,
       id: data?.id, // 33939
@@ -305,7 +292,7 @@ const OrderDtailForm = ({ data }) => {
         createdAt: customer?.iCustomer?.createdAt,
         updatedAt: customer?.iCustomer?.updatedAt,
       },
-      details: finalDetails
+      details: newDetails
     };
     const datas = await RequestUtils.Post('/customer-order/update-cohoi', params);
     if (datas?.errorCode === 200) {
@@ -321,45 +308,48 @@ const OrderDtailForm = ({ data }) => {
     const timestamp = Date.now();
     return `NEW-${timestamp}`;
   };
-  
+
   // Hàm onHandleCreateSp
   const onHandleCreateSp = (value) => {
-    const newItem = {
+    /* Lấy skusInfo */
+    const skuDetails = detailSp?.skus?.map(sku => sku?.skuDetail).flat();
+    const newItems = {
       id: null, // Để BE sinh id cho item
       skuId: value.skuId,
-      skuInfo: value.skuInfo,
-      productId: value.productId,
-      productName: value.productName,
+      skuInfo: JSON.stringify(skuDetails),
+      productId: detailSp.id,
+      orderDetailId: null,
+      name: value.productName,
       quantity: value.quantity || 1,
       price: value.price || 0,
+      discount: null,
       discountValue: value.discountValue || 0,
-      discountUnit: value.discountUnit || null
+      discountUnit: value.discountUnit || null,
+      total: value.quantity * value.price
     };
-  
-    setListSp((prev = []) => {
-      if (prev.length === 0) {
-        // Nếu listSp rỗng, tạo detail mới
-        return [{
-          code: data?.details?.[0]?.code || "NEW-DEFAULT", // Dùng code từ BE nếu có
-          productName: value.productName || "N/A",
-          items: [newItem]
-        }];
-      }
-  
-      // Thêm item vào detail đầu tiên (hoặc detail có code khớp)
-      const targetDetailIndex = prev.findIndex(sp => sp.code === data?.details?.[0]?.code) || 0;
-      const updatedList = [...prev];
-      updatedList[targetDetailIndex] = {
-        ...updatedList[targetDetailIndex],
-        items: [...(updatedList[targetDetailIndex].items || []), newItem]
-      };
-      return updatedList;
-    });
-  
+    const newObj = {
+      id: null,
+      code: "NEW-DEFAULT", 
+      name: null,
+      price: null,
+      priceOff: 0,
+      customerOrderId: null,
+      total: value.quantity * value.price,
+      productName: value.productName,
+      productId: null,
+      customerNote: null,
+      dayDuote: null,
+      discount: null,
+      skuId: null,
+      skuInfo: null,
+      items: Array(newItems)
+    }
+    setListSp(pre => [...pre, newObj])
     InAppEvent.normalSuccess("Thêm sản phẩm thành công");
     form.resetFields();
     setIsOpen(false);
   };
+
   return <>
     <div style={{ marginTop: 15 }}>
       <Form onFinish={onHandleCreateOdder} layout="vertical" >
