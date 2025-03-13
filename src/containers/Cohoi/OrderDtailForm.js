@@ -173,7 +173,7 @@ const OrderDtailForm = ({ data }) => {
 
   const columns = [
     {
-      title: 'Sản phẩm',
+      title: 'Tên sản phẩm',
       dataIndex: 'name',
       key: 'name',
     },
@@ -475,8 +475,8 @@ const OrderDtailForm = ({ data }) => {
         <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
         <Row justify={'end'}>
           <Col md={24} xs={24}>
-            <FormInput
-              required={false}
+            <FormTextArea
+              rows={3}
               name="note"
               label="Note khách hàng"
               placeholder="Note khách hàng"
@@ -497,7 +497,7 @@ const OrderDtailForm = ({ data }) => {
           </Col>
           <Col md={6} xs={6}>
             <p>
-              <strong> Số lượng tổng: {totalQuanlity} đơn</strong>
+              <strong> Số lượng sản phẩm: {totalQuanlity} sản phẩm</strong>
             </p>
           </Col>
         </Row>
@@ -509,7 +509,7 @@ const OrderDtailForm = ({ data }) => {
           </Col>
           <Col md={6} xs={6}>
             <p>
-              <strong>Giá trị triết khấu </strong>
+              <strong>Giá trị chiết khấu </strong>
             </p>
           </Col>
         </Row>
@@ -624,36 +624,6 @@ const OrderDtailForm = ({ data }) => {
           </Form>
         </div>
       </ModaleCreateCohoiStyle>
-      {/* <ModaleStyles title={
-        <div style={{ color: '#fff' }}>
-          Sửa số lượng
-        </div>
-      } open={isOpenQuantity} footer={false} onCancel={() => setIsOpenQuantity(false)}>
-        <div style={{ padding: 15 }}>
-          <Form
-            name="basic"
-            layout='vertical'
-            form={FormQuanlity}
-            onFinish={onHandleChangeQuantity}
-          >
-            <Row>
-              <Col md={24} xs={24}>
-                <FormInput
-                  required={false}
-                  name="quantity"
-                  label="Số lượng"
-                  placeholder="nhập số lượng"
-                />
-              </Col>
-            </Row>
-            <Form.Item style={{ display: 'flex', justifyContent: 'end', marginTop: 10 }}>
-              <Button type="primary" htmlType="submit">
-                Câp nhật
-              </Button>
-            </Form.Item>
-          </Form>
-        </div>
-      </ModaleStyles> */}
     </div>
   </>
 }
