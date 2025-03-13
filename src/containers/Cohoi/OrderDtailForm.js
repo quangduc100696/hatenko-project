@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Tag, Form, Row, Col, Button, Table, Input } from "antd";
+import { Tag, Form, Row, Col, Button, Table, InputNumber } from "antd";
 import { FormContextCustom } from "components/context/FormContextCustom";
 import { PhoneOutlined, MailOutlined, UserAddOutlined, FacebookOutlined, AimOutlined, FundOutlined } from '@ant-design/icons';
 import { CloseCircleOutlined, PlusOutlined } from '@ant-design/icons';
@@ -191,15 +191,21 @@ const OrderDtailForm = ({ data }) => {
     },
     {
       title: 'Số lượng',
-      render: (item) => {
-        return (
-          <div>
-            {isOpenQuantity && item?.id === recordetail?.id ? (
-              <Input value={value} placeholder='Số lương' onChange={(e) => setValue(e.target.value)}/>
-            ) : item.quantity}
-          </div>
-        )
-      }
+      render: (item) => (
+        <InputNumber
+          min={1}
+          value={item.quantity}
+          onChange={(value) => {
+            const newData = listSp.map(f => {
+              return {
+                ...f,
+                items: f.items.map(v => v.id === item.id ? { ...v, quantity: value } : v)
+              };
+            });
+            setListSp(newData);
+          }}
+        />
+      )
     },
     {
       title: 'Tổng tiền',
@@ -217,21 +223,6 @@ const OrderDtailForm = ({ data }) => {
       key: 'x',
       render: (record) => (
         <div style={{ display: 'flex', gap: 10 }}>
-            {
-            isOpenQuantity && record?.id === recordetail?.id ? (
-              <div onClick={onHandleChangeQuantity}>
-                <a>Cập nhật</a>
-              </div>
-            ) : (
-              <div onClick={() => {
-                setIsOpenQuantity(true);
-                setRecodetail(record)
-                setValue(record?.quantity)
-              }}>
-                <a>Sửa số lượng</a>
-              </div>
-            )
-          }
           <div onClick={() => onHandleDeleteSp(record)}>
             <a>Xoá sản phẩm</a>
           </div>
@@ -241,34 +232,66 @@ const OrderDtailForm = ({ data }) => {
   ];
 
   const onHandleCreateOdder = async () => {
-
     if (arrayEmpty(newSp(listSp))) {
       return InAppEvent.normalInfo("Vui lòng thêm sản phẩm");
     }
-    const tongdon = newSp(listSp).reduce((total, item) => total + item.price, 0);
-    const newItem = (() => {
-      const mergedItems = [];
-      newSp(listSp)?.forEach(item => {
-        mergedItems.push({
-          productId: item?.id,
+  
+    // Tính tổng tiền từ listSp
+    const tongdon = newSp(listSp).reduce((total, item) => total + (item.price * item.quantity), 0);
+  
+    // Tạo danh sách details từ data.details
+    const newDetails = (data?.details || []).map((detail, index) => {
+      // Lấy items từ listSp tương ứng với detail (dựa trên code hoặc index)
+      const matchingItems = listSp
+        .filter(sp => sp.code === detail.code) // Lọc theo code của detail
+        .flatMap(sp => sp.items || []);
+  
+      // Nếu không có items từ listSp, dùng items từ BE
+      const items = matchingItems.length > 0
+        ? matchingItems.map(item => ({
+            id: item?.id, 
+            skuInfo: item?.skuInfo,
+            skuId: item?.skuId,
+            quantity: item?.quantity,
+            price: item?.price
+          }))
+        : (detail.items || []).map(item => ({
+            id: item?.id,
+            skuInfo: item?.skuInfo,
+            skuId: item?.skuId,
+            quantity: item?.quantity,
+            price: item?.price
+          }));
+  
+      return {
+        productName: detail?.productName || detail?.name || "N/A",
+        id: detail?.id || null, // Giữ id của detail từ BE (33957)
+        items: items
+      };
+    });
+  
+    // Thêm các sản phẩm mới từ listSp không có trong data.details
+    const existingCodes = new Set((data?.details || []).map(d => d.code));
+    const newItemsFromListSp = listSp
+      .filter(sp => !existingCodes.has(sp.code))
+      .map(sp => ({
+        productName: sp?.productName || sp?.name || "N/A",
+        id: null, // Để null cho sản phẩm mới, BE sẽ sinh id
+        items: (sp.items || []).map(item => ({
+          id: item?.id,
           skuInfo: item?.skuInfo,
-          name: item?.productName,
           skuId: item?.skuId,
           quantity: item?.quantity,
           price: item?.price
-        });
-      });
-      return [
-        {
-          productName: newSp(listSp)?.map(f => f?.name).join(", "), // Hoặc có thể lấy từ listSp[0]?.productName nếu cần động
-          items: mergedItems
-        }
-      ];
-    })();
-
+        }))
+      }));
+  
+    // Gộp details từ BE và sản phẩm mới từ listSp
+    const finalDetails = [...newDetails, ...newItemsFromListSp];
+  
     const params = {
       vat: 0,
-      id: data?.id,
+      id: data?.id, // 33939
       dataId: data?.id,
       paymentInfo: {
         amount: tongdon,
@@ -282,8 +305,8 @@ const OrderDtailForm = ({ data }) => {
         createdAt: customer?.iCustomer?.createdAt,
         updatedAt: customer?.iCustomer?.updatedAt,
       },
-      details: newItem
-    }
+      details: finalDetails
+    };
     const datas = await RequestUtils.Post('/customer-order/update-cohoi', params);
     if (datas?.errorCode === 200) {
       InAppEvent.emit(HASH_MODAL_CLOSE);
@@ -291,36 +314,52 @@ const OrderDtailForm = ({ data }) => {
     } else {
       InAppEvent.normalError("Tạo cơ hội thất bại");
     }
-  }
+  };
 
-  // thay đổi số lượng
-  const onHandleChangeQuantity = () => {
-    const newItem = { ...recordetail, quantity: Number(value) };
-    const newData = listSp?.map(f => {
-      const newItems = f?.items?.map(v => {
-        if (v?.id === newItem?.id) {
-          v.quantity = newItem?.quantity;
-        }
-        return v;
-      })
-      return {
-        ...f,
-        items: newItems
-      }
-    })
-    setListSp(newData);
-    setIsOpenQuantity(false);
-  }
 
+  const generateUniqueCode = (existingCodes) => {
+    const timestamp = Date.now();
+    return `NEW-${timestamp}`;
+  };
+  
+  // Hàm onHandleCreateSp
   const onHandleCreateSp = (value) => {
-    // setListSp((pre = []) => [
-    //   ...pre,
-    //   { value, detail: detailSp } // Bọc trong dấu `{}` để tạo object
-    // ]);
-    InAppEvent.normalSuccess("Tạo sản phẩm thành công");
+    const newItem = {
+      id: null, // Để BE sinh id cho item
+      skuId: value.skuId,
+      skuInfo: value.skuInfo,
+      productId: value.productId,
+      productName: value.productName,
+      quantity: value.quantity || 1,
+      price: value.price || 0,
+      discountValue: value.discountValue || 0,
+      discountUnit: value.discountUnit || null
+    };
+  
+    setListSp((prev = []) => {
+      if (prev.length === 0) {
+        // Nếu listSp rỗng, tạo detail mới
+        return [{
+          code: data?.details?.[0]?.code || "NEW-DEFAULT", // Dùng code từ BE nếu có
+          productName: value.productName || "N/A",
+          items: [newItem]
+        }];
+      }
+  
+      // Thêm item vào detail đầu tiên (hoặc detail có code khớp)
+      const targetDetailIndex = prev.findIndex(sp => sp.code === data?.details?.[0]?.code) || 0;
+      const updatedList = [...prev];
+      updatedList[targetDetailIndex] = {
+        ...updatedList[targetDetailIndex],
+        items: [...(updatedList[targetDetailIndex].items || []), newItem]
+      };
+      return updatedList;
+    });
+  
+    InAppEvent.normalSuccess("Thêm sản phẩm thành công");
     form.resetFields();
-    setIsOpen(false)
-  }
+    setIsOpen(false);
+  };
   return <>
     <div style={{ marginTop: 15 }}>
       <Form onFinish={onHandleCreateOdder} layout="vertical" >
