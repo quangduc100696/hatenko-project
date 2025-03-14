@@ -54,8 +54,12 @@ const LeadPage = () => {
     InAppEvent.emit(HASH_MODAL, { hash, title, data });
   }
 
-  const onHandleUpdateState = async (data) => {
-    const result = await RequestUtils.Post(`/data/update?leadId=${data?.id}`, data);
+  const onHandleUpdateState = async (v, data) => {
+    const newData = {
+      ...data,
+      status: v
+    }
+    const result = await RequestUtils.Post(`/data/update?leadId=${data?.id}`, newData);
     if (result?.errorCode === 200) {
       InAppEvent.normalSuccess("Cập nhập thành công");
     } else {
@@ -145,7 +149,7 @@ const LeadPage = () => {
               <Select
                 style={{ width: 170 }}
                 defaultValue={getStatusLead(item?.status)}
-                onChange={() => onHandleUpdateState(item)}
+                onChange={(v) => onHandleUpdateState(v, item)}
                 disabled={STATUS_LEAD.THANH_CO_HOI === item?.status ? true : false}
               >
                 {map(statusData, (data, index) => (
