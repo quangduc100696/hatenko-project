@@ -259,26 +259,51 @@ const OrderDtailForm = ({ data }) => {
     if (arrayEmpty(newSp(listSp))) {
       return InAppEvent.normalInfo("Vui lòng thêm sản phẩm");
     }
-    // Tính tổng tiền từ listSp
     const tongdon = newSp(listSp).reduce((total, item) => total + (item.price * item.quantity), 0);
-    const newDetails = listSp?.map((detail) => {
-      const allItems = listSp?.flatMap(detail => 
-        detail?.items?.map(v => ({
-          id: v?.id,
-          productId: v?.productId,
-          name: v?.name,
-          skuInfo: v?.skuInfo
-        })) || []
-      );
+    const newDetails = (data?.details || []).map((detail) => {
+      const matchingItems = listSp
+        .filter(sp => sp.code === detail.code)
+        .flatMap(sp => sp.items || []);
+      const items = matchingItems.length > 0
+        ? matchingItems
+        : listSp.flatMap(sp => sp.items || []);
+  
       return {
-        id: detail?.id,
-        productName: detail?.productName,
-        items: allItems
-      }
-    })
+        productName: detail?.productName || detail?.name || "N/A",
+        id: detail?.id || null,
+        items: items.map(item => ({
+          id: item?.id,
+          skuInfo: item?.skuInfo,
+          skuId: item?.skuId,
+          productId: item?.productId || null,
+          name: item?.productName || item?.name || null,
+          quantity: item?.quantity,
+          price: item?.price,
+          discountValue: item?.discountValue || 0,
+          discountUnit: item?.discountUnit || null
+        }))
+      };
+    });
+    if (!data?.details?.length && listSp.length) {
+      newDetails.push({
+        productName: listSp[0]?.productName || "N/A",
+        id: null,
+        items: listSp.flatMap(sp => sp.items || []).map(item => ({
+          id: item?.id,
+          skuInfo: item?.skuInfo,
+          skuId: item?.skuId,
+          productId: item?.productId || null,
+          productName: item?.productName || item?.name || null,
+          quantity: item?.quantity,
+          price: item?.price,
+          discountValue: item?.discountValue || 0,
+          discountUnit: item?.discountUnit || null
+        }))
+      });
+    }
     const params = {
       vat: 0,
-      id: data?.id, // 33939
+      id: data?.id,
       dataId: data?.id,
       paymentInfo: {
         amount: tongdon,
@@ -294,6 +319,7 @@ const OrderDtailForm = ({ data }) => {
       },
       details: newDetails
     };
+
     const datas = await RequestUtils.Post('/customer-order/update-cohoi', params);
     if (datas?.errorCode === 200) {
       InAppEvent.emit(HASH_MODAL_CLOSE);
@@ -303,7 +329,6 @@ const OrderDtailForm = ({ data }) => {
     }
   };
 
-
   const generateUniqueCode = (existingCodes) => {
     const timestamp = Date.now();
     return `NEW-${timestamp}`;
@@ -311,13 +336,12 @@ const OrderDtailForm = ({ data }) => {
 
   // Hàm onHandleCreateSp
   const onHandleCreateSp = (value) => {
-    /* Lấy skusInfo */
     const skuDetails = detailSp?.skus?.map(sku => sku?.skuDetail).flat();
     const newItems = {
-      id: null, // Để BE sinh id cho item
+      id: null,
       skuId: value.skuId,
       skuInfo: JSON.stringify(skuDetails),
-      productId: detailSp.id,
+      productId: detailSp?.id,
       orderDetailId: null,
       name: value.productName,
       quantity: value.quantity || 1,
@@ -327,24 +351,40 @@ const OrderDtailForm = ({ data }) => {
       discountUnit: value.discountUnit || null,
       total: value.quantity * value.price
     };
-    const newObj = {
-      id: null,
-      code: "NEW-DEFAULT", 
-      name: null,
-      price: null,
-      priceOff: 0,
-      customerOrderId: null,
-      total: value.quantity * value.price,
-      productName: value.productName,
-      productId: null,
-      customerNote: null,
-      dayDuote: null,
-      discount: null,
-      skuId: null,
-      skuInfo: null,
-      items: Array(newItems)
-    }
-    setListSp(pre => [...pre, newObj])
+  
+    setListSp((prev = []) => {
+      const targetCode = data?.details?.[0]?.code || "NEW-DEFAULT";
+      const targetDetailIndex = prev.findIndex(sp => sp.code === targetCode);
+  
+      if (targetDetailIndex === -1) {
+        return [{
+          id: null,
+          code: targetCode,
+          name: null,
+          price: null,
+          priceOff: 0,
+          customerOrderId: null,
+          total: value.quantity * value.price,
+          productName: data?.details?.[0]?.productName || value.productName || "N/A",
+          productId: null,
+          customerNote: null,
+          dayDuote: null,
+          discount: null,
+          skuId: null,
+          skuInfo: null,
+          items: [newItems]
+        }];
+      }
+      const updatedList = [...prev];
+      updatedList[targetDetailIndex] = {
+        ...updatedList[targetDetailIndex],
+        items: [...(updatedList[targetDetailIndex].items || []), newItems],
+        total: (updatedList[targetDetailIndex].total || 0) + newItems.total
+      };
+      console.log("listSp sau khi thêm:", JSON.stringify(updatedList, null, 2));
+      return updatedList;
+    });
+  
     InAppEvent.normalSuccess("Thêm sản phẩm thành công");
     form.resetFields();
     setIsOpen(false);

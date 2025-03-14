@@ -4,7 +4,7 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import Filter from './Filter';
 import useGetList from "hooks/useGetList";
-import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
+import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime, renderSkuInfo } from 'utils/dataUtils';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import { Button } from 'antd';
@@ -206,33 +206,37 @@ const CohoiPage = () => {
                                     >
                                         <thead>
                                             <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
-                                                <th style={thStyle}>Mã đơn</th>
+                                                <th style={thStyle}>Mã sản phẩm</th>
                                                 <th style={thStyle}>Tên Sản phẩm</th>
-                                                <th style={thStyle}>Giá bán</th>
+                                                <th style={thStyle}>Đơn vị tính</th>
                                                 <th style={thStyle}>Chi tiết</th>
+                                                <th style={thStyle}>Giá bán</th>
+                                                <th style={thStyle}>Số lượng</th>
+                                                <th style={thStyle}>Tổng tiền</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {record.details.map((sku) => {
-                                                return (
-                                                    <tr key={sku.id} style={{ borderBottom: "1px solid #ddd" }}>
-                                                        <td style={tdStyle}>{sku?.code}</td>
-                                                        { }
-                                                        <td style={tdStyle}>{sku?.items[0]?.name || 'N/A'}</td>
+                                            {record.details.map((sku) =>
+                                                sku.items.map((item, index) => (
+                                                    <tr key={`${sku.id}-${item.id || index}`} style={{ borderBottom: "1px solid #ddd" }}>
+                                                        {/* Chỉ hiển thị sku.code ở hàng đầu tiên của detail */}
                                                         <td style={tdStyle}>
-                                                            {formatMoney(sku?.items[0]?.price) || 'N/A'}
+                                                            {index === 0 ? sku?.code : ""}
                                                         </td>
+                                                        <td style={tdStyle}>
+                                                            {item?.name || "N/A"}
+                                                        </td>
+                                                        <td></td> {/* Cột trống */}
                                                         <td style={tdStyle}>
                                                             {(() => {
                                                                 let parsedSkuInfo = [];
                                                                 try {
-                                                                    if (sku?.items?.[0]?.skuInfo) {
-                                                                        parsedSkuInfo = JSON.parse(sku.items[0].skuInfo);
+                                                                    if (item?.skuInfo) {
+                                                                        parsedSkuInfo = JSON.parse(item.skuInfo);
                                                                     }
                                                                 } catch (error) {
                                                                     console.error("Lỗi parse JSON:", error);
                                                                 }
-
                                                                 return parsedSkuInfo.map((detail) => (
                                                                     <p key={detail.id} style={{ marginRight: "10px" }}>
                                                                         <strong>{detail.name}:</strong> {detail.value}
@@ -240,9 +244,18 @@ const CohoiPage = () => {
                                                                 ));
                                                             })()}
                                                         </td>
+                                                        <td style={tdStyle}>
+                                                            {formatMoney(item?.price) || "N/A"}
+                                                        </td>
+                                                        <td style={tdStyle}>
+                                                            {item?.quantity || "N/A"}
+                                                        </td>
+                                                        <td style={tdStyle}>
+                                                            {formatMoney(item?.total) || "N/A"}
+                                                            </td>
                                                     </tr>
-                                                )
-                                            })}
+                                                ))
+                                            )}
                                         </tbody>
                                     </table>
                                 ) : (
