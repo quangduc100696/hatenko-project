@@ -255,7 +255,7 @@ const OrderDtailForm = ({ data }) => {
     },
   ];
 
-  const onHandleCreateOdder = async () => {
+  const onHandleCreateOdder = async (value) => {
     if (arrayEmpty(newSp(listSp))) {
       return InAppEvent.normalInfo("Vui lòng thêm sản phẩm");
     }
@@ -307,6 +307,9 @@ const OrderDtailForm = ({ data }) => {
       dataId: data?.id,
       paymentInfo: {
         amount: tongdon,
+        method: '',
+        status: true,
+        content: "Chuyển khoản tiền đặt hàng"
       },
       customer: {
         saleId: customer?.iCustomer?.saleId,
@@ -317,9 +320,10 @@ const OrderDtailForm = ({ data }) => {
         createdAt: customer?.iCustomer?.createdAt,
         updatedAt: customer?.iCustomer?.updatedAt,
       },
-      details: newDetails
+      details: newDetails,
+      note: value?.note,
+      address: value?.value
     };
-
     const datas = await RequestUtils.Post('/customer-order/update-cohoi', params);
     if (datas?.errorCode === 200) {
       InAppEvent.emit(HASH_MODAL_CLOSE);
@@ -327,11 +331,6 @@ const OrderDtailForm = ({ data }) => {
     } else {
       InAppEvent.normalError("Tạo cơ hội thất bại");
     }
-  };
-
-  const generateUniqueCode = (existingCodes) => {
-    const timestamp = Date.now();
-    return `NEW-${timestamp}`;
   };
 
   // Hàm onHandleCreateSp
