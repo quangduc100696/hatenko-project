@@ -64,6 +64,8 @@ const newSp = (data) => {
   return newData.flat();
 };
 
+const OptionPrice = [{ title: 'Tiền mặt', name: 'tienmat' }, { title: 'MoMo', name: 'momo' }, { title: 'VNpay', name: 'vnpay' }]
+
 const thStyle = {
   padding: "8px 12px",
   borderBottom: "2px solid #ddd",
@@ -267,7 +269,7 @@ const OrderDtailForm = ({ data }) => {
       const items = matchingItems.length > 0
         ? matchingItems
         : listSp.flatMap(sp => sp.items || []);
-  
+
       return {
         productName: detail?.productName || detail?.name || "N/A",
         id: detail?.id || null,
@@ -307,9 +309,9 @@ const OrderDtailForm = ({ data }) => {
       dataId: data?.id,
       paymentInfo: {
         amount: tongdon,
-        method: '',
+        method: value?.optionPrice,
         status: true,
-        content: "Chuyển khoản tiền đặt hàng"
+        content: value?.noteMonney
       },
       customer: {
         saleId: customer?.iCustomer?.saleId,
@@ -350,11 +352,11 @@ const OrderDtailForm = ({ data }) => {
       discountUnit: value.discountUnit || null,
       total: value.quantity * value.price
     };
-  
+
     setListSp((prev = []) => {
       const targetCode = data?.details?.[0]?.code || "NEW-DEFAULT";
       const targetDetailIndex = prev.findIndex(sp => sp.code === targetCode);
-  
+
       if (targetDetailIndex === -1) {
         return [{
           id: null,
@@ -383,7 +385,7 @@ const OrderDtailForm = ({ data }) => {
       console.log("listSp sau khi thêm:", JSON.stringify(updatedList, null, 2));
       return updatedList;
     });
-  
+
     InAppEvent.normalSuccess("Thêm sản phẩm thành công");
     form.resetFields();
     setIsOpen(false);
@@ -512,7 +514,28 @@ const OrderDtailForm = ({ data }) => {
           pagination={false}
         />
         <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
-        <Row justify={'end'}>
+        <Row>
+          <Col md={12} xs={24}>
+            <FormSelect
+              required
+              name="optionPrice"
+              label="Hình thức thanh toán"
+              placeholder="Hình thức thanh toán"
+              resourceData={OptionPrice || []}
+              valueProp="name"
+              titleProp="title"
+            />
+          </Col>
+          <Col md={12} xs={24}>
+            <FormInput
+              required
+              label="Nội dung thanh toán"
+              name="noteMonney"
+              placeholder={"Nội dung thanh toán"}
+            />
+          </Col>
+        </Row>
+        <Row justify={'space-between'}>
           <Col md={24} xs={24}>
             <FormTextArea
               rows={3}

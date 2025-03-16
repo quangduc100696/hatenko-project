@@ -2,9 +2,9 @@ import { Form, Tag, Tabs, Row } from "antd";
 import { SnippetsOutlined } from '@ant-design/icons';
 import ORderDetailForm from "./ORderDetailForm";
 
-const OrderForm = () => {
+const OrderForm = ({data}) => {
   const items = [
-    { key: '1', label: 'Chi tiết đơn hàng', children: <ORderDetailForm />},
+    { key: '1', label: 'Chi tiết đơn hàng', children: <ORderDetailForm data={data}/>},
     { key: '2', label: 'Thanh toán', children: '' },
     { key: '3', label: 'Thông tin công ty', children: '' }
   ];

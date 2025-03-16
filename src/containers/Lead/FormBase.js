@@ -74,6 +74,8 @@ const tdStyle = {
   borderBottom: "1px solid #ddd",
 };
 
+const OptionPrice = [{ title: 'Tiền mặt', name: 'tienmat' }, { title: 'MoMo', name: 'momo' }, { title: 'VNpay', name: 'vnpay' }]
+
 const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal, data }) => {
   const [detailArr, setDetailArr] = useState([]);
   const [priceSp, setPriceSp] = useState(null);
@@ -84,17 +86,17 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
   const [listSp, setListSp] = useState([]);
   const [isOpenQuantity, setIsOpenQuantity] = useState(false);
   const [recordetail, setRecodetail] = useState({});
-  const [ value, setValue ] = useState(0);
+  const [value, setValue] = useState(0);
 
   let totalPrice = newSp(listSp)?.reduce((sum, item) => sum + item.price, 0);
   let totalQuanlity = newSp(listSp)?.reduce((sum, item) => sum + item.quantity, 0);
   let total = newSp(listSp)?.reduce((sum, item) => sum + item?.price * item?.quantity, 0);
 
   useEffect(() => {
-    if(recordetail) {
-      FormQuanlity.setFieldsValue({quantity: recordetail?.quantity})
+    if (recordetail) {
+      FormQuanlity.setFieldsValue({ quantity: recordetail?.quantity })
     }
-  },[recordetail])
+  }, [recordetail])
 
   useEffect(() => {
     (() => {
@@ -216,7 +218,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
         return (
           <div>
             {isOpenQuantity && item?.id === recordetail?.id ? (
-              <Input value={value} placeholder='Số lương' onChange={(e) => setValue(e.target.value)}/>
+              <Input value={value} placeholder='Số lương' onChange={(e) => setValue(e.target.value)} />
             ) : item.quantity}
           </div>
         )
@@ -315,6 +317,9 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       dataId: data?.id,
       paymentInfo: {
         amount: tongdon,
+        method: value?.optionPrice,
+        status: true,
+        content: value?.noteMonney
       },
       note: value?.note,
       address: value?.address,
@@ -340,13 +345,13 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
 
   // thay đổi số lượng
   const onHandleChangeQuantity = () => {
-    const newItem = {...recordetail, quantity: Number(value)};
+    const newItem = { ...recordetail, quantity: Number(value) };
     const newData = listSp?.map(f => {
-      if(f.detail?.id === newItem?.id) {
+      if (f.detail?.id === newItem?.id) {
         f.value.quantity = newItem?.quantity;
       }
       return f
-    })    
+    })
     setListSp(newData);
     setIsOpenQuantity(false);
   }
@@ -448,6 +453,27 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
           pagination={false}
         />
         <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
+        <Row>
+          <Col md={12} xs={24}>
+            <FormSelect
+              required
+              name="optionPrice"
+              label="Hình thức thanh toán"
+              placeholder="Hình thức thanh toán"
+              resourceData={OptionPrice || []}
+              valueProp="name"
+              titleProp="title"
+            />
+          </Col>
+          <Col md={12} xs={24}>
+            <FormInput
+              required
+              label="Nội dung thanh toán"
+              name="noteMonney"
+              placeholder={"Nội dung thanh toán"}
+            />
+          </Col>
+        </Row>
         <Row justify={'end'}>
           <Col md={24} xs={24}>
             <FormInput

@@ -88,7 +88,7 @@ const Order = ({ closeModal, data }) => {
       record={record}
       closeModal={closeModal}
     >
-      <OrderForm />
+      <OrderForm data={data}/>
     </RestEditModal>
   </>
 }
