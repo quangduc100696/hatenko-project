@@ -514,27 +514,6 @@ const OrderDtailForm = ({ data }) => {
           pagination={false}
         />
         <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
-        <Row>
-          <Col md={12} xs={24}>
-            <FormSelect
-              required
-              name="optionPrice"
-              label="Hình thức thanh toán"
-              placeholder="Hình thức thanh toán"
-              resourceData={OptionPrice || []}
-              valueProp="name"
-              titleProp="title"
-            />
-          </Col>
-          <Col md={12} xs={24}>
-            <FormInput
-              required
-              label="Nội dung thanh toán"
-              name="noteMonney"
-              placeholder={"Nội dung thanh toán"}
-            />
-          </Col>
-        </Row>
         <Row justify={'space-between'}>
           <Col md={24} xs={24}>
             <FormTextArea
