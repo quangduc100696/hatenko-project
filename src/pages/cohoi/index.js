@@ -331,8 +331,7 @@ const CohoiPage = () => {
           name: item?.productName || item?.name || null,
           quantity: item?.quantity,
           price: item?.price,
-          discountValue: item?.discountValue || 0,
-          discountUnit: item?.discountUnit || null
+          discount: JSON.stringify({ discountValue: item?.discountValue, discountUnit: item?.discountUnit })
         }))
       };
     });
@@ -358,9 +357,9 @@ const CohoiPage = () => {
       id: data?.id,
       dataId: data?.id,
       paymentInfo: {
-        amount: tongdon,
+        amount: value?.monneyPrice,
         method: value?.optionPrice,
-        status: true,
+        status: false,
         content: value?.noteMonney
       },
       customer: {

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Col, Form, Input, Row, Table, Tag } from 'antd';
+import { Button, Col, Form, Input, Row, Table, Tag,InputNumber } from 'antd';
 import { PhoneOutlined, MailOutlined, UserAddOutlined, FacebookOutlined, AimOutlined, FundOutlined } from '@ant-design/icons';
 import { cloneDeep } from "lodash";
 import { CloseCircleOutlined, PlusOutlined } from '@ant-design/icons';
@@ -90,7 +90,16 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
 
   let totalPrice = newSp(listSp)?.reduce((sum, item) => sum + item.price, 0);
   let totalQuanlity = newSp(listSp)?.reduce((sum, item) => sum + item.quantity, 0);
-  let total = newSp(listSp)?.reduce((sum, item) => sum + item?.price * item?.quantity, 0);
+  let total = newSp(listSp)?.reduce((sum, item) => {
+    let discount = 0;
+    if (item?.discountUnit === "percent") {
+        discount = (item?.price * item?.quantity) * (item?.discountValue / 100);
+    } else if (item?.discountUnit === "amount") {
+        discount = item?.discountValue;
+    }
+
+    return sum + (item?.price * item?.quantity - discount);
+}, 0);
 
   useEffect(() => {
     if (recordetail) {
@@ -166,8 +175,15 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
   };
 
   const onHandleDeleteSp = (record) => {
-    const newData = newSp(listSp)?.filter(f => f?.key !== record?.key);
-    setListSp(newData)
+    console.log(listSp); 
+    const newItem = listSp?.map(item => {
+      const items = item?.items?.filter(f => f?.id !== record?.id);
+      return {
+        ...item,
+        items: items
+      }
+    })
+    setListSp(newItem)
   }
 
   const columns = [
@@ -214,15 +230,21 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     },
     {
       title: 'Số lượng',
-      render: (item) => {
-        return (
-          <div>
-            {isOpenQuantity && item?.id === recordetail?.id ? (
-              <Input value={value} placeholder='Số lương' onChange={(e) => setValue(e.target.value)} />
-            ) : item.quantity}
-          </div>
-        )
-      }
+      render: (item) => (
+        <InputNumber
+          min={1}
+          value={item.quantity}
+          onChange={(value) => {
+            const newData = listSp.map(f => {
+              return {
+                ...f,
+                items: f.items.map(v => v.id === item.id ? { ...v, quantity: value } : v)
+              };
+            });
+            setListSp(newData);
+          }}
+        />
+      )
     },
     {
       title: 'Tổng tiền',
@@ -252,21 +274,6 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       key: 'x',
       render: (record) => (
         <div style={{ display: 'flex', gap: 10 }}>
-          {
-            isOpenQuantity && record?.id === recordetail?.id ? (
-              <div onClick={onHandleChangeQuantity}>
-                <a>Cập nhật</a>
-              </div>
-            ) : (
-              <div onClick={() => {
-                setIsOpenQuantity(true);
-                setRecodetail(record)
-                setValue(record?.quantity)
-              }}>
-                <a>Sửa số lượng</a>
-              </div>
-            )
-          }
           <div onClick={() => onHandleDeleteSp(record)}>
             <a>Xoá sản phẩm</a>
           </div>
@@ -301,7 +308,8 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
           name: item?.productName,
           skuId: item?.skuId,
           quantity: item?.quantity,
-          price: item?.price
+          price: item?.price,
+          discount: JSON.stringify({ discountValue: item?.discountValue, discountUnit: item?.discountUnit })
         });
       });
       return [
@@ -316,7 +324,10 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       vat: 0,
       dataId: data?.id,
       paymentInfo: {
-        amount: tongdon
+        amount: value?.optionMonney,
+        method: value?.optionPrice,
+        status: false,
+        content: value?.noteMonney
       },
       note: value?.note,
       address: value?.address,
@@ -338,19 +349,6 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     } else {
       InAppEvent.normalError("Tạo cơ hội thất bại");
     }
-  }
-
-  // thay đổi số lượng
-  const onHandleChangeQuantity = () => {
-    const newItem = { ...recordetail, quantity: Number(value) };
-    const newData = listSp?.map(f => {
-      if (f.detail?.id === newItem?.id) {
-        f.value.quantity = newItem?.quantity;
-      }
-      return f
-    })
-    setListSp(newData);
-    setIsOpenQuantity(false);
   }
 
   return (

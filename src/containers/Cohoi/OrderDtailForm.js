@@ -8,7 +8,7 @@ import FormSelect from "components/form/FormSelect";
 import { DISCOUNT_UNIT_CONST } from "configs/localData";
 import ProductSumary from "containers/Product/ProductSumary";
 import { useGetAllProductQuery } from "hooks/useData";
-import { arrayEmpty, arrayNotEmpty, formatMoney } from "utils/dataUtils";
+import { arrayEmpty, arrayNotEmpty, formatMoney,formatDiscount } from "utils/dataUtils";
 import CustomButton from 'components/CustomButton';
 import FormTextArea from "components/form/FormTextArea";
 import { ShowPriceStyles } from "../Order/styles";
@@ -94,7 +94,15 @@ const OrderDtailForm = ({ data }) => {
 
   let totalPrice = newSp(listSp).reduce((sum, item) => sum + item?.price, 0);
   let totalQuanlity = newSp(listSp)?.reduce((sum, item) => sum + item?.quantity, 0);
-  let total = newSp(listSp)?.reduce((sum, item) => sum + item?.price * item?.quantity, 0);
+  let total = newSp(listSp)?.reduce((sum, item) => {
+    let itemTotal = item?.price * item?.quantity;
+    if (item?.discountUnit === "percent") {
+        itemTotal = itemTotal * (1 - (item?.discountValue || 0) / 100);
+    } else {
+        itemTotal = itemTotal - (item?.discountValue || 0);
+    }
+    return sum + itemTotal;
+}, 0);
 
   useEffect(() => {
     (async () => {
@@ -208,13 +216,19 @@ const OrderDtailForm = ({ data }) => {
     {
       title: 'Chiết khấu',
       render: (item) => {
-        return (
-          <div>
-            {item?.discountUnit === "percent" ? `${item?.discountValue || 0}%` : formatMoney(item?.discountValue)}
-          </div>
-        )
+          try {
+              const discount = JSON.parse(item?.discount);
+              return (
+                  <div>
+                      {discount?.discountUnit === "percent" ? `${discount?.discountValue}%` : formatMoney(discount?.discountValue)}
+                  </div>
+              );
+          } catch (error) {
+              console.error("Lỗi phân tích cú pháp JSON:", error);
+              return <div>Lỗi chiết khấu</div>;
+          }
       }
-    },
+  },
     {
       title: 'Số lượng',
       render: (item) => (
@@ -234,15 +248,15 @@ const OrderDtailForm = ({ data }) => {
       )
     },
     {
-      title: 'Tổng tiền',
+      title: 'Chiết khấu',
       render: (item) => {
-        return (
-          <div>
-            {formatMoney(item?.price * item?.quantity)}
-          </div>
-        )
+          return (
+              <div>
+                  {item?.discount ? formatDiscount(item) : "Không có chiết khấu"}
+              </div>
+          );
       }
-    },
+  },
     {
       title: 'Hành động',
       dataIndex: '',
@@ -281,8 +295,7 @@ const OrderDtailForm = ({ data }) => {
           name: item?.productName || item?.name || null,
           quantity: item?.quantity,
           price: item?.price,
-          discountValue: item?.discountValue || 0,
-          discountUnit: item?.discountUnit || null
+          discount: JSON.stringify({ discountValue: item?.discountValue, discountUnit: item?.discountUnit })
         }))
       };
     });
@@ -298,8 +311,7 @@ const OrderDtailForm = ({ data }) => {
           productName: item?.productName || item?.name || null,
           quantity: item?.quantity,
           price: item?.price,
-          discountValue: item?.discountValue || 0,
-          discountUnit: item?.discountUnit || null
+          discount: JSON.stringify({ discountValue: item?.discountValue, discountUnit: item?.discountUnit })
         }))
       });
     }
@@ -310,7 +322,7 @@ const OrderDtailForm = ({ data }) => {
       paymentInfo: {
         amount: tongdon,
         method: value?.optionPrice,
-        status: true,
+        status: false,
         content: value?.noteMonney
       },
       customer: {
@@ -514,27 +526,6 @@ const OrderDtailForm = ({ data }) => {
           pagination={false}
         />
         <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
-        <Row>
-          <Col md={12} xs={24}>
-            <FormSelect
-              required
-              name="optionPrice"
-              label="Hình thức thanh toán"
-              placeholder="Hình thức thanh toán"
-              resourceData={OptionPrice || []}
-              valueProp="name"
-              titleProp="title"
-            />
-          </Col>
-          <Col md={12} xs={24}>
-            <FormInput
-              required
-              label="Nội dung thanh toán"
-              name="noteMonney"
-              placeholder={"Nội dung thanh toán"}
-            />
-          </Col>
-        </Row>
         <Row justify={'space-between'}>
           <Col md={24} xs={24}>
             <FormTextArea

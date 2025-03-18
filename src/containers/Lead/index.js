@@ -37,20 +37,21 @@ const NewLead = ({ title, closeModal, data }) => {
   }, [data]);
 
   const onSubmit = async (dataCreate) => {
-    log(dataCreate);
+    console.log("datanew" ,dataCreate);
     if (Object.entries(data)?.length > 0) {
       const param = {
-        ...data,
-        provinceName: data?.provinceName || dataCreate?.provinceName,
-        customerName: data?.customerName || data?.customerName,
-        customerMobile: data?.customerMobile || data?.customerMobile,
-        source: data?.source || dataCreate?.source,
-        serviceId: !data?.serviceId ? dataCreate?.serviceId : data?.serviceId,
-        customerEmail: data?.customerEmail || data?.customerEmail,
-        customerFacebook: data?.customerFacebook || data?.customerFacebook,
-        staff: data?.staff || dataCreate?.staff,
-        note: dataCreate?.noted || null,
-        fileUrls: data?.fileUrls?.length > 0 ? data?.fileUrls : dataCreate?.fileUrls
+        ...data,  
+        provinceName: dataCreate?.provinceName || data?.provinceName,
+        customerName: dataCreate?.customerName || data?.customerName,
+        customerMobile: dataCreate?.customerMobile || data?.customerMobile,
+        source: dataCreate?.source || data?.source,
+        serviceId: dataCreate?.serviceId || data?.serviceId, 
+        customerEmail: dataCreate?.customerEmail || data?.customerEmail,
+        customerFacebook: dataCreate?.customerFacebook || data?.customerFacebook,
+        staff: dataCreate?.staff || data?.staff,
+        saleId: dataCreate?.saleId || data?.saleId,
+        note: dataCreate?.noted || data,
+        fileUrls: dataCreate?.fileUrls?.length > 0 ? dataCreate?.fileUrls : data?.fileUrls,
       };
       const result = await RequestUtils.Post(`/data/update?leadId=${data?.id}`, param);
       if (result?.errorCode === 200) {
@@ -58,10 +59,8 @@ const NewLead = ({ title, closeModal, data }) => {
         InAppEvent.emit(HASH_MODAL_CLOSE);
       }
     } else {
-      if (!newFile?.sessionId) {
-        InAppEvent.normalInfo("Bạn cần tải file trước khi tạo Lead");
-      }
-      const newData = await RequestUtils.Post(`/data/create?sessionId=${newFile?.sessionId}`, dataCreate);
+      const url = newFile?.sessionId ? `/data/create?sessionId=${newFile.sessionId}` : "/data/create";
+      const newData = await RequestUtils.Post(url, dataCreate);
       const isSuccess = newData?.errorCode === 200;
       if (isSuccess) {
         f5List('data/lists');
