@@ -9,7 +9,7 @@ const OrderForm = ({data}) => {
     { key: '3', label: 'Thông tin công ty', children: '' }
   ];
   return <>
-    <Row justify="center">
+    {/* <Row justify="center">
       <Form.Item 
         noStyle
         shouldUpdate={ (prevValues, curValues) => 
@@ -26,7 +26,7 @@ const OrderForm = ({data}) => {
           )
         }}
       </Form.Item>
-    </Row>
+    </Row> */}
     <Tabs defaultActiveKey="1" items={items}/>
   </>
 }

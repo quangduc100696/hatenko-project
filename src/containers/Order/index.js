@@ -81,7 +81,7 @@ const Order = ({ closeModal, data }) => {
   }, [record]);
 
   return <>
-    <RestEditModal
+    {/* <RestEditModal
       isMergeRecordOnSubmit={false}
       updateRecord={(values) => setRecord(curvals => ({...curvals, ...values}))}
       onSubmit={onSubmit}
@@ -89,7 +89,8 @@ const Order = ({ closeModal, data }) => {
       closeModal={closeModal}
     >
       <OrderForm data={data}/>
-    </RestEditModal>
+    </RestEditModal> */}
+     <OrderForm data={data}/>
   </>
 }
 

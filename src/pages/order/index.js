@@ -26,7 +26,7 @@ const tdStyle = {
 const Order = () => {
 
   const onEdit = (item) => {
-    let title = 'Sửa đơn hàng #';
+    let title = 'Chi tiết đơn hàng #';
     let hash = '#draw/order.edit';
     let data = cloneDeep(item);
     InAppEvent.emit(HASH_MODAL, { hash, title, data });
@@ -153,6 +153,7 @@ const Order = () => {
         onData={onData}
         initialFilter={{ limit: 10, page: 1 }}
         filter={<Filter />}
+        hasCreate={false}
         beforeSubmitFilter={beforeSubmitFilter}
         useGetAllQuery={useGetList}
         apiPath={'order/fetch'}
