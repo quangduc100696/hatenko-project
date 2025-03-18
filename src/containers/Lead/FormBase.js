@@ -23,6 +23,7 @@ import { ModaleCreateCohoiStyle } from './styles';
 import { InAppEvent } from 'utils/FuseUtils';
 import { HASH_MODAL_CLOSE } from 'configs';
 import FormInput from 'components/form/FormInput';
+import FormDatePicker from 'components/form/FormDatePicker';
 
 /* Hàm này check nếu số lượng có trong khoảng giá sp thì lấy giá đó ngược lại lấy giá nhập  */
 export const handleDistancePrice = (skuId, detailSp, quantity, priceText, discountValue, discountUnit, text) => {
@@ -86,7 +87,9 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
   const [listSp, setListSp] = useState([]);
   const [isOpenQuantity, setIsOpenQuantity] = useState(false);
   const [recordetail, setRecodetail] = useState({});
-  const [value, setValue] = useState(0);
+  const [itemOrder, setItemOrder] = useState([]);
+  const [onOpen, setOnOpen] = useState(false);
+  let totalAmount = itemOrder?.reduce((sum, item) => sum + item?.amount, 0);
 
   let totalPrice = newSp(listSp)?.reduce((sum, item) => sum + item.price, 0);
   let totalQuanlity = newSp(listSp)?.reduce((sum, item) => sum + item.quantity, 0);
@@ -137,6 +140,13 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     })()
   }, [])
 
+  useEffect(() => {
+    (async() => {
+      const items = await RequestUtils.Get(`/pay/list-by-order-id?orderId=${data?.id}`);
+      setItemOrder(items?.data)
+    })()
+  },[data])
+
   const onClickAddNewOrder = async () => {
     if (arrayEmpty(detailCohoi?.details ?? [])) {
       return;
@@ -175,14 +185,14 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
   };
 
   const onHandleDeleteSp = (record) => {
-    console.log(listSp); 
-    const newItem = listSp?.map(item => {
-      const items = item?.items?.filter(f => f?.id !== record?.id);
-      return {
-        ...item,
-        items: items
-      }
-    })
+    // const newItem = newSp(listSp)?.map(item => {
+    //   const items = item?.items?.filter(f => f?.id !== record?.id);
+    //   return {
+    //     ...item,
+    //     items: items
+    //   }
+    // })
+    const newItem = newSp(listSp)?.filter(f => f.id !== record.id)
     setListSp(newItem)
   }
 
@@ -488,7 +498,13 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
             </p>
           </Col>
         </Row>
-        <div style={{ marginTop: 20, marginBottom: 30, display: 'flex', justifyContent: 'end' }}>
+        <div style={{ marginTop: 20, marginBottom: 30, display: 'flex', justifyContent: 'end', gap: 15 }}>
+          {/* <Button color="primary" style={{height: 30, marginTop: 2}} 
+            variant="dashed" size='small'
+            onClick={() => setOnOpen(true)}
+            >
+            Thanh toán
+          </Button> */}
           <CustomButton title="Tạo đơn" htmlType="submit" />
         </div>
       </Form>
@@ -591,6 +607,165 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                   )
                 }}
               </Form.Item>
+              <Col md={24} xs={24} style={{ display: 'flex', justifyContent: 'end', marginBottom: 50 }}>
+                <CustomButton htmlType="submit" />
+              </Col>
+            </Row>
+          </Form>
+        </div>
+      </ModaleCreateCohoiStyle>
+
+      <ModaleCreateCohoiStyle title={
+        <div style={{ color: '#fff' }}>
+          Thanh toán
+        </div>
+      } width={820}
+        open={onOpen} footer={false} onCancel={() => {
+          form.resetFields();
+          setOnOpen(false);
+        }}>
+        <div style={{ padding: 15 }}>
+          <p>Thanh toán đơn hàng</p>
+          <Table
+            columns={columns}
+            scroll={{ x: 1700 }}
+            // expandable={{
+            //   expandedRowRender: (record) => {
+            //     return (
+            //       <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
+            //         {record ? (
+            //           <table
+            //             style={{
+            //               width: "100%",
+            //               borderCollapse: "collapse",
+            //               background: "#fff",
+            //               borderRadius: "8px",
+            //               overflow: "hidden",
+            //             }}
+            //           >
+            //             <thead>
+            //               <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
+            //                 <th style={thStyle}>Tên SKU</th>
+            //                 <th style={thStyle}>Giá bán</th>
+            //                 <th style={thStyle}>Chi tiết</th>
+            //               </tr>
+            //             </thead>
+            //             <tbody>
+            //               <tr style={{ borderBottom: "1px solid #ddd" }}>
+            //                 <td style={tdStyle}>{record.name}</td>
+            //                 <td style={tdStyle}>
+            //                   {formatMoney(record?.price)}
+            //                 </td>
+            //                 <td style={tdStyle}>
+            //                   {(() => {
+            //                     let parsedSkuInfo = [];
+            //                     try {
+            //                       if (record?.skuInfo) {
+            //                         parsedSkuInfo = JSON.parse(record?.skuInfo);
+            //                       }
+            //                     } catch (error) {
+            //                       console.error("Lỗi parse JSON:", error);
+            //                     }
+            //                     return parsedSkuInfo.map((detail) => (
+            //                       <p key={detail.id} style={{ marginRight: "10px" }}>
+            //                         <strong>{detail.name}:</strong> {detail.value}
+            //                       </p>
+            //                     ));
+            //                   })()}
+            //                 </td>
+            //               </tr>
+            //             </tbody>
+            //           </table>
+            //         ) : (
+            //           <p>Không có SKU nào</p>
+            //         )}
+            //       </div>
+            //     )
+            //   },
+            // }}
+            dataSource={itemOrder || []}
+            pagination={false}
+          />
+          <div style={{ border: '0.5px dashed red', marginTop: 30 }} />
+          <Row style={{ marginTop: 20 }}>
+            <Col md={12} xs={12}>
+              <p>
+                <span style={{ marginRight: 10 }}>Tổng chi phí: {formatMoney(totalAmount)}</span>
+              </p>
+            </Col>
+            <Col md={12} xs={12}>
+              <p>
+                <span style={{ marginRight: 10 }}>Phí vận chuyển:</span>
+              </p>
+            </Col>
+            <Col md={12} xs={12}>
+              <p>
+                <span style={{ marginRight: 10 }}>Đã thanh toán:</span>
+              </p>
+            </Col>
+            <Col md={12} xs={12}>
+              <p>
+                <span style={{ marginRight: 10 }}>Triết khấu:</span>
+              </p>
+            </Col>
+            <Col md={12} xs={12}>
+              <p>
+                <span style={{ marginRight: 10 }}>Vat:</span>
+              </p>
+            </Col>
+            <Col md={12} xs={12}>
+              <p>
+                <span style={{ marginRight: 10 }}>Hoá đơn thanh toán: </span>
+              </p>
+            </Col>
+          </Row>
+          <div style={{ border: '0.5px dashed red', marginTop: 30 }} />
+          <Form form={form} layout="vertical" onFinish={onHandleCreateSp}>
+            <Row gutter={16} style={{ marginTop: 20 }}>
+              <Col md={12} xs={24}>
+                <FormInputNumber
+                  required={false}
+                  label="Số tiền thanh toán"
+                  min="0"
+                  name="monneyPrice"
+                  placeholder={"Số tiền thanh toán"}
+                />
+              </Col>
+              <Col md={12} xs={24} style={{marginTop: 28}}>
+                {/* <FormInput
+                  required={false}
+                  label="Ngày thanh toán"
+                  name="datePrice"
+                  placeholder={"Ngày thanh toán"}
+                /> */}
+                <FormDatePicker
+                  messageRequire={''}
+                  name="datePrice"
+                  disabled={true}
+                  format='DD/MM/YYYY'
+                  placeholder={"Ngày thanh toán"}
+                />
+              </Col>
+
+              <Col md={12} xs={24} style={{ width: '100%' }}>
+                <FormSelect
+                  required
+                  name="optionPrice"
+                  label="Hình thức thanh toán"
+                  placeholder="Hình thức thanh toán"
+                  resourceData={OptionPrice || []}
+                  valueProp="name"
+                  titleProp="title"
+                />
+              </Col>
+              <Col md={12} xs={24}>
+                <FormInput
+                  required
+                  label="Nội dung thanh toán"
+                  name="noteMonney"
+                  placeholder={"Nội dung thanh toán"}
+                />
+              </Col>
               <Col md={24} xs={24} style={{ display: 'flex', justifyContent: 'end', marginBottom: 50 }}>
                 <CustomButton htmlType="submit" />
               </Col>
