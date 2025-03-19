@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Button, Col, Form, Input, Row, Table, Tag,InputNumber } from 'antd';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { Button, Col, Form, Input, Row, Table, Tag, InputNumber } from 'antd';
 import { PhoneOutlined, MailOutlined, UserAddOutlined, FacebookOutlined, AimOutlined, FundOutlined } from '@ant-design/icons';
-import { cloneDeep } from "lodash";
-import { CloseCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { cloneDeep, debounce } from "lodash";
+import { CloseCircleOutlined, PlusOutlined, PlusSquareOutlined, SearchOutlined } from '@ant-design/icons';
 import ProductSumary from 'containers/Product/ProductSumary';
 import FormAutoCompleteInfinite from 'components/form/AutoCompleteInfinite/FormAutoCompleteInfinite';
 import { useGetAllProductQuery } from 'hooks/useData';
@@ -89,6 +89,9 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
   const [recordetail, setRecodetail] = useState({});
   const [itemOrder, setItemOrder] = useState([]);
   const [onOpen, setOnOpen] = useState(false);
+  const [listProduct, setListProduct] = useState([]);
+  const [filterSp, setFilterSp] = useState([]);
+
   let totalAmount = itemOrder?.reduce((sum, item) => sum + item?.amount, 0);
 
   let totalPrice = newSp(listSp)?.reduce((sum, item) => sum + item.price, 0);
@@ -96,13 +99,13 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
   let total = newSp(listSp)?.reduce((sum, item) => {
     let discount = 0;
     if (item?.discountUnit === "percent") {
-        discount = (item?.price * item?.quantity) * (item?.discountValue / 100);
+      discount = (item?.price * item?.quantity) * (item?.discountValue / 100);
     } else if (item?.discountUnit === "amount") {
-        discount = item?.discountValue;
+      discount = item?.discountValue;
     }
 
     return sum + (item?.price * item?.quantity - discount);
-}, 0);
+  }, 0);
 
   useEffect(() => {
     if (recordetail) {
@@ -141,11 +144,18 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
   }, [])
 
   useEffect(() => {
-    (async() => {
+    (async () => {
       const items = await RequestUtils.Get(`/pay/list-by-order-id?orderId=${data?.id}`);
       setItemOrder(items?.data)
     })()
-  },[data])
+  }, [data])
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await RequestUtils.Get(`/product/fetch`);
+      setListProduct(data?.embedded);
+    })()
+  }, [])
 
   const onClickAddNewOrder = async () => {
     if (arrayEmpty(detailCohoi?.details ?? [])) {
@@ -245,10 +255,10 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
           min={1}
           value={item.quantity}
           onChange={(value) => {
-            const newData = listSp.map(f => {
+            const newData = listSp?.map(f => {
               return {
                 ...f,
-                items: f.items.map(v => v.id === item.id ? { ...v, quantity: value } : v)
+                items: f.items?.map(v => v.id === item.id ? { ...v, quantity: value } : v)
               };
             });
             setListSp(newData);
@@ -299,6 +309,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     ]);
     InAppEvent.normalSuccess("Tạo sản phẩm thành công");
     form.resetFields();
+    setFilterSp([])
     setIsOpen(false)
   }
 
@@ -361,52 +372,120 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     }
   }
 
+  const onHandleSearchSp = useCallback(
+    debounce((value) => {
+      if(value) {
+        const newFilterSp = listProduct.filter(item =>
+          item.name.toLowerCase().includes(value.toLowerCase())
+        );
+        setFilterSp(newFilterSp);
+      } else {
+        setFilterSp([]);
+      }
+    }, 200)
+  );
+
+  const handleChange = (e) => {
+    onHandleSearchSp(e.target.value);
+  };
+
   return (
     <div style={{ marginTop: 15 }} layout="">
-      <Form onFinish={onHandleCreateOdder} layout="vertical">
-        <p><strong>Thông tin khách hàng</strong></p>
-        <div class="group-inan" style={{ background: '#f4f4f4', borderTop: '1px dashed red' }}></div>
-        <Row style={{ marginTop: 20 }}>
-          <Col md={6} xs={6}>
-            <p>
-              <span style={{ marginRight: 10 }}><PhoneOutlined /></span>
-              <span>Số điện thoại: {customer?.iCustomer?.mobile}</span>
-            </p>
-          </Col>
-          <Col md={6} xs={6}>
-            <p>
-              <span style={{ marginRight: 10 }}><MailOutlined /></span>
-              <span>Email: {customer?.iCustomer?.email}</span>
-            </p>
-          </Col>
-        </Row>
-        <Row style={{ marginTop: 10 }}>
-          <Col md={6} xs={6}>
-            <p>
-              <span style={{ marginRight: 10 }}><FacebookOutlined /></span>
-              <span>Facebook: {customer?.iCustomer?.facebookId || 'N/A'}</span>
-            </p>
-          </Col>
-          <Col md={6} xs={6}>
-            <p>
-              <span style={{ marginRight: 10 }}><AimOutlined /></span>
-              <span>Tỉnh T/P: {customer?.iCustomer?.address || 'Chưa cập nhật'}</span>
-            </p>
-          </Col>
-        </Row>
-        <div style={{ height: 15 }}></div>
-        <p>
-          <strong>Thông tin sản phẩm</strong>
-        </p>
-        <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
-        <Button
+      <p><strong>Thông tin khách hàng</strong></p>
+      <div class="group-inan" style={{ background: '#f4f4f4', borderTop: '1px dashed red' }}></div>
+      <Row style={{ marginTop: 20 }}>
+        <Col md={6} xs={6}>
+          <p>
+            <span style={{ marginRight: 10 }}><PhoneOutlined /></span>
+            <span>Số điện thoại: {customer?.iCustomer?.mobile}</span>
+          </p>
+        </Col>
+        <Col md={6} xs={6}>
+          <p>
+            <span style={{ marginRight: 10 }}><MailOutlined /></span>
+            <span>Email: {customer?.iCustomer?.email}</span>
+          </p>
+        </Col>
+      </Row>
+      <Row style={{ marginTop: 10 }}>
+        <Col md={6} xs={6}>
+          <p>
+            <span style={{ marginRight: 10 }}><FacebookOutlined /></span>
+            <span>Facebook: {customer?.iCustomer?.facebookId || 'N/A'}</span>
+          </p>
+        </Col>
+        <Col md={6} xs={6}>
+          <p>
+            <span style={{ marginRight: 10 }}><AimOutlined /></span>
+            <span>Tỉnh T/P: {customer?.iCustomer?.address || 'Chưa cập nhật'}</span>
+          </p>
+        </Col>
+      </Row>
+      <div style={{ height: 15 }}></div>
+      <p>
+        <strong>Thông tin sản phẩm</strong>
+      </p>
+      <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
+      {/* <Button
           type="dashed"
           style={{ float: 'right', marginBottom: 20 }}
           icon={<PlusOutlined />}
           onClick={() => setIsOpen(true)}
         >
           Thêm sản phẩm
-        </Button>
+        </Button> */}
+      <div style={{ position: 'relative', width: '100%' }}>
+        <div>
+          <Input
+            style={{ width: '30%', float: 'right', marginBottom: 20 }}
+            prefix={<SearchOutlined />}
+            placeholder="Thêm sản phẩm vào đơn"
+            onChange={handleChange}
+          />
+        </div>
+
+        {filterSp.length > 0 && (
+          <div style={{
+            position: 'absolute',
+            top: 30, // Xuất hiện ngay dưới Input
+            right: 0,
+            background: '#fff',
+            width: '30%',
+            zIndex: 999,
+            minHeight: '50px',
+            maxHeight: '300px',
+            overflowY: 'auto',
+            padding: '10px',
+            borderRadius: '5px',
+            marginTop: '5px',
+            boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px'
+          }}>
+            <div style={{display: 'flex', justifyContent: 'flex-start', gap: 10,  borderBottom: '1px solid #dbdbdb', paddingBottom: 10, marginBottom: 5}}>
+              <div style={{width:'10%', borderRight: '1px solid #dbdbdb', paddingTop: 5}}>
+                <PlusOutlined style={{fontSize: 25}}/>
+              </div>
+              <div style={{width: '90%', paddingTop: 10}}>
+                Thêm sản phẩm
+              </div>
+            </div>
+            {filterSp.map(item => (
+              <div key={item.id} style={{display: 'flex', justifyContent: 'flex-start', 
+                gap: 10, paddingBottom: 10, marginBottom: 5, borderBottom: '1px solid #dbdbdb', cursor: 'pointer'}}
+                onClick={() => onHandleCreateSp(item)}
+                >
+                <div style={{width:'10%', borderRight: '1px solid #dbdbdb', paddingTop: 5}}>
+                  <PlusSquareOutlined style={{fontSize: 25}}/>
+                </div>
+                <div style={{width: '90%',paddingTop: 10}}>
+                  {item.name}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Form onFinish={onHandleCreateOdder} layout="vertical">
         <Table
           columns={columns}
           scroll={{ x: 1700 }}
@@ -731,7 +810,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                   placeholder={"Số tiền thanh toán"}
                 />
               </Col>
-              <Col md={12} xs={24} style={{marginTop: 28}}>
+              <Col md={12} xs={24} style={{ marginTop: 28 }}>
                 {/* <FormInput
                   required={false}
                   label="Ngày thanh toán"
