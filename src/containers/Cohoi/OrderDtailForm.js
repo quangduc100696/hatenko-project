@@ -95,12 +95,12 @@ const OrderDtailForm = ({ data }) => {
   let totalPrice = newSp(listSp).reduce((sum, item) => sum + item?.price, 0);
   let totalQuanlity = newSp(listSp)?.reduce((sum, item) => sum + item?.quantity, 0);
   let total = newSp(listSp)?.reduce((sum, item) => {
-    let itemTotal = item?.price * item?.quantity;
-    if (item?.discountUnit === "percent") {
-        itemTotal = itemTotal * (1 - (item?.discountValue || 0) / 100);
-    } else {
-        itemTotal = itemTotal - (item?.discountValue || 0);
-    }
+    const discount = JSON.parse(item?.discount);
+          const totalAmount = item?.total || 0;
+          const discountValue = discount?.discountUnit === "percent" 
+              ? (totalAmount * discount?.discountValue) / 100 
+              : discount?.discountValue;
+    let itemTotal = item?.price * item?.quantity - discountValue;
     return sum + itemTotal;
 }, 0);
 
@@ -216,17 +216,23 @@ const OrderDtailForm = ({ data }) => {
     {
       title: 'Chiết khấu',
       render: (item) => {
-          try {
-              const discount = JSON.parse(item?.discount);
-              return (
-                  <div>
-                      {discount?.discountUnit === "percent" ? `${discount?.discountValue}%` : formatMoney(discount?.discountValue)}
-                  </div>
-              );
-          } catch (error) {
-              console.error("Lỗi phân tích cú pháp JSON:", error);
-              return <div>Lỗi chiết khấu</div>;
-          }
+        try {
+          console.log("Raw discount:", item.discount);
+          const discount = JSON.parse(item?.discount);
+          const totalAmount = item?.total || 0;
+          const discountValue = discount?.discountUnit === "percent" 
+              ? (totalAmount * discount?.discountValue) / 100 
+              : discount?.discountValue;
+      
+          return (
+              <div>
+                  {formatMoney(discountValue)}
+              </div>
+          );
+      } catch (error) {
+          console.error("Lỗi phân tích cú pháp JSON:", error);
+          return <div>Lỗi chiết khấu</div>;
+      } 
       }
   },
     {
@@ -248,11 +254,19 @@ const OrderDtailForm = ({ data }) => {
       )
     },
     {
-      title: 'Chiết khấu',
+      title: 'Tổng tiền',
       render: (item) => {
+        const discount = JSON.parse(item?.discount);
+          const totalAmount = item?.total || 0;
+          const discountValue = discount?.discountUnit === "percent" 
+              ? (totalAmount * discount?.discountValue) / 100 
+              : discount?.discountValue;
+      
+          let total = item?.price * item?.quantity - discountValue;
+      
           return (
               <div>
-                  {item?.discount ? formatDiscount(item) : "Không có chiết khấu"}
+                  {formatMoney(total)}
               </div>
           );
       }
@@ -272,6 +286,7 @@ const OrderDtailForm = ({ data }) => {
   ];
 
   const onHandleCreateOdder = async (value) => {
+    
     if (arrayEmpty(newSp(listSp))) {
       return InAppEvent.normalInfo("Vui lòng thêm sản phẩm");
     }
@@ -283,8 +298,9 @@ const OrderDtailForm = ({ data }) => {
       const items = matchingItems.length > 0
         ? matchingItems
         : listSp.flatMap(sp => sp.items || []);
-
+        console.log("value", items);
       return {
+
         productName: detail?.productName || detail?.name || "N/A",
         id: detail?.id || null,
         items: items.map(item => ({
@@ -295,7 +311,7 @@ const OrderDtailForm = ({ data }) => {
           name: item?.productName || item?.name || null,
           quantity: item?.quantity,
           price: item?.price,
-          discount: JSON.stringify({ discountValue: item?.discountValue, discountUnit: item?.discountUnit })
+          discount: item.discount
         }))
       };
     });
@@ -359,7 +375,10 @@ const OrderDtailForm = ({ data }) => {
       name: value.productName,
       quantity: value.quantity || 1,
       price: value.price || 0,
-      discount: null,
+      discount: JSON.stringify({
+        discountUnit: value.discountUnit || null,
+        discountValue: value.discountValue || 0
+      }),
       discountValue: value.discountValue || 0,
       discountUnit: value.discountUnit || null,
       total: value.quantity * value.price

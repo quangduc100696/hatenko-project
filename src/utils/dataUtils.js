@@ -91,23 +91,6 @@ export const dateFormatOnSubmit = (entity, propertes = [], format = "YYYY-MM-DD 
 export const formatTime = (text, fm = "DD-MM-YYYY") => text ? moment(new Date(text)).format(fm) : 'N/a';
 export const formatMoney = (x) => x ? x.toLocaleString('it-IT', {style : 'currency', currency : 'VND'}) : '0'.concat(' VND');
 export const calVat = ({ total, vatPercent }) => (total || 0) * (vatPercent / 100);
-export const formatDiscount = ({ discount, price }) => {
-    let discountAmount = 0;
-    try {
-        if (discount?.discountUnit === "percent") {
-            // Tính số tiền chiết khấu từ phần trăm
-            discountAmount = (discount?.discountValue / 100) * price;
-            console.log("discount",discountAmount);
-        } else {
-            // Nếu không phải phần trăm, giả sử là giá trị tuyệt đối
-            discountAmount = discount?.discountValue || 0;
-        }
-    } catch (error) {
-        console.error("Lỗi xử lý chiết khấu:", error);
-    }
-    return formatMoney(discountAmount); // Luôn trả về số tiền đã định dạng
-};
-
 export const getDiscountAmount = ({
     discountValue,
     discountUnit,
