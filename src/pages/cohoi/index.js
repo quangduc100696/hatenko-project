@@ -487,17 +487,17 @@ const CohoiPage = () => {
           <Row style={{ marginTop: 20 }}>
             <Col md={12} xs={12}>
               <p>
-                <span style={{ marginRight: 10 }}>Tổng chi phí: {formatMoney(totalAmount)}</span>
+                <span style={{ marginRight: 10 }}>Tổng chi phí: {formatMoney(data?.total || 0)}</span>
               </p>
             </Col>
             <Col md={12} xs={12}>
               <p>
-                <span style={{ marginRight: 10 }}>Phí vận chuyển:</span>
+                <span style={{ marginRight: 10 }}>Phí vận chuyển:{formatMoney(data?.shippingCost || 0)}</span>
               </p>
             </Col>
             <Col md={12} xs={12}>
               <p>
-                <span style={{ marginRight: 10 }}>Đã thanh toán: {formatMoney(totalPain)}</span>
+                <span style={{ marginRight: 10 }}>Đã thanh toán: {formatMoney(data?.paid || 0)}</span>
               </p>
             </Col>
             <Col md={12} xs={12}>
@@ -507,7 +507,7 @@ const CohoiPage = () => {
             </Col>
             <Col md={12} xs={12}>
               <p>
-                <span style={{ marginRight: 10 }}>Vat:</span>
+                <span style={{ marginRight: 10 }}>Vat: {data.vat || 0} %</span>
               </p>
             </Col>
             <Col md={12} xs={12}>
