@@ -21,7 +21,7 @@ import RequestUtils from 'utils/RequestUtils';
 import ModaleStyles from 'pages/lead/style';
 import { ModaleCreateCohoiStyle } from './styles';
 import { InAppEvent } from 'utils/FuseUtils';
-import { HASH_MODAL_CLOSE } from 'configs';
+import { HASH_MODAL_CLOSE, GATEWAY } from 'configs';
 import FormInput from 'components/form/FormInput';
 import FormDatePicker from 'components/form/FormDatePicker';
 
@@ -232,10 +232,20 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       title: 'Đơn giá',
       render: (item) => {
         return (
-          <div>
-            {formatMoney(item?.price)}
-          </div>
-        )
+          <InputNumber
+            min={1}
+            value={item.price}
+            onChange={(value) => {
+              const newData = listSp?.map(f => {
+                if (f.id === item.id) {
+                  return { ...f, price: value }; // Cập nhật giá trực tiếp
+                }
+                return f;
+              });
+              setListSp(newData);
+            }}
+          />
+        );
       }
     },
     {
@@ -374,7 +384,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
 
   const onHandleSearchSp = useCallback(
     debounce((value) => {
-      if(value) {
+      if (value) {
         const newFilterSp = listProduct.filter(item =>
           item.name.toLowerCase().includes(value.toLowerCase())
         );
@@ -460,27 +470,70 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
             marginTop: '5px',
             boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px'
           }}>
-            <div style={{display: 'flex', justifyContent: 'flex-start', gap: 10,  borderBottom: '1px solid #dbdbdb', paddingBottom: 10, marginBottom: 5}}>
-              <div style={{width:'10%', borderRight: '1px solid #dbdbdb', paddingTop: 5}}>
-                <PlusOutlined style={{fontSize: 25}}/>
-              </div>
-              <div style={{width: '90%', paddingTop: 10}}>
-                Thêm sản phẩm
-              </div>
+
+{filterSp.map((item) => (
+  <div key={item.id} style={{
+    display: 'flex', alignItems: 'center', justifyContent: 'flex-start',
+    gap: 10, paddingBottom: 10, marginBottom: 5, borderBottom: '1px solid #dbdbdb', cursor: 'pointer',
+    flexDirection: 'column' // Sắp xếp sản phẩm + danh sách SKU theo chiều dọc
+  }}>
+    {/* Hàng chính của sản phẩm */}
+    <div 
+      style={{ display: 'flex', alignItems: 'center', width: '100%' }}
+      onClick={() => {
+        // Mở danh sách SKU khi click
+        setFilterSp(filterSp.map(f => 
+          f.id === item.id ? { ...f, showSkus: !f.showSkus } : f
+        ));
+      }}
+    >
+      {/* Cột hình ảnh sản phẩm */}
+      <div style={{ width: '15%', paddingTop: 5, borderRight: '1px solid #dbdbdb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <img
+          src={item.image ? `${GATEWAY}${item.image}` : '/img/image_not_found.png'}
+          alt={item.name}
+          style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 5 }}
+        />
+      </div>
+
+      {/* Cột thông tin sản phẩm */}
+      <div style={{ width: '55%', paddingTop: 10 }}>
+        <strong>{item.name}</strong>
+      </div>
+
+      {/* Cột giá bán và số lượng tồn */}
+      <div style={{ width: '30%', paddingTop: 10, textAlign: 'right' }}>
+        <p style={{ marginBottom: 5, fontSize: 14, fontWeight: 'bold', color: '#d9534f' }}>
+          {formatMoney(item.price || 0)}
+        </p>
+        <p style={{ marginBottom: 0, fontSize: 12, color: '#5bc0de' }}>
+          Tồn kho: {item.stock || 0}
+        </p>
+      </div>
+    </div>
+
+    {/* Danh sách SKU (chỉ hiển thị nếu sản phẩm có SKU và đang được mở) */}
+    {item.showSkus && item.skus && item.skus.length > 0 && (
+      <div style={{ width: '100%', marginTop: 5, paddingLeft: 15 }}>
+        {item.skus.map((sku) => (
+          <div key={sku.id} 
+            style={{ display: 'flex', alignItems: 'center', padding: 5, cursor: 'pointer', borderBottom: '1px solid #dbdbdb' }}
+            onClick={() => onHandleCreateSp({ ...item, skuId: sku.id, skuName: sku.name, price: sku.price, stock: sku.stock })}
+          >
+            <div style={{ width: '70%' }}>
+              <span>{sku.name}</span>
             </div>
-            {filterSp.map(item => (
-              <div key={item.id} style={{display: 'flex', justifyContent: 'flex-start', 
-                gap: 10, paddingBottom: 10, marginBottom: 5, borderBottom: '1px solid #dbdbdb', cursor: 'pointer'}}
-                onClick={() => onHandleCreateSp(item)}
-                >
-                <div style={{width:'10%', borderRight: '1px solid #dbdbdb', paddingTop: 5}}>
-                  <PlusSquareOutlined style={{fontSize: 25}}/>
-                </div>
-                <div style={{width: '90%',paddingTop: 10}}>
-                  {item.name}
-                </div>
-              </div>
-            ))}
+            <div style={{ width: '30%', textAlign: 'right' }}>
+              <span style={{ fontWeight: 'bold', color: '#d9534f' }}>{formatMoney(sku.price || 0)}</span>
+              <span style={{ marginLeft: 10, fontSize: 12, color: '#5bc0de' }}>Tồn kho: {sku.stock || 0}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+))}
+
           </div>
         )}
       </div>
