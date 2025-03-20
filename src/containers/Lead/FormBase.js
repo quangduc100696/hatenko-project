@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Button, Col, Form, Input, Row, Table, Tag, InputNumber } from 'antd';
+import { Button, Col, Form, Input, Row, Table, Tag, InputNumber, Image, Select } from 'antd';
 import { PhoneOutlined, MailOutlined, UserAddOutlined, FacebookOutlined, AimOutlined, FundOutlined } from '@ant-design/icons';
 import { cloneDeep, debounce } from "lodash";
 import { CloseCircleOutlined, PlusOutlined, PlusSquareOutlined, SearchOutlined } from '@ant-design/icons';
@@ -19,7 +19,7 @@ import { useMount } from 'hooks/MyHooks';
 import { generateInForm } from 'containers/Order/utils';
 import RequestUtils from 'utils/RequestUtils';
 import ModaleStyles from 'pages/lead/style';
-import { ModaleCreateCohoiStyle } from './styles';
+import { ContainerSerchSp, ModaleCreateCohoiStyle } from './styles';
 import { InAppEvent } from 'utils/FuseUtils';
 import { HASH_MODAL_CLOSE, GATEWAY } from 'configs';
 import FormInput from 'components/form/FormInput';
@@ -202,7 +202,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     //     items: items
     //   }
     // })
-    const newItem = newSp(listSp)?.filter(f => f.id !== record.id)
+    const newItem = listSp?.filter(f => f?.value.id !== record.id);
     setListSp(newItem)
   }
 
@@ -225,8 +225,8 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     Table.EXPAND_COLUMN,
     {
       title: 'Thông tin sản phẩm',
-      dataIndex: 'productName',
-      key: 'productName',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
       title: 'Đơn giá',
@@ -236,9 +236,16 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
             min={1}
             value={item.price}
             onChange={(value) => {
-              const newData = listSp?.map(f => {
-                if (f.id === item.id) {
-                  return { ...f, price: value }; // Cập nhật giá trực tiếp
+              const newData = listSp.map(f => {
+                if (f.value?.id === item.id) {
+                  return {
+                    ...f, // Sao chép toàn bộ object để tránh tham chiếu
+                    detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
+                    value: {
+                      ...f.value,
+                      price: value
+                    }
+                  };
                 }
                 return f;
               });
@@ -249,12 +256,65 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       }
     },
     {
+      title: 'Giảm giá nếu có',
+      render: (item) => {
+        return (
+          <div>
+            <Select defaultValue={'money'} onChange={(value) => {
+              const newData = listSp.map(f => {
+                if (f.value?.id === item.id) {
+                  return {
+                    ...f, // Sao chép toàn bộ object để tránh tham chiếu
+                    detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
+                    value: {
+                      ...f.value,
+                      discountUnit: value
+                    }
+                  };
+                }
+                return f;
+              });
+              setListSp(newData);
+            }}>
+              {DISCOUNT_UNIT_CONST?.map((f, id) => {
+                return (
+                  <Select.Option key={id} value={f?.value}>{f?.text}</Select.Option>
+                )
+              })}
+            </Select>
+          </div>
+        )
+      }
+    },
+    {
       title: 'Chiết khấu',
       render: (item) => {
         return (
           <div>
-            {item?.discountUnit === "percent" ? `${item?.discountValue || 0}%` : formatMoney(item?.discountValue)}
+            <InputNumber
+              min={1}
+              value={item.quantity} // Hiển thị đúng giá trị hiện tại
+              onChange={(value) => {
+                const newData = listSp.map(f => {
+                  if (f.value?.id === item.id) {
+                    return {
+                      ...f, // Sao chép toàn bộ object để tránh tham chiếu
+                      detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
+                      value: {
+                        ...f.value,
+                        discountValue: value
+                      }
+                    };
+                  }
+                  return f;
+                });
+                setListSp(newData);
+              }}
+            />
           </div>
+          // <div>
+          //   {item?.discountUnit === "percent" ? `${item?.discountValue || 0}%` : formatMoney(item?.discountValue)}
+          // </div>
         )
       }
     },
@@ -263,13 +323,20 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       render: (item) => (
         <InputNumber
           min={1}
-          value={item.quantity}
+          value={item.quantity} // Hiển thị đúng giá trị hiện tại
           onChange={(value) => {
-            const newData = listSp?.map(f => {
-              return {
-                ...f,
-                items: f.items?.map(v => v.id === item.id ? { ...v, quantity: value } : v)
-              };
+            const newData = listSp.map(f => {
+              if (f.value?.id === item.id) {
+                return {
+                  ...f, // Sao chép toàn bộ object để tránh tham chiếu
+                  detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
+                  value: {
+                    ...f.value,
+                    quantity: value
+                  }
+                };
+              }
+              return f;
             });
             setListSp(newData);
           }}
@@ -281,7 +348,18 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       render: (item) => {
         return (
           <div>
-            {formatMoney(item?.price * item?.quantity)}
+            {formatMoney(
+              (() => {
+                const totalPrice = item?.price * item?.quantity;
+                if (item?.discountUnit === "money") {
+                  return Math.max(totalPrice - item?.discountValue, 0); // Đảm bảo không âm
+                }
+                if (item?.discountUnit === "percent") {
+                  return Math.max(totalPrice * (1 - item?.discountValue / 100), 0);
+                }
+                return totalPrice;
+              })()
+            )}
           </div>
         )
       }
@@ -455,86 +533,68 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
         </div>
 
         {filterSp.length > 0 && (
-          <div style={{
-            position: 'absolute',
-            top: 30, // Xuất hiện ngay dưới Input
-            right: 0,
-            background: '#fff',
-            width: '30%',
-            zIndex: 999,
-            minHeight: '50px',
-            maxHeight: '300px',
-            overflowY: 'auto',
-            padding: '10px',
-            borderRadius: '5px',
-            marginTop: '5px',
-            boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px'
-          }}>
+          <ContainerSerchSp>
+            {filterSp.map((item) => (
+              <div key={item.id} className='wrap-search-sp'>
+                {/* Hàng chính của sản phẩm */}
+                <div
+                  className='btn_hover_sp'
+                  style={{ display: 'flex', alignItems: 'center', width: '100%' }}
+                  onClick={() => {
+                    setFilterSp(filterSp.map(f =>
+                      f.id === item.id ? { ...f, showSkus: !f.showSkus } : f
+                    ));
+                    onHandleCreateSp({ ...item, skuId: item?.skus[0]?.id, skuName: item?.name, price: item.skus[0]?.listPriceRange[0]?.price, stock: item?.skus[0]?.stock })
+                  }}
+                >
+                  {/* Cột hình ảnh sản phẩm */}
+                  <div className='btn_wrap-sp'>
+                    <Image
+                      src={item.image ? `${GATEWAY}${item.image}` : '/img/image_not_found.png'}
+                      alt={item.name}
+                      style={{ width: 50, height: 50, marginRight: 15, objectFit: 'cover', borderRadius: 5 }}
+                    />
+                  </div>
 
-{filterSp.map((item) => (
-  <div key={item.id} style={{
-    display: 'flex', alignItems: 'center', justifyContent: 'flex-start',
-    gap: 10, paddingBottom: 10, marginBottom: 5, borderBottom: '1px solid #dbdbdb', cursor: 'pointer',
-    flexDirection: 'column' // Sắp xếp sản phẩm + danh sách SKU theo chiều dọc
-  }}>
-    {/* Hàng chính của sản phẩm */}
-    <div 
-      style={{ display: 'flex', alignItems: 'center', width: '100%' }}
-      onClick={() => {
-        // Mở danh sách SKU khi click
-        setFilterSp(filterSp.map(f => 
-          f.id === item.id ? { ...f, showSkus: !f.showSkus } : f
-        ));
-      }}
-    >
-      {/* Cột hình ảnh sản phẩm */}
-      <div style={{ width: '15%', paddingTop: 5, borderRight: '1px solid #dbdbdb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <img
-          src={item.image ? `${GATEWAY}${item.image}` : '/img/image_not_found.png'}
-          alt={item.name}
-          style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 5 }}
-        />
-      </div>
+                  {/* Cột thông tin sản phẩm */}
+                  <div style={{ width: '55%', paddingTop: 10, paddingLeft: 10 }}>
+                    <strong>{item.name}</strong>
+                  </div>
 
-      {/* Cột thông tin sản phẩm */}
-      <div style={{ width: '55%', paddingTop: 10 }}>
-        <strong>{item.name}</strong>
-      </div>
+                  {/* Cột giá bán và số lượng tồn */}
+                  <div style={{ width: '30%', paddingTop: 10, textAlign: 'right' }}>
+                    <p style={{ marginBottom: 5, fontSize: 14, fontWeight: 'bold', color: '#d9534f' }}>
+                      {formatMoney(item.skus[0]?.listPriceRange[0]?.price || 0)}
+                    </p>
+                    <p style={{ marginBottom: 0, fontSize: 12, color: '#5bc0de' }}>
+                      Tồn kho: {item.stock || 0}
+                    </p>
+                  </div>
+                </div>
 
-      {/* Cột giá bán và số lượng tồn */}
-      <div style={{ width: '30%', paddingTop: 10, textAlign: 'right' }}>
-        <p style={{ marginBottom: 5, fontSize: 14, fontWeight: 'bold', color: '#d9534f' }}>
-          {formatMoney(item.price || 0)}
-        </p>
-        <p style={{ marginBottom: 0, fontSize: 12, color: '#5bc0de' }}>
-          Tồn kho: {item.stock || 0}
-        </p>
-      </div>
-    </div>
+                {/* Danh sách SKU (chỉ hiển thị nếu sản phẩm có SKU và đang được mở) */}
+                {/* {item.showSkus && item.skus && item.skus.length > 0 && (
+                  <div style={{ width: '100%', marginTop: 5, paddingLeft: 15 }}>
+                    {item.skus.map((sku) => (
+                      <div key={sku.id}
+                        style={{ display: 'flex', alignItems: 'center', padding: 5, cursor: 'pointer' }}
+                        onClick={() => onHandleCreateSp({ ...item, skuId: sku.id, skuName: sku.name, price: sku.price, stock: sku.stock })}
+                      >
+                        <div style={{ width: '70%' }}>
+                          <span>{sku.name}</span>
+                        </div>
+                        <div style={{ width: '30%', textAlign: 'right' }}>
+                          <span style={{ fontWeight: 'bold', color: '#d9534f' }}>{formatMoney(sku.price || 0)}</span>
+                          <span style={{ marginLeft: 10, fontSize: 12, color: '#5bc0de' }}>Tồn kho: {sku.stock || 0}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )} */}
+              </div>
+            ))}
 
-    {/* Danh sách SKU (chỉ hiển thị nếu sản phẩm có SKU và đang được mở) */}
-    {item.showSkus && item.skus && item.skus.length > 0 && (
-      <div style={{ width: '100%', marginTop: 5, paddingLeft: 15 }}>
-        {item.skus.map((sku) => (
-          <div key={sku.id} 
-            style={{ display: 'flex', alignItems: 'center', padding: 5, cursor: 'pointer', borderBottom: '1px solid #dbdbdb' }}
-            onClick={() => onHandleCreateSp({ ...item, skuId: sku.id, skuName: sku.name, price: sku.price, stock: sku.stock })}
-          >
-            <div style={{ width: '70%' }}>
-              <span>{sku.name}</span>
-            </div>
-            <div style={{ width: '30%', textAlign: 'right' }}>
-              <span style={{ fontWeight: 'bold', color: '#d9534f' }}>{formatMoney(sku.price || 0)}</span>
-              <span style={{ marginLeft: 10, fontSize: 12, color: '#5bc0de' }}>Tồn kho: {sku.stock || 0}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    )}
-  </div>
-))}
-
-          </div>
+          </ContainerSerchSp>
         )}
       </div>
 
