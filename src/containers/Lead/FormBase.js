@@ -222,6 +222,38 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       dataIndex: 'unit',
       key: 'unit',
     },
+    {
+      title: 'SKU',
+      render: (item) => {
+        return (
+          <div>
+            <Select
+              value={item.discountUnit}
+              onChange={(value) => {
+                const newData = listSp.map(f => {
+                  if (f.value?.id === item.id) {
+                    return {
+                      ...f,
+                      detail: { ...f.detail },
+                      value: {
+                        ...f.value,
+                        discountUnit: value
+                      }
+                    };
+                  }
+                  return f;
+                });
+                setListSp(newData);
+              }}
+            >
+              {DISCOUNT_UNIT_CONST?.map((f, id) => (
+                <Select.Option key={id} value={f?.value}>{f?.text}</Select.Option>
+              ))}
+            </Select>
+          </div>
+        );
+      }
+    },
     Table.EXPAND_COLUMN,
     {
       title: 'Thông tin sản phẩm',
@@ -256,35 +288,30 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       }
     },
     {
-      title: 'Giảm giá nếu có',
-      render: (item) => {
-        return (
-          <div>
-            <Select defaultValue={'money'} onChange={(value) => {
-              const newData = listSp.map(f => {
-                if (f.value?.id === item.id) {
-                  return {
-                    ...f, // Sao chép toàn bộ object để tránh tham chiếu
-                    detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
-                    value: {
-                      ...f.value,
-                      discountUnit: value
-                    }
-                  };
-                }
-                return f;
-              });
-              setListSp(newData);
-            }}>
-              {DISCOUNT_UNIT_CONST?.map((f, id) => {
-                return (
-                  <Select.Option key={id} value={f?.value}>{f?.text}</Select.Option>
-                )
-              })}
-            </Select>
-          </div>
-        )
-      }
+      title: 'Số lượng',
+      render: (item) => (
+        <InputNumber
+          min={1}
+          style={{ width: 80 }}
+          value={item.quantity} // Hiển thị đúng giá trị hiện tại
+          onChange={(value) => {
+            const newData = listSp.map(f => {
+              if (f.value?.id === item.id) {
+                return {
+                  ...f, // Sao chép toàn bộ object để tránh tham chiếu
+                  detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
+                  value: {
+                    ...f.value,
+                    quantity: value
+                  }
+                };
+              }
+              return f;
+            });
+            setListSp(newData);
+          }}
+        />
+      )
     },
     {
       title: 'Chiết khấu',
@@ -293,7 +320,8 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
           <div>
             <InputNumber
               min={1}
-              value={item.quantity} // Hiển thị đúng giá trị hiện tại
+              style={{ width: 80 }}
+              value={item.discountValue} // Hiển thị đúng giá trị hiện tại
               onChange={(value) => {
                 const newData = listSp.map(f => {
                   if (f.value?.id === item.id) {
@@ -319,29 +347,40 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       }
     },
     {
-      title: 'Số lượng',
-      render: (item) => (
-        <InputNumber
-          min={1}
-          value={item.quantity} // Hiển thị đúng giá trị hiện tại
-          onChange={(value) => {
-            const newData = listSp.map(f => {
-              if (f.value?.id === item.id) {
-                return {
-                  ...f, // Sao chép toàn bộ object để tránh tham chiếu
-                  detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
-                  value: {
-                    ...f.value,
-                    quantity: value
+      title: 'Loại chiết khấu',
+      render: (item) => {
+        if (!item?.discountUnit) {
+          item.discountUnit = 'money'; // Đặt giá trị mặc định nếu chưa có
+        }
+        
+        return (
+          <div>
+            <Select
+              value={item.discountUnit}
+              onChange={(value) => {
+                const newData = listSp.map(f => {
+                  if (f.value?.id === item.id) {
+                    return {
+                      ...f,
+                      detail: { ...f.detail },
+                      value: {
+                        ...f.value,
+                        discountUnit: value
+                      }
+                    };
                   }
-                };
-              }
-              return f;
-            });
-            setListSp(newData);
-          }}
-        />
-      )
+                  return f;
+                });
+                setListSp(newData);
+              }}
+            >
+              {DISCOUNT_UNIT_CONST?.map((f, id) => (
+                <Select.Option key={id} value={f?.value}>{f?.text}</Select.Option>
+              ))}
+            </Select>
+          </div>
+        );
+      }
     },
     {
       title: 'Tổng tiền',
@@ -352,10 +391,10 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
               (() => {
                 const totalPrice = item?.price * item?.quantity;
                 if (item?.discountUnit === "money") {
-                  return Math.max(totalPrice - item?.discountValue, 0); // Đảm bảo không âm
+                  return Math.max(totalPrice - Number(item?.discountValue), 0); // Đảm bảo không âm
                 }
                 if (item?.discountUnit === "percent") {
-                  return Math.max(totalPrice * (1 - item?.discountValue / 100), 0);
+                  return Math.max(totalPrice * (1 - Number(item?.discountValue) / 100), 0);
                 }
                 return totalPrice;
               })()

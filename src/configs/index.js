@@ -2,9 +2,9 @@
 export const SUCCESS_CODE = 200;
 const GATE_EVN = {
   Loc: 'http://103.153.69.109:9765',
-  Pro: 'https://api.open.flast.vn'
+  Pro: 'https://open.api.flast.vn',
 };
-export const GATEWAY = GATE_EVN['Loc'];
+export const GATEWAY = GATE_EVN['Pro'];
 export const CHANGE_STORE = 'CHANGE_STORE';
 export const UPLOAD_PATH = GATEWAY + '/uploads'
 
