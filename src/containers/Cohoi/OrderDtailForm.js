@@ -1,14 +1,14 @@
-import { useContext, useEffect, useState } from "react";
-import { Tag, Form, Row, Col, Button, Table, InputNumber } from "antd";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { Tag, Form, Row, Col, Button, Table, InputNumber, Input, Image, Select } from "antd";
 import { FormContextCustom } from "components/context/FormContextCustom";
-import { PhoneOutlined, MailOutlined, UserAddOutlined, FacebookOutlined, AimOutlined, FundOutlined } from '@ant-design/icons';
+import { PhoneOutlined, MailOutlined, UserAddOutlined, FacebookOutlined, AimOutlined, FundOutlined, SearchOutlined } from '@ant-design/icons';
 import { CloseCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import FormInputNumber from "components/form/FormInputNumber";
 import FormSelect from "components/form/FormSelect";
 import { DISCOUNT_UNIT_CONST } from "configs/localData";
 import ProductSumary from "containers/Product/ProductSumary";
 import { useGetAllProductQuery } from "hooks/useData";
-import { arrayEmpty, arrayNotEmpty, formatMoney,formatDiscount } from "utils/dataUtils";
+import { arrayEmpty, arrayNotEmpty, formatMoney, formatDiscount } from "utils/dataUtils";
 import CustomButton from 'components/CustomButton';
 import FormTextArea from "components/form/FormTextArea";
 import { ShowPriceStyles } from "../Order/styles";
@@ -16,12 +16,12 @@ import { calPriceOff } from "utils/tools";
 import FormHidden from "components/form/FormHidden";
 import { useMount } from "hooks/MyHooks";
 import { generateInForm } from "../Order/utils";
-import { cloneDeep } from "lodash";
+import { cloneDeep, debounce } from "lodash";
 import FormAutoCompleteInfinite from "components/form/AutoCompleteInfinite/FormAutoCompleteInfinite";
 import RequestUtils from "utils/RequestUtils";
 import { InAppEvent } from "utils/FuseUtils";
-import { HASH_MODAL_CLOSE } from "configs";
-import { ModaleCreateCohoiStyle } from "containers/Lead/styles";
+import { GATEWAY, HASH_MODAL_CLOSE } from "configs";
+import { ContainerSerchSp, ModaleCreateCohoiStyle } from "containers/Lead/styles";
 import FormInput from "components/form/FormInput";
 import ModaleStyles from "pages/lead/style";
 
@@ -91,18 +91,21 @@ const OrderDtailForm = ({ data }) => {
   const [isOpenQuantity, setIsOpenQuantity] = useState(false);
   const [recordetail, setRecodetail] = useState({});
   const [value, setValue] = useState(0);
+  const [textSearch, setTextSearch] = useState('');
+  const [listProduct, setListProduct] = useState([]);
+  const [filterSp, setFilterSp] = useState([]);
 
   let totalPrice = newSp(listSp).reduce((sum, item) => sum + item?.price, 0);
   let totalQuanlity = newSp(listSp)?.reduce((sum, item) => sum + item?.quantity, 0);
   let total = newSp(listSp)?.reduce((sum, item) => {
     const discount = JSON.parse(item?.discount);
-          const totalAmount = item?.total || 0;
-          const discountValue = discount?.discountUnit === "percent" 
-              ? (totalAmount * discount?.discountValue) / 100 
-              : discount?.discountValue;
+    const totalAmount = item?.total || 0;
+    const discountValue = discount?.discountUnit === "percent"
+      ? (totalAmount * discount?.discountValue) / 100
+      : discount?.discountValue;
     let itemTotal = item?.price * item?.quantity - discountValue;
     return sum + itemTotal;
-}, 0);
+  }, 0);
 
   useEffect(() => {
     (async () => {
@@ -140,6 +143,13 @@ const OrderDtailForm = ({ data }) => {
     })()
     // eslint-disable-next-line
   }, [priceSp])
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await RequestUtils.Get(`/product/fetch`);
+      setListProduct(data?.embedded);
+    })()
+  }, [])
 
   const onClickAddNewOrder = async () => {
     if (arrayEmpty(record?.details ?? [])) {
@@ -216,25 +226,94 @@ const OrderDtailForm = ({ data }) => {
     {
       title: 'Chiết khấu',
       render: (item) => {
-        try {
-          console.log("Raw discount:", item.discount);
-          const discount = JSON.parse(item?.discount);
-          const totalAmount = item?.total || 0;
-          const discountValue = discount?.discountUnit === "percent" 
-              ? (totalAmount * discount?.discountValue) / 100 
-              : discount?.discountValue;
-      
-          return (
-              <div>
-                  {formatMoney(discountValue)}
-              </div>
-          );
-      } catch (error) {
-          console.error("Lỗi phân tích cú pháp JSON:", error);
-          return <div>Lỗi chiết khấu</div>;
-      } 
+        // try {
+        //   const discount = JSON.parse(item?.discount);
+        //   const totalAmount = item?.total || 0;
+        //   const discountValue = discount?.discountUnit === "percent"
+        //     ? (totalAmount * discount?.discountValue) / 100
+        //     : discount?.discountValue;
+
+        //   return (
+        //     <div>
+        //       {formatMoney(discountValue)}
+        //     </div>
+        //   );
+        // } catch (error) {
+        //   console.error("Lỗi phân tích cú pháp JSON:", error);
+        //   return <div>Lỗi chiết khấu</div>;
+        // }
+        const discount = JSON.parse(item?.discount)
+
+        return (
+          <div>
+            <InputNumber
+              min={1}
+              style={{ width: 80 }}
+              value={discount.discountValue} // Hiển thị đúng giá trị hiện tại
+              onChange={(value) => {
+                // const newData = listSp.map(f => {
+                //   if (f.value?.id === item.id) {
+                //     return {
+                //       ...f, // Sao chép toàn bộ object để tránh tham chiếu
+                //       detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
+                //       value: {
+                //         ...f.value,
+                //         discountValue: value
+                //       }
+                //     };
+                //   }
+                //   return f;
+                // });
+                const newData = listSp?.map(f => ({
+                  ...f,
+                  items: f?.items?.map(v =>
+                    v?.id === item.id ? { ...v, discount: JSON.stringify(
+                      {
+                        discountUnit: discount?.discountUnit,
+                        discountValue: value
+                      }
+                    ) } : v
+                  )
+                }));
+                setListSp(newData);
+                setListSp(newData);
+              }}
+            />
+          </div>
+        )
       }
-  },
+    },
+    {
+      title: 'Loại chiết khấu',
+      render: (item) => {
+        const discount = JSON.parse(item?.discount)
+        return (
+          <div>
+            <Select
+              value={discount.discountUnit}
+              onChange={(value) => {
+                const newData = listSp?.map(f => ({
+                  ...f,
+                  items: f?.items?.map(v =>
+                    v?.id === item.id ? { ...v, discount: JSON.stringify(
+                      {
+                        discountUnit: value,
+                        discountValue: discount?.discountValue
+                      }
+                    ) } : v
+                  )
+                }));
+                setListSp(newData);
+              }}
+            >
+              {DISCOUNT_UNIT_CONST?.map((f, id) => (
+                <Select.Option key={id} value={f?.value}>{f?.text}</Select.Option>
+              ))}
+            </Select>
+          </div>
+        );
+      }
+    },
     {
       title: 'Số lượng',
       render: (item) => (
@@ -242,12 +321,12 @@ const OrderDtailForm = ({ data }) => {
           min={1}
           value={item.quantity}
           onChange={(value) => {
-            const newData = listSp.map(f => {
-              return {
-                ...f,
-                items: f.items.map(v => v.id === item.id ? { ...v, quantity: value } : v)
-              };
-            });
+            const newData = listSp?.map(f => ({
+              ...f,
+              items: f?.items?.map(v =>
+                v?.id === item.id ? { ...v, quantity: value } : v
+              )
+            }));
             setListSp(newData);
           }}
         />
@@ -257,20 +336,20 @@ const OrderDtailForm = ({ data }) => {
       title: 'Tổng tiền',
       render: (item) => {
         const discount = JSON.parse(item?.discount);
-          const totalAmount = item?.total || 0;
-          const discountValue = discount?.discountUnit === "percent" 
-              ? (totalAmount * discount?.discountValue) / 100 
-              : discount?.discountValue;
-      
-          let total = item?.price * item?.quantity - discountValue;
-      
-          return (
-              <div>
-                  {formatMoney(total)}
-              </div>
-          );
+        const totalAmount = item?.total || 0;
+        const discountValue = discount?.discountUnit === "percent"
+          ? (totalAmount * discount?.discountValue) / 100
+          : discount?.discountValue;
+
+        let total = item?.price * item?.quantity - discountValue;
+
+        return (
+          <div>
+            {formatMoney(total)}
+          </div>
+        );
       }
-  },
+    },
     {
       title: 'Hành động',
       dataIndex: '',
@@ -286,7 +365,7 @@ const OrderDtailForm = ({ data }) => {
   ];
 
   const onHandleCreateOdder = async (value) => {
-    
+
     if (arrayEmpty(newSp(listSp))) {
       return InAppEvent.normalInfo("Vui lòng thêm sản phẩm");
     }
@@ -298,7 +377,7 @@ const OrderDtailForm = ({ data }) => {
       const items = matchingItems.length > 0
         ? matchingItems
         : listSp.flatMap(sp => sp.items || []);
-        console.log("value", items);
+
       return {
 
         productName: detail?.productName || detail?.name || "N/A",
@@ -365,9 +444,10 @@ const OrderDtailForm = ({ data }) => {
 
   // Hàm onHandleCreateSp
   const onHandleCreateSp = (value) => {
+
     const skuDetails = detailSp?.skus?.map(sku => sku?.skuDetail).flat();
     const newItems = {
-      id: null,
+      id: value?.id,
       skuId: value.skuId,
       skuInfo: JSON.stringify(skuDetails),
       productId: detailSp?.id,
@@ -413,13 +493,35 @@ const OrderDtailForm = ({ data }) => {
         items: [...(updatedList[targetDetailIndex].items || []), newItems],
         total: (updatedList[targetDetailIndex].total || 0) + newItems.total
       };
-      console.log("listSp sau khi thêm:", JSON.stringify(updatedList, null, 2));
+      
       return updatedList;
     });
 
     InAppEvent.normalSuccess("Thêm sản phẩm thành công");
     form.resetFields();
+    setFilterSp([]);
+    setTextSearch('');
     setIsOpen(false);
+  };
+
+
+  const onHandleSearchSp = useCallback(
+    debounce((value) => {
+      if (value) {
+        const newFilterSp = listProduct.filter(item =>
+          item.name.toLowerCase().includes(value.toLowerCase())
+        );
+        setFilterSp(newFilterSp);
+      } else {
+        setFilterSp([]);
+      }
+    }, 200)
+  );
+
+
+  const handleChange = (e) => {
+    setTextSearch(e.target.value)
+    onHandleSearchSp(e.target.value);
   };
 
   return <>
@@ -466,21 +568,76 @@ const OrderDtailForm = ({ data }) => {
           <strong>Thông tin sản phẩm</strong>
         </p>
         <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
-        <Button
+        {/* <Button
           type="dashed"
           style={{ float: 'right', marginBottom: 20 }}
           icon={<PlusOutlined />}
           onClick={() => setIsOpen(true)}
         >
           Thêm sản phẩm
-        </Button>
+        </Button> */}
+        <div style={{ position: 'relative', width: '100%' }}>
+          <div>
+            <Input
+              style={{ width: '30%', float: 'right', marginBottom: 20 }}
+              prefix={<SearchOutlined />}
+              value={textSearch}
+              placeholder="Thêm sản phẩm vào đơn"
+              onChange={handleChange}
+            />
+          </div>
+
+          {filterSp.length > 0 && (
+            <ContainerSerchSp>
+              {filterSp.map((item) => (
+                <div key={item.id} className='wrap-search-sp'>
+                  {/* Hàng chính của sản phẩm */}
+                  <div
+                    className='btn_hover_sp'
+                    style={{ display: 'flex', alignItems: 'center', width: '100%' }}
+                    onClick={() => {
+                      setFilterSp(filterSp.map(f =>
+                        f.id === item.id ? { ...f, showSkus: !f.showSkus } : f
+                      ));
+                      onHandleCreateSp({ ...item, skuId: item?.skus[0]?.id, skuName: item?.name, price: item.skus[0]?.listPriceRange[0]?.price, stock: item?.skus[0]?.stock })
+                    }}
+                  >
+                    {/* Cột hình ảnh sản phẩm */}
+                    <div className='btn_wrap-sp'>
+                      <Image
+                        src={item.image ? `${GATEWAY}${item.image}` : '/img/image_not_found.png'}
+                        alt={item.name}
+                        style={{ width: 50, height: 50, marginRight: 15, objectFit: 'cover', borderRadius: 5 }}
+                      />
+                    </div>
+
+                    {/* Cột thông tin sản phẩm */}
+                    <div style={{ width: '55%', paddingTop: 10, paddingLeft: 10 }}>
+                      <strong>{item.name}</strong>
+                    </div>
+
+                    {/* Cột giá bán và số lượng tồn */}
+                    <div style={{ width: '30%', paddingTop: 10, textAlign: 'right' }}>
+                      <p style={{ marginBottom: 5, fontSize: 14, fontWeight: 'bold', color: '#d9534f' }}>
+                        {formatMoney(item.skus[0]?.listPriceRange[0]?.price || 0)}
+                      </p>
+                      <p style={{ marginBottom: 0, fontSize: 12, color: '#5bc0de' }}>
+                        Tồn kho: {item.stock || 0}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+            </ContainerSerchSp>
+          )}
+        </div>
+
         <Table
           columns={columns}
           scroll={{ x: 1700 }}
           expandable={{
             expandedRowRender: (record) => {
-              console.log(record);
-
               return (
                 <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
                   {record ? (
@@ -516,20 +673,16 @@ const OrderDtailForm = ({ data }) => {
                               } catch (error) {
                                 console.error("Lỗi parse JSON:", error);
                               }
-                              return parsedSkuInfo.map((detail) => (
-                                <p key={detail.id} style={{ marginRight: "10px" }}>
-                                  <strong>{detail.name}:</strong> {detail.value}
-                                </p>
-                              ));
+                              return (
+                                <>
+                                  <p style={{ marginRight: "10px" }}>
+                                    <strong>{parsedSkuInfo[0]?.name}:</strong> {parsedSkuInfo[0]?.value}
+                                  </p>
+                                  {parsedSkuInfo?.length > 1 && <span> ...</span>}
+                                </>
+                              )
                             })()}
                           </td>
-                          {/* <td style={tdStyle}>
-                          {parsedSkuInfo.map((detail) => (
-                            <p key={detail.id} style={{ marginRight: "10px" }}>
-                              <strong>{detail.name}:</strong> {detail.value}
-                            </p>
-                          ))}
-                        </td> */}
                         </tr>
                       </tbody>
                     </table>

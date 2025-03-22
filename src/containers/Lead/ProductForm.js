@@ -155,20 +155,20 @@ const ProductForm = ({ setNewFile, dataUpdate }) => {
         />
       </Col>
       <Col md={24} xs={24} style={{ marginBottom: 10 }}>
-  <FormSelect
-    required
-    name="staff"
-    label="Nhân viên"
-    placeholder="Chọn nhân viên"
-    resourceData={listSale?.map(sale => ({
-      ...sale,
-      staff: sale.fullName, // Thêm trường staff để giữ nguyên logic cũ
-      saleId: sale.id, // Truyền thêm saleId
-    })) || []}
-    valueProp="staff"
-    titleProp="fullName"
-  />
-</Col>
+    <FormSelect
+      required
+      name="staff"
+      label="Nhân viên"
+      placeholder="Chọn nhân viên"
+      resourceData={listSale?.map(sale => ({
+        ...sale,
+        staff: sale.fullName, // Thêm trường staff để giữ nguyên logic cũ
+        saleId: sale.id, // Truyền thêm saleId
+      })) || []}
+      valueProp="staff"
+      titleProp="fullName"
+    />
+  </Col>
       <Col md={24} xs={24} style={{ marginTop: 10,  marginBottom: listFile?.length > 0 ? 100 : 70 }}>
         <Dragger {...props} multiple={true} fileList={listFile}>
           <p className="ant-upload-text">Tải file mẫu</p>

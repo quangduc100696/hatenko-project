@@ -91,6 +91,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
   const [onOpen, setOnOpen] = useState(false);
   const [listProduct, setListProduct] = useState([]);
   const [filterSp, setFilterSp] = useState([]);
+  const [textSearch, setTextSearch] = useState('');
 
   let totalAmount = itemOrder?.reduce((sum, item) => sum + item?.amount, 0);
 
@@ -442,6 +443,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     ]);
     InAppEvent.normalSuccess("Tạo sản phẩm thành công");
     form.resetFields();
+    setTextSearch('');
     setFilterSp([])
     setIsOpen(false)
   }
@@ -519,6 +521,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
   );
 
   const handleChange = (e) => {
+    setTextSearch(e.target.value)
     onHandleSearchSp(e.target.value);
   };
 
@@ -572,6 +575,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
           <Input
             style={{ width: '30%', float: 'right', marginBottom: 20 }}
             prefix={<SearchOutlined />}
+            value={textSearch}
             placeholder="Thêm sản phẩm vào đơn"
             onChange={handleChange}
           />
@@ -668,17 +672,17 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                       </tr>
                     </thead>
                     <tbody>
-                      {record.skus.map((sku) => (
-                        <tr key={sku.id} style={{ borderBottom: "1px solid #ddd" }}>
-                          <td style={tdStyle}>{sku.name}</td>
+                      {record.skus?.map((sku) => (
+                        <tr key={sku?.id} style={{ borderBottom: "1px solid #ddd" }}>
+                          <td style={tdStyle}>{sku?.name}</td>
                           <td style={tdStyle}>
-                            {sku.listPriceRange.map((price) => price.price.toLocaleString() + " VND").join(", ")}
+                            {sku?.listPriceRange.map((price) => price.price.toLocaleString() + " VND").join(", ")}
                           </td>
                           <td style={tdStyle}>
                             <p style={{ marginRight: "10px" }}>
-                              <strong>{sku.skuDetail[0].name}:</strong> {sku.skuDetail[0].value}
+                              <strong>{sku?.skuDetail[0]?.name}:</strong> {sku?.skuDetail[0]?.value}
                             </p>
-                            {sku.skuDetail.length > 1 && <span> ...</span>}
+                            {sku?.skuDetail.length > 1 && <span> ...</span>}
                           </td>
                         </tr>
                       ))}
