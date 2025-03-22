@@ -228,7 +228,8 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
         return (
           <div>
             <Select
-              value={item.discountUnit}
+              style={{width: 200}}
+              value={item?.skus[0]?.name}
               onChange={(value) => {
                 const newData = listSp.map(f => {
                   if (f.value?.id === item.id) {
@@ -237,7 +238,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                       detail: { ...f.detail },
                       value: {
                         ...f.value,
-                        discountUnit: value
+                        skus: [JSON.parse(value)]
                       }
                     };
                   }
@@ -246,8 +247,8 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                 setListSp(newData);
               }}
             >
-              {DISCOUNT_UNIT_CONST?.map((f, id) => (
-                <Select.Option key={id} value={f?.value}>{f?.text}</Select.Option>
+              {item?.skusCoppy?.map((f, id) => (
+                <Select.Option key={id} value={JSON.stringify(f)}>{f?.name}</Select.Option>
               ))}
             </Select>
           </div>
@@ -422,7 +423,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       render: (record) => (
         <div style={{ display: 'flex', gap: 10 }}>
           <div onClick={() => onHandleDeleteSp(record)}>
-            <a>Xoá sản phẩm</a>
+            <a>Xoá sản phẩm</a> 
           </div>
         </div>
       ),
@@ -430,9 +431,14 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
   ];
 
   const onHandleCreateSp = (value) => {
+    const checkIdSp = listSp.some(v => v?.value?.id === value?.id);
+    if(checkIdSp) {
+      InAppEvent.normalInfo("Sản phẩm này đã có trong danh sách ?");
+      return ;
+    }
     setListSp((pre = []) => [
       ...pre,
-      { value, detail: detailSp } // Bọc trong dấu `{}` để tạo object
+      { value: { ...value, skus: Array(value?.skus[0]), skusCoppy: value?.skus}, detail: detailSp } // Bọc trong dấu `{}` để tạo object
     ]);
     InAppEvent.normalSuccess("Tạo sản phẩm thành công");
     form.resetFields();
@@ -669,11 +675,10 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                             {sku.listPriceRange.map((price) => price.price.toLocaleString() + " VND").join(", ")}
                           </td>
                           <td style={tdStyle}>
-                            {sku.skuDetail.map((detail) => (
-                              <p key={detail.id} style={{ marginRight: "10px" }}>
-                                <strong>{detail.name}:</strong> {detail.value}
-                              </p>
-                            ))}
+                            <p style={{ marginRight: "10px" }}>
+                              <strong>{sku.skuDetail[0].name}:</strong> {sku.skuDetail[0].value}
+                            </p>
+                            {sku.skuDetail.length > 1 && <span> ...</span>}
                           </td>
                         </tr>
                       ))}
@@ -739,7 +744,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
           <CustomButton title="Tạo đơn" htmlType="submit" />
         </div>
       </Form>
-      <ModaleCreateCohoiStyle title={
+      {/* <ModaleCreateCohoiStyle title={
         <div style={{ color: '#fff' }}>
           Tạo sản phẩm
         </div>
@@ -844,7 +849,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
             </Row>
           </Form>
         </div>
-      </ModaleCreateCohoiStyle>
+      </ModaleCreateCohoiStyle> */}
 
       <ModaleCreateCohoiStyle title={
         <div style={{ color: '#fff' }}>
