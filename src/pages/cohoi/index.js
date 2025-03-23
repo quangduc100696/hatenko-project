@@ -274,7 +274,7 @@ const CohoiPage = () => {
     title: 'Tạo mới Lead',
     data: {}
   });
-  console.log(newSp(listSp));
+
   const onHandleCreateSp = async (value) => {
     const tongdon = newSp(listSp).reduce((total, item) => total + (item.price * item.quantity), 0);
     const newDetails = (data?.details || []).map((detail) => {
@@ -345,10 +345,6 @@ const CohoiPage = () => {
     } else {
       InAppEvent.normalError("Tạo cơ hội thất bại");
     }
-  }
-
-  const onChangeDate = () => {
-
   }
 
 

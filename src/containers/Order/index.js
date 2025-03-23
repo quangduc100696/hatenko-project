@@ -10,7 +10,7 @@ import { cloneDeep, merge } from 'lodash';
 import { generateInForm } from './utils';
 
 const log = (value) => console.log('[container.order.index] ', value);
-const Order = ({ closeModal, data }) => {
+const Order = ({ closeModal, data, title }) => {
 
   const [ record, setRecord ] = useState({});
   useEffect(() => {
@@ -90,7 +90,7 @@ const Order = ({ closeModal, data }) => {
     >
       <OrderForm data={data}/>
     </RestEditModal> */}
-     <OrderForm data={data}/>
+     <OrderForm data={data} title={title}/>
   </>
 }
 
