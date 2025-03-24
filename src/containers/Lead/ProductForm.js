@@ -27,7 +27,7 @@ const resourceData = [
   { id: SOURCE.TIKTOK, name: 'Tiktok' },
 ]
 
-const ProductForm = ({ setNewFile, dataUpdate }) => {
+const ProductForm = ({ setNewFile, dataUpdate, setSaleId }) => {
   const [province, setProvince] = useState([])
   const [serviceList, setServiceList] = useState([]);
   const [listFile, setListFile] = useState([]);
@@ -58,7 +58,7 @@ const ProductForm = ({ setNewFile, dataUpdate }) => {
       }
     })()
   }, [dataUpdate])
-
+  
   /* Tải file mẫu */
   const props = {
     customRequest: (componentsData) => {
@@ -85,7 +85,7 @@ const ProductForm = ({ setNewFile, dataUpdate }) => {
         });
     }
   }
-  
+
   return (
     <Row gutter={16} style={{ marginTop: 20 }}>
       <FormHidden name={'id'} />
@@ -160,11 +160,14 @@ const ProductForm = ({ setNewFile, dataUpdate }) => {
       name="staff"
       label="Nhân viên"
       placeholder="Chọn nhân viên"
-      resourceData={listSale?.map(sale => ({
-        ...sale,
-        staff: sale.fullName, // Thêm trường staff để giữ nguyên logic cũ
-        saleId: sale.id, // Truyền thêm saleId
-      })) || []}
+      resourceData={listSale?.map(sale => {
+        setSaleId(sale)
+        return {
+          ...sale,
+          staff: sale.fullName, // Thêm trường staff để giữ nguyên logic cũ
+          saleId: sale.id, // Truyền thêm saleId
+        }
+      }) || []}
       valueProp="staff"
       titleProp="fullName"
     />

@@ -16,6 +16,7 @@ const NewLead = ({ title, closeModal, data }) => {
   const [ detailCohoi, setDetailCohoi ] = useState({});
   const [ detailSp, setDetailSp ] = useState({});
   const [total, setTotal] = useState(0);
+  const [saleId, setSaleId] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -37,7 +38,7 @@ const NewLead = ({ title, closeModal, data }) => {
   }, [data]);
 
   const onSubmit = async (dataCreate) => {
-    console.log("datanew" ,dataCreate);
+
     if (Object.entries(data)?.length > 0) {
       const param = {
         ...data,  
@@ -49,12 +50,13 @@ const NewLead = ({ title, closeModal, data }) => {
         customerEmail: dataCreate?.customerEmail || data?.customerEmail,
         customerFacebook: dataCreate?.customerFacebook || data?.customerFacebook,
         staff: dataCreate?.staff || data?.staff,
-        saleId: dataCreate?.saleId || data?.saleId,
+        saleId: dataCreate?.saleId || data?.saleId || saleId?.id,
         note: dataCreate?.noted || data.noted,
         fileUrls: dataCreate?.fileUrls?.length > 0 ? dataCreate?.fileUrls : data?.fileUrls,
       };
       const result = await RequestUtils.Post(`/data/update?leadId=${data?.id}`, param);
       if (result?.errorCode === 200) {
+        f5List('data/lists');
         InAppEvent.normalSuccess("Update thành công");
         InAppEvent.emit(HASH_MODAL_CLOSE);
       }
@@ -156,7 +158,7 @@ const NewLead = ({ title, closeModal, data }) => {
         record={record}
         closeModal={closeModal}
       >
-        <ProductForm setNewFile={setNewFile} dataUpdate={data} />
+        <ProductForm setNewFile={setNewFile} dataUpdate={data} setSaleId={setSaleId} />
       </RestEditModal>
     )}
   </>

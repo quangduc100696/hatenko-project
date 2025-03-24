@@ -227,21 +227,6 @@ const OrderDtailForm = ({ data }) => {
       title: 'Chiết khấu',
       render: (item) => {
         // try {
-        //   const discount = JSON.parse(item?.discount);
-        //   const totalAmount = item?.total || 0;
-        //   const discountValue = discount?.discountUnit === "percent"
-        //     ? (totalAmount * discount?.discountValue) / 100
-        //     : discount?.discountValue;
-
-        //   return (
-        //     <div>
-        //       {formatMoney(discountValue)}
-        //     </div>
-        //   );
-        // } catch (error) {
-        //   console.error("Lỗi phân tích cú pháp JSON:", error);
-        //   return <div>Lỗi chiết khấu</div>;
-        // }
         const discount = JSON.parse(item?.discount)
 
         return (
@@ -249,21 +234,8 @@ const OrderDtailForm = ({ data }) => {
             <InputNumber
               min={1}
               style={{ width: 80 }}
-              value={discount.discountValue} // Hiển thị đúng giá trị hiện tại
+              value={discount?.discountValue} // Hiển thị đúng giá trị hiện tại
               onChange={(value) => {
-                // const newData = listSp.map(f => {
-                //   if (f.value?.id === item.id) {
-                //     return {
-                //       ...f, // Sao chép toàn bộ object để tránh tham chiếu
-                //       detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
-                //       value: {
-                //         ...f.value,
-                //         discountValue: value
-                //       }
-                //     };
-                //   }
-                //   return f;
-                // });
                 const newData = listSp?.map(f => ({
                   ...f,
                   items: f?.items?.map(v =>
@@ -444,7 +416,6 @@ const OrderDtailForm = ({ data }) => {
 
   // Hàm onHandleCreateSp
   const onHandleCreateSp = (value) => {
-
     const skuDetails = detailSp?.skus?.map(sku => sku?.skuDetail).flat();
     const newItems = {
       id: value?.id,
@@ -452,7 +423,7 @@ const OrderDtailForm = ({ data }) => {
       skuInfo: JSON.stringify(skuDetails),
       productId: detailSp?.id,
       orderDetailId: null,
-      name: value.productName,
+      name: value.name,
       quantity: value.quantity || 1,
       price: value.price || 0,
       discount: JSON.stringify({
@@ -698,7 +669,7 @@ const OrderDtailForm = ({ data }) => {
           pagination={false}
         />
         <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
-        <Row justify={'space-between'}>
+        <Row justify={'end'}>
           <Col md={24} xs={24}>
             <FormTextArea
               rows={3}

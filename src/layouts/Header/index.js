@@ -10,10 +10,13 @@ import { BellFilled, PlusOutlined } from '@ant-design/icons';
 import UserInfo from './UserInfo';
 import { useLocation, useNavigate } from 'react-router';
 import { HASH_MODAL } from 'configs/constant';
+import useServiceId from 'hooks/useServiceId';
 
 const Header = () => {
 
   const { isCollapseSidebar, toggleCollapse } = useCollapseSidebar();
+  const { serviceId, setServiceId } = useServiceId();
+
   const navigate = useNavigate();
   const { search } = useLocation();
 
@@ -29,10 +32,10 @@ const Header = () => {
           onClick={toggleCollapse}
         />
         <div>
-          <ServiceSelect />
+          <ServiceSelect serviceId={serviceId} setServiceId={setServiceId}/>
         </div>
         <div className="div-search-customer">
-          <SearchInput />
+          <SearchInput serviceId={serviceId} setServiceId={setServiceId}/>
         </div>
       </div>
       <div className="rightHeader">
