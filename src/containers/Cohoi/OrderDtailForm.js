@@ -387,9 +387,9 @@ const OrderDtailForm = ({ data }) => {
       id: data?.id,
       dataId: data?.id,
       paymentInfo: {
-        amount: tongdon,
+        amount: value?.monneyPrice,
         method: value?.optionPrice,
-        status: false,
+        status: value?.monneyPrice && value?.optionPrice ? true : false,
         content: value?.noteMonney
       },
       customer: {

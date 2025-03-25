@@ -321,18 +321,19 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
         return (
           <div>
             <InputNumber
-              min={1}
-              style={{ width: 80 }}
-              value={item.discountValue} // Hiển thị đúng giá trị hiện tại
+              min={0}
+              style={{ width: 70 }}
+              value={item.discountValue}
               onChange={(value) => {
                 const newData = listSp.map(f => {
                   if (f.value?.id === item.id) {
                     return {
-                      ...f, // Sao chép toàn bộ object để tránh tham chiếu
-                      detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
+                      ...f,
+                      detail: { ...f.detail },
                       value: {
                         ...f.value,
-                        discountValue: value
+                        discountValue: value,
+                        discountUnit: f.value?.discountUnit || "money" // Đặt mặc định là "money" nếu chưa có
                       }
                     };
                   }
@@ -342,9 +343,6 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
               }}
             />
           </div>
-          // <div>
-          //   {item?.discountUnit === "percent" ? `${item?.discountValue || 0}%` : formatMoney(item?.discountValue)}
-          // </div>
         )
       }
     },
@@ -482,8 +480,8 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
       paymentInfo: {
         amount: value?.optionMonney,
         method: value?.optionPrice,
-        status: false,
-        content: value?.noteMonney
+        content: value?.noteMonney,
+        status: value?.monneyPrice && value?.optionPrice ? true : false,
       },
       note: value?.note,
       address: value?.address,

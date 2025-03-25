@@ -753,7 +753,7 @@ const OrderDtailForm = ({ data, title }) => {
       paymentInfo: {
         amount: value?.optionMonney,
         method: value?.optionPrice,
-        status: false,
+        status: value?.monneyPrice && value?.optionPrice ? true : false,
         content: value?.noteMonney
       },
       note: value?.note,
@@ -864,7 +864,7 @@ const OrderDtailForm = ({ data, title }) => {
       paymentInfo: {
         amount: value?.monneyPrice,
         method: value?.optionPrice,
-        status: false,
+        status: value?.monneyPrice && value?.optionPrice ? true : false,
         content: value?.noteMonney
       },
       customer: {

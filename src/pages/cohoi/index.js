@@ -324,7 +324,7 @@ const CohoiPage = () => {
       paymentInfo: {
         amount: value?.monneyPrice,
         method: value?.optionPrice,
-        status: false,
+        status: value?.monneyPrice && value?.optionPrice ? true : false,
         content: value?.noteMonney
       },
       customer: {
