@@ -310,43 +310,43 @@ const tdStyle = {
   borderBottom: "1px solid #ddd",
 };
 
- const columnss = [
-    {
-      title: 'Mã đơn hàng',
-      dataIndex: 'code',
-      key: 'code',
-    },
-    {
-      title: 'Nội dung',
-      dataIndex: 'content',
-      key: 'content',
-    },
-    {
-      title: 'Thời gian thanh toán',
-      render: (item) => {
-        return (
-          <div>
-            {formatTime(item?.confirmTime)}
-          </div>
-        )
-      }
-    },
-    {
-      title: 'Phương thức thanh toán',
-      dataIndex: 'method',
-      key: 'method',
-    },
-    {
-      title: 'Số tiền',
-      render: (item) => {
-        return (
-          <div>
-            {formatMoney(item?.amount)}
-          </div>
-        )
-      }
+const columnss = [
+  {
+    title: 'Mã đơn hàng',
+    dataIndex: 'code',
+    key: 'code',
+  },
+  {
+    title: 'Nội dung',
+    dataIndex: 'content',
+    key: 'content',
+  },
+  {
+    title: 'Thời gian thanh toán',
+    render: (item) => {
+      return (
+        <div>
+          {formatTime(item?.confirmTime)}
+        </div>
+      )
     }
-  ];
+  },
+  {
+    title: 'Phương thức thanh toán',
+    dataIndex: 'method',
+    key: 'method',
+  },
+  {
+    title: 'Số tiền',
+    render: (item) => {
+      return (
+        <div>
+          {formatMoney(item?.amount)}
+        </div>
+      )
+    }
+  }
+];
 
 const OrderDtailForm = ({ data, title }) => {
 
@@ -359,16 +359,21 @@ const OrderDtailForm = ({ data, title }) => {
   const [customer, setCustomer] = useState({});
   const [isOpen, setIsOpen] = useState(false);
   const [listSp, setListSp] = useState(data?.details || []);
-  const [isOpenQuantity, setIsOpenQuantity] = useState(false);
   const [recordetail, setRecodetail] = useState({});
-  const [value, setValue] = useState(0);
   const [onOpen, setOnOpen] = useState(false);
   const [listProduct, setListProduct] = useState([]);
   const [datas, setData] = useState({})
   const [filterSp, setFilterSp] = useState([]);
   const [textSearch, setTextSearch] = useState('');
+  const [textSearchPhone, setTextSearchPhone] = useState('');
   const [itemOrder, setItemOrder] = useState([]);
-  console.log(onOpen);
+  const [isCheckForm, setIsCheckForm] = useState(false)
+  const [formData, setFormData] = useState({
+    gender: "",
+    name: "",
+    phone: "",
+    email: "",
+  });
 
   const newSp = (data) => {
     if (title === 'Tạo mới đơn hàng') {
@@ -759,13 +764,13 @@ const OrderDtailForm = ({ data, title }) => {
       note: value?.note,
       address: value?.address,
       customer: {
-        saleId: customer?.iCustomer?.saleId,
-        gender: customer?.iCustomer?.gender,
-        name: customer?.iCustomer?.name,
-        email: customer?.iCustomer?.email,
-        mobile: customer?.iCustomer?.mobile,
-        createdAt: customer?.iCustomer?.createdAt,
-        updatedAt: customer?.iCustomer?.updatedAt,
+        saleId: customer?.iCustomer?.saleId || null,
+        gender: customer?.iCustomer?.gender || formData?.gender,
+        name: customer?.iCustomer?.name || formData?.name,
+        email: customer?.iCustomer?.email || formData?.email ,
+        mobile: customer?.iCustomer?.mobile || formData?.phone,
+        createdAt: customer?.iCustomer?.createdAt || Math.floor(Date.now() / 1000),
+        updatedAt: customer?.iCustomer?.updatedAt || Math.floor(Date.now() / 1000),
       },
       details: newItem
     }
@@ -883,49 +888,130 @@ const OrderDtailForm = ({ data, title }) => {
       setOnOpen(false);
       InAppEvent.normalSuccess("Thanh toán thành công");
     } else {
-      InAppEvent.normalError("Tạo cơ hội thất bại");
+      InAppEvent.normalError("Tạo đơn hàng thất bại");
     }
   }
 
+  const onHandleSearchNumber = async (e) => {
+    setTextSearchPhone(e.target.value);
+  }
+
+  const onHandleEnterSearch = async (event) => {
+    const phoneRegex = /^(0\d{9,10})$/; // Chỉ cho phép số bắt đầu bằng 0, có 10 hoặc 11 chữ số
+    if (event.key === "Enter") {
+      if (phoneRegex.test(textSearchPhone)) {
+        const customer = await RequestUtils.Get(`/customer/find-by-phone?phone=${textSearchPhone}&withOrder=withOrder`);
+        setCustomer(customer?.data)
+        if (!customer?.data) {
+          setIsCheckForm(true)
+        }
+      } else {
+        InAppEvent.normalInfo("Số điện thoại không đúng định dạng");
+      }
+    }
+  }
+
+  const handleChanges = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value, // Cập nhật giá trị cho input tương ứng
+    }));
+  };
+
+  
   return <>
     <div style={{ marginTop: 15 }}>
+      <p><strong>Thông tin khách hàng</strong></p>
+      <div class="group-inan" style={{ background: '#f4f4f4', borderTop: '1px dashed red' }}></div>
+      {!customer ? (
+        isCheckForm ? (
+          <Row style={{ marginTop: 20 }} gutter={[14, 14]}>
+            <Col md={6} xs={6}>
+              <Input
+                name="gender"
+                onChange={handleChanges}
+                style={{ width: '100%', floodOpacity: 'right', marginBottom: 20 }}
+                placeholder="Nhập giới tính"
+              />
+            </Col>
+            <Col md={6} xs={6}>
+              <Input
+                name="name"
+                onChange={handleChanges}
+                style={{ width: '100%', float: 'right', marginBottom: 20 }}
+                placeholder="Nhập tên"
+              />
+            </Col>
+            <Col md={6} xs={6}>
+              <Input
+                name="phone"
+                onChange={handleChanges}
+                style={{ width: '100%', float: 'right', marginBottom: 20 }}
+                placeholder="Nhập số điện thoại "
+              />
+            </Col>
+            <Col md={6} xs={6}>
+              <Input
+                name="email"
+                onChange={handleChanges}
+                style={{ width: '100%', float: 'right', marginBottom: 20 }}
+                placeholder="Nhập email"
+              />
+            </Col>
+          </Row>
+        ) : (
+          <div style={{ marginTop: 20 }}>
+            <Input
+              style={{ width: '30%', float: 'right', marginBottom: 20 }}
+              prefix={<SearchOutlined />}
+              value={textSearchPhone}
+              onKeyDown={onHandleEnterSearch}
+              placeholder="Tìm kiếm số điện thoại thông tin khách hàng"
+              onChange={onHandleSearchNumber}
+            />
+          </div>
+        )
+      ) : (
+        <>
+          <Row style={{ marginTop: 20 }}>
+            <Col md={6} xs={6}>
+              <p>
+                <span style={{ marginRight: 10 }}><UserAddOutlined /></span>
+                <span>User: {customer?.iCustomer?.name}</span>
+              </p>
+            </Col>
+            <Col md={6} xs={6}>
+              <p>
+                <span style={{ marginRight: 10 }}><PhoneOutlined /></span>
+                <span>Số điện thoại: {customer?.iCustomer?.mobile}</span>
+              </p>
+            </Col>
+            <Col md={6} xs={6}>
+              <p>
+                <span style={{ marginRight: 10 }}><MailOutlined /></span>
+                <span>Email: {customer?.iCustomer?.email}</span>
+              </p>
+            </Col>
+          </Row>
+          <Row style={{ marginTop: 10 }}>
+            <Col md={6} xs={6}>
+              <p>
+                <span style={{ marginRight: 10 }}><FacebookOutlined /></span>
+                <span>Facebook: {customer?.iCustomer?.facebookId || 'N/A'}</span>
+              </p>
+            </Col>
+            <Col md={6} xs={6}>
+              <p>
+                <span style={{ marginRight: 10 }}><AimOutlined /></span>
+                <span>Tỉnh T/P: {customer?.iCustomer?.address || 'Chưa cập nhật'}</span>
+              </p>
+            </Col>
+          </Row>
+        </>
+      )}
+      <br />
       <Form onFinish={onHandleCreateOdder} layout="vertical" >
-        <p><strong>Thông tin khách hàng</strong></p>
-        <div class="group-inan" style={{ background: '#f4f4f4', borderTop: '1px dashed red' }}></div>
-        <Row style={{ marginTop: 20 }}>
-          <Col md={6} xs={6}>
-            <p>
-              <span style={{ marginRight: 10 }}><UserAddOutlined /></span>
-              <span>User: {customer?.iCustomer?.name}</span>
-            </p>
-          </Col>
-          <Col md={6} xs={6}>
-            <p>
-              <span style={{ marginRight: 10 }}><PhoneOutlined /></span>
-              <span>Số điện thoại: {customer?.iCustomer?.mobile}</span>
-            </p>
-          </Col>
-          <Col md={6} xs={6}>
-            <p>
-              <span style={{ marginRight: 10 }}><MailOutlined /></span>
-              <span>Email: {customer?.iCustomer?.email}</span>
-            </p>
-          </Col>
-        </Row>
-        <Row style={{ marginTop: 10 }}>
-          <Col md={6} xs={6}>
-            <p>
-              <span style={{ marginRight: 10 }}><FacebookOutlined /></span>
-              <span>Facebook: {customer?.iCustomer?.facebookId || 'N/A'}</span>
-            </p>
-          </Col>
-          <Col md={6} xs={6}>
-            <p>
-              <span style={{ marginRight: 10 }}><AimOutlined /></span>
-              <span>Tỉnh T/P: {customer?.iCustomer?.address || 'Chưa cập nhật'}</span>
-            </p>
-          </Col>
-        </Row>
         <div style={{ height: 15 }}></div>
         <p>
           <strong>Thông tin sản phẩm</strong>

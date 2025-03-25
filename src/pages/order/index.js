@@ -153,6 +153,7 @@ const Order = () => {
         onData={onData}
         initialFilter={{ limit: 10, page: 1 }}
         filter={<Filter />}
+        hasCreate={false}
         beforeSubmitFilter={beforeSubmitFilter}
         useGetAllQuery={useGetList}
         apiPath={'order/fetch'}

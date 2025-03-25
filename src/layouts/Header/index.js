@@ -11,6 +11,7 @@ import UserInfo from './UserInfo';
 import { useLocation, useNavigate } from 'react-router';
 import { HASH_MODAL } from 'configs/constant';
 import useServiceId from 'hooks/useServiceId';
+import { InAppEvent } from 'utils/FuseUtils';
 
 const Header = () => {
 
@@ -20,9 +21,11 @@ const Header = () => {
   const navigate = useNavigate();
   const { search } = useLocation();
 
-  const onClickBooking = () => {
-    navigate({ search, hash: `${HASH_MODAL}/booking/create` })
-  }
+  const onClickBooking = () => InAppEvent.emit(HASH_MODAL, {
+    hash: '#draw/order.edit',
+    title: 'Tạo mới đơn hàng',
+    data: {}
+  });
 
   return (
     <HeaderWrapper className="header">
