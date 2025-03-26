@@ -308,7 +308,7 @@ const OrderDtailForm = ({ data }) => {
         return (
           <div>
             <Select
-              value={discount.discountUnit}
+              value={discount?.discountUnit}
               onChange={(value) => {
                 const newData = listSp?.map(f => ({
                   ...f,
@@ -337,7 +337,7 @@ const OrderDtailForm = ({ data }) => {
       render: (item) => (
         <InputNumber
           min={1}
-          value={item.quantity}
+          value={item?.quantity}
           onChange={(value) => {
             const newData = listSp?.map(f => ({
               ...f,

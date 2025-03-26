@@ -7,7 +7,7 @@ import useGetList from "hooks/useGetList";
 import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime, renderSkuInfo } from 'utils/dataUtils';
 import { HASH_MODAL, HASH_MODAL_CLOSE } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
-import { Button, Col, Form, InputNumber, Row, Table } from 'antd';
+import { Button, Col, Form, InputNumber, Row, Select, Table } from 'antd';
 import { cloneDeep } from 'lodash';
 import { ModaleCreateCohoiStyle } from 'containers/Lead/styles';
 import CustomButton from 'components/CustomButton';
@@ -54,6 +54,7 @@ const CohoiPage = () => {
   const [customer, setCustomer] = useState({});
   const [productDetails, setProductDetails] = useState([]);
   const [itemOrder, setItemOrder] = useState([]);
+  const [vat, setVat] = useState(data?.vat);
   const [form] = Form.useForm();
 
   let total = newSp(listSp)?.reduce((sum, item) => sum + item?.price * item?.quantity, 0);
@@ -330,7 +331,7 @@ const CohoiPage = () => {
       });
     }
     const params = {
-      vat: 0,
+      vat: vat || 0,
       id: data?.id,
       dataId: data?.id,
       paymentInfo: {
@@ -359,6 +360,7 @@ const CohoiPage = () => {
     }
   }
 
+  const onHandleVat = (vat) => setVat(vat);
 
   return (
     <div>
@@ -515,7 +517,12 @@ const CohoiPage = () => {
             </Col>
             <Col md={12} xs={12}>
               <p>
-                <span style={{ marginRight: 10 }}>Vat: {data.vat || 0} %</span>
+                <span style={{ marginRight: 10 }}>Vat:  
+                  <Select placeholder="Chọn Vat" style={{width: 160, marginLeft: 5}} onChange={onHandleVat}>
+                    <Select.Option value={8}>8%</Select.Option>
+                    <Select.Option value={10}>10%</Select.Option>
+                  </Select>
+                </span>
               </p>
             </Col>
             <Col md={12} xs={12}>
