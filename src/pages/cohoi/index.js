@@ -52,6 +52,7 @@ const CohoiPage = () => {
   const [onOpen, setOnOpen] = useState(false);
   const [data, setData] = useState({})
   const [customer, setCustomer] = useState({});
+  const [productDetails, setProductDetails] = useState([]);
   const [itemOrder, setItemOrder] = useState([]);
   const [form] = Form.useForm();
 
@@ -72,6 +73,17 @@ const CohoiPage = () => {
       setCustomer(customer?.data);
     })()
   }, [data])
+
+  useEffect(() => {
+
+    const productIds = data?.details?.map((item) => item.productId).filter(Boolean);
+    if (productIds?.length) {
+      (async () => {
+          const productDetails = await RequestUtils.Get(`/product/find-list-id?id=${productIds.join(",")}`);
+          setProductDetails(productDetails?.data);
+      })();
+    }
+  }, [data]);
 
   useEffect(() => {
     (async () => {

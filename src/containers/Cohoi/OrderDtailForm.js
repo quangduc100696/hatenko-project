@@ -94,6 +94,7 @@ const OrderDtailForm = ({ data }) => {
   const [textSearch, setTextSearch] = useState('');
   const [listProduct, setListProduct] = useState([]);
   const [filterSp, setFilterSp] = useState([]);
+  const [productDetails, setProductDetails] = useState([]);
 
   let totalPrice = newSp(listSp).reduce((sum, item) => sum + item?.price, 0);
   let totalQuanlity = newSp(listSp)?.reduce((sum, item) => sum + item?.quantity, 0);
@@ -106,6 +107,24 @@ const OrderDtailForm = ({ data }) => {
     let itemTotal = item?.price * item?.quantity - discountValue;
     return sum + itemTotal;
   }, 0);
+
+  
+
+  useEffect(() => {
+    const productIds = data?.details
+    ?.flatMap((detail) => detail.items?.map((item) => item.productId) || [])
+    .filter(Boolean); // Loại bỏ giá trị null hoặc undefined
+    (async () => {
+      if (!Array.isArray(productIds) || productIds.length === 0) return;
+    
+      try {
+        const productDetails = await RequestUtils.Get(`/product/find-list-id?ids=${productIds.join(",")}`);
+        setProductDetails(Array.isArray(productDetails?.data) ? productDetails.data : []);
+      } catch (error) {
+        console.error("Error fetching product details:", error);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -196,16 +215,43 @@ const OrderDtailForm = ({ data }) => {
       title: 'Tên sản phẩm',
       dataIndex: 'name',
       key: 'name',
+      render: (_, record) => {
+        const product = productDetails.find((p) => p.id === record.productId);
+        return product?.name || "N/A";
+      },
     },
     {
       title: 'Mã sản phẩm',
       dataIndex: 'code',
       key: 'code',
+      render: (_, record) => {
+        const product = productDetails.find((p) => p.id === record.productId);
+        return product?.code || "N/A";
+      },
+    },
+    {
+      title: 'Hình ảnh',
+      dataIndex: 'image',
+      key: 'image',
+      render: (_, record) => {
+        const product = productDetails.find((p) => p.id === record.productId);
+        return (
+                  <Image
+                  width={70}
+                  src={`${product?.image ? `${GATEWAY}${product?.image}` : '/img/image_not_found.png'}`}
+                  alt='image'
+                />
+                )
+      },
     },
     {
       title: 'Đơn vi tính',
       dataIndex: 'unit',
       key: 'unit',
+      render: (_, record) => {
+        const product = productDetails.find((p) => p.id === record.productId);
+        return product?.unit || "N/A";
+      },
     },
     Table.EXPAND_COLUMN,
     {
@@ -232,7 +278,7 @@ const OrderDtailForm = ({ data }) => {
         return (
           <div>
             <InputNumber
-              min={1}
+              min={0}
               style={{ width: 80 }}
               value={discount?.discountValue} // Hiển thị đúng giá trị hiện tại
               onChange={(value) => {
@@ -308,7 +354,7 @@ const OrderDtailForm = ({ data }) => {
       title: 'Tổng tiền',
       render: (item) => {
         const discount = JSON.parse(item?.discount);
-        const totalAmount = item?.total || 0;
+        const totalAmount = item?.price * item?.quantity || 0;
         const discountValue = discount?.discountUnit === "percent"
           ? (totalAmount * discount?.discountValue) / 100
           : discount?.discountValue;
@@ -710,7 +756,7 @@ const OrderDtailForm = ({ data }) => {
           </Col>
         </Row>
         <div style={{ display: 'flex', justifyContent: 'end', marginBottom: 50 }}>
-          <CustomButton title="Tạo đơn" htmlType="submit" />
+          <CustomButton title="Cập nhật" htmlType="submit" />
         </div>
       </Form>
 

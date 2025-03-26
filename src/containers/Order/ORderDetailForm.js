@@ -368,6 +368,7 @@ const OrderDtailForm = ({ data, title }) => {
   const [textSearchPhone, setTextSearchPhone] = useState('');
   const [itemOrder, setItemOrder] = useState([]);
   const [isCheckForm, setIsCheckForm] = useState(false)
+  const [productDetails, setProductDetails] = useState([]);
   const [formData, setFormData] = useState({
     gender: "",
     name: "",
@@ -417,6 +418,22 @@ const OrderDtailForm = ({ data, title }) => {
       FormQuanlity.setFieldsValue({ quantity: recordetail?.quantity })
     }
   }, [recordetail])
+
+  useEffect(() => {
+    const productIds = data?.details
+    ?.flatMap((detail) => detail.items?.map((item) => item.productId) || [])
+    .filter(Boolean); // Loại bỏ giá trị null hoặc undefined
+    (async () => {
+      if (!Array.isArray(productIds) || productIds.length === 0) return;
+    
+      try {
+        const productDetails = await RequestUtils.Get(`/product/find-list-id?ids=${productIds.join(",")}`);
+        setProductDetails(Array.isArray(productDetails?.data) ? productDetails.data : []);
+      } catch (error) {
+        console.error("Error fetching product details:", error);
+      }
+    })();
+  }, []);
 
   /* bắt đơn giá theo sản phẩm */
   useEffect(() => {
@@ -511,16 +528,43 @@ const OrderDtailForm = ({ data, title }) => {
       title: 'Tên sản phẩm',
       dataIndex: 'name',
       key: 'name',
+      render: (_, record) => {
+        const product = productDetails.find((p) => p.id === record.productId);
+        return product?.name || "N/A";
+      },
     },
     {
       title: 'Mã sản phẩm',
       dataIndex: 'code',
       key: 'code',
+      render: (_, record) => {
+        const product = productDetails.find((p) => p.id === record.productId);
+        return product?.code || "N/A";
+      },
+    },
+    {
+      title: 'Hình ảnh',
+      dataIndex: 'image',
+      key: 'image',
+      render: (_, record) => {
+        const product = productDetails.find((p) => p.id === record.productId);
+        return (
+                  <Image
+                  width={70}
+                  src={`${product?.image ? `${GATEWAY}${product?.image}` : '/img/image_not_found.png'}`}
+                  alt='image'
+                />
+                )
+      },
     },
     {
       title: 'Đơn vi tính',
       dataIndex: 'unit',
       key: 'unit',
+      render: (_, record) => {
+        const product = productDetails.find((p) => p.id === record.productId);
+        return product?.unit || "N/A";
+      },
     },
     {
       title: 'SKU',
@@ -564,58 +608,11 @@ const OrderDtailForm = ({ data, title }) => {
     },
     {
       title: 'Đơn giá',
-      render: (item) => {
-        return (
-          <InputNumber
-            min={1}
-            value={item.price}
-            disabled={title === 'Tạo mới đơn hàng' ? false : true}
-            onChange={(value) => {
-              const newData = listSp.map(f => {
-                if (f.value?.id === item.id) {
-                  return {
-                    ...f, // Sao chép toàn bộ object để tránh tham chiếu
-                    detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
-                    value: {
-                      ...f.value,
-                      price: value
-                    }
-                  };
-                }
-                return f;
-              });
-              setListSp(newData);
-            }}
-          />
-        )
-      }
+      render: (item) => <span>{item?.price}</span>
     },
     {
       title: 'Số lượng',
-      render: (item) => (
-        <InputNumber
-          min={1}
-          style={{ width: 80 }}
-          value={item.quantity} // Hiển thị đúng giá trị hiện tại
-          disabled={title === 'Tạo mới đơn hàng' ? false : true}
-          onChange={(value) => {
-            const newData = listSp.map(f => {
-              if (f.value?.id === item.id) {
-                return {
-                  ...f, // Sao chép toàn bộ object để tránh tham chiếu
-                  detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
-                  value: {
-                    ...f.value,
-                    quantity: value
-                  }
-                };
-              }
-              return f;
-            });
-            setListSp(newData);
-          }}
-        />
-      )
+      render: (item) => <span>{item?.quantity}</span>
     },
     {
       title: 'Chiết khấu',
@@ -623,7 +620,7 @@ const OrderDtailForm = ({ data, title }) => {
         return (
           <div>
             <InputNumber
-              min={1}
+              min={0}
               style={{ width: 80 }}
               value={item.discountValue} // Hiển thị đúng giá trị hiện tại
               disabled={title === 'Tạo mới đơn hàng' ? false : true}
@@ -691,36 +688,24 @@ const OrderDtailForm = ({ data, title }) => {
     {
       title: 'Tổng tiền',
       render: (item) => {
+        const discount = item?.discount ? JSON.parse(item.discount) : {}; // Xử lý nếu null hoặc undefined
+        const totalAmount = (item?.price || 0) * (item?.quantity || 0); // Tránh undefined
+      
+        const discountValue = discount?.discountUnit === "percent"
+          ? (totalAmount * (discount?.discountValue || 0)) / 100
+          : (discount?.discountValue || 0); // Nếu không có giá trị thì mặc định là 0
+    
+        const total = totalAmount - discountValue;
+    
         return (
           <div>
-            {formatMoney(
-              (() => {
-                const totalPrice = item?.price * item?.quantity;
-                if (item?.discountUnit === "money") {
-                  return Math.max(totalPrice - Number(item?.discountValue), 0); // Đảm bảo không âm
-                }
-                if (item?.discountUnit === "percent") {
-                  return Math.max(totalPrice * (1 - Number(item?.discountValue) / 100), 0);
-                }
-                return totalPrice;
-              })()
-            )}
+            {formatMoney(Math.max(total, 0))} 
+            {/* Đảm bảo không bị giá trị âm */}
           </div>
-        )
+        );
       }
-    },
-    {
-      title: 'Hành động',
-      dataIndex: '',
-      key: 'x',
-      render: (record) => (
-        <div style={{ display: 'flex', gap: 10 }}>
-          <div onClick={() => onHandleDeleteSp(record)}>
-            <a>Xoá sản phẩm</a>
-          </div>
-        </div>
-      ),
-    },
+    }
+
   ];
 
   const onHandleCreateOdder = async (value) => {
@@ -927,14 +912,14 @@ const OrderDtailForm = ({ data, title }) => {
       {!customer ? (
         isCheckForm ? (
           <Row style={{ marginTop: 20 }} gutter={[14, 14]}>
-            <Col md={6} xs={6}>
+            {/* <Col md={6} xs={6}>
               <Input
                 name="gender"
                 onChange={handleChanges}
                 style={{ width: '100%', floodOpacity: 'right', marginBottom: 20 }}
                 placeholder="Nhập giới tính"
               />
-            </Col>
+            </Col> */}
             <Col md={6} xs={6}>
               <Input
                 name="name"
