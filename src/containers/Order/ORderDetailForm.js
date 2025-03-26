@@ -368,6 +368,7 @@ const OrderDtailForm = ({ data, title }) => {
   const [textSearchPhone, setTextSearchPhone] = useState('');
   const [itemOrder, setItemOrder] = useState([]);
   const [isCheckForm, setIsCheckForm] = useState(false)
+   const [vat, setVat] = useState(data?.vat);
   const [formData, setFormData] = useState({
     gender: "",
     name: "",
@@ -863,7 +864,7 @@ const OrderDtailForm = ({ data, title }) => {
       });
     }
     const params = {
-      vat: 0,
+      vat: vat || 0,
       id: data?.id,
       dataId: data?.id,
       paymentInfo: {
@@ -919,7 +920,9 @@ const OrderDtailForm = ({ data, title }) => {
     }));
   };
 
-  
+  const onHandleVat = (vat) => setVat(vat);
+
+
   return <>
     <div style={{ marginTop: 15 }}>
       <p><strong>Thông tin khách hàng</strong></p>
@@ -1286,7 +1289,12 @@ const OrderDtailForm = ({ data, title }) => {
             </Col>
             <Col md={12} xs={12}>
               <p>
-                <span style={{ marginRight: 10 }}>Vat: {data.vat || 0} %</span>
+                <span style={{ marginRight: 10 }}>Vat: 
+                  <Select placeholder="Chọn Vat" value={vat} style={{width: 160, marginLeft: 5}} onChange={onHandleVat}>
+                    <Select.Option value={8}>8%</Select.Option>
+                    <Select.Option value={10}>10%</Select.Option>
+                  </Select>
+                </span>
               </p>
             </Col>
             <Col md={12} xs={12}>

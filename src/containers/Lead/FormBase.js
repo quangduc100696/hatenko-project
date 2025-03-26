@@ -523,6 +523,12 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     onHandleSearchSp(e.target.value);
   };
 
+  useEffect(() => {
+    (async () => {
+      const listId = newSp(listSp).map(f => f.id).join(",")
+      const data = await RequestUtils.Get(`/product/find-list-id?id=${listId}`);
+    })()
+  },[])
   return (
     <div style={{ marginTop: 15 }} layout="">
       <p><strong>Thông tin khách hàng</strong></p>
