@@ -4,7 +4,7 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import Filter from './Filter';
 import useGetList from "hooks/useGetList";
-import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime, renderSkuInfo } from 'utils/dataUtils';
+import { arrayEmpty, dateFormatOnSubmit, f5List, formatMoney, formatTime, renderSkuInfo } from 'utils/dataUtils';
 import { HASH_MODAL, HASH_MODAL_CLOSE } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import { Button, Col, Form, InputNumber, Row, Select, Table } from 'antd';
@@ -355,6 +355,7 @@ const CohoiPage = () => {
     if (datas?.errorCode === 200) {
       setOnOpen(false);
       InAppEvent.normalSuccess("Thanh toán thành công");
+      f5List('customer-order/fetch-cohoi');
     } else {
       InAppEvent.normalError("Tạo cơ hội thất bại");
     }

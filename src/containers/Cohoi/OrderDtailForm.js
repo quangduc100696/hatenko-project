@@ -8,7 +8,7 @@ import FormSelect from "components/form/FormSelect";
 import { DISCOUNT_UNIT_CONST } from "configs/localData";
 import ProductSumary from "containers/Product/ProductSumary";
 import { useGetAllProductQuery } from "hooks/useData";
-import { arrayEmpty, arrayNotEmpty, formatMoney, formatDiscount } from "utils/dataUtils";
+import { arrayEmpty, arrayNotEmpty, formatMoney, formatDiscount, f5List } from "utils/dataUtils";
 import CustomButton from 'components/CustomButton';
 import FormTextArea from "components/form/FormTextArea";
 import { ShowPriceStyles } from "../Order/styles";
@@ -454,6 +454,7 @@ const OrderDtailForm = ({ data }) => {
     const datas = await RequestUtils.Post('/customer-order/update-cohoi', params);
     if (datas?.errorCode === 200) {
       InAppEvent.emit(HASH_MODAL_CLOSE);
+      f5List('customer-order/fetch-cohoi');
       InAppEvent.normalSuccess("Cập nhật cơ hội thành công");
     } else {
       InAppEvent.normalError("Tạo cơ hội thất bại");

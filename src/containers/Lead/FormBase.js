@@ -13,7 +13,7 @@ import { DISCOUNT_UNIT_CONST } from 'configs/localData';
 import FormTextArea from 'components/form/FormTextArea';
 import { ShowPriceStyles } from 'containers/Order/styles';
 import { calPriceOff } from 'utils/tools';
-import { arrayEmpty, arrayNotEmpty, formatMoney } from 'utils/dataUtils';
+import { arrayEmpty, arrayNotEmpty, f5List, formatMoney } from 'utils/dataUtils';
 import CustomButton from 'components/CustomButton';
 import { useMount } from 'hooks/MyHooks';
 import { generateInForm } from 'containers/Order/utils';
@@ -450,7 +450,6 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     if (arrayEmpty(newSp(listSp))) {
       return InAppEvent.normalInfo("Vui lòng thêm sản phẩm");
     }
-    const tongdon = newSp(listSp).reduce((total, item) => total + item.price, 0);
     const newItem = (() => {
       const mergedItems = [];
 
@@ -499,6 +498,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     const datas = await RequestUtils.Post('/customer-order/sale-create-co-hoi', params);
     if (datas?.errorCode === 200) {
       InAppEvent.emit(HASH_MODAL_CLOSE);
+      f5List('data/lists');
       InAppEvent.normalSuccess("Tạo cơ hội thành công");
     } else {
       InAppEvent.normalError("Tạo cơ hội thất bại");

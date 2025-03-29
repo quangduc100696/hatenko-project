@@ -3,27 +3,26 @@ import { Helmet } from 'react-helmet';
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import { SelectOutlined, EditTwoTone } from '@ant-design/icons';
 import RestList from 'components/RestLayout/RestList';
-import LeadFilter, { statusData } from './LeadFilter';
+import LeadFilter, { statusData } from './Filter';
 import useGetList from "hooks/useGetList";
 import { Button, Form, Select, Tag, Tooltip } from 'antd';
-import { arrayEmpty, dateFormatOnSubmit, f5List } from 'utils/dataUtils';
+import { arrayEmpty, dateFormatOnSubmit } from 'utils/dataUtils';
 import { getColorStatusLead, getSource, getStatusLead, getStatusService, STATUS_LEAD } from 'configs/constant';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
 import { cloneDeep, map } from 'lodash';
-import ModaleStyles from './style';
 import FormSelect from 'components/form/FormSelect';
 import useGetMe from 'hooks/useGetMe';
 
 const roleUserSale = "ROLE_SALE";
 const roleUserAdmin = "ROLE_ADMIN";
 const roleUser = "ROLE_USER"
-const LeadPage = () => {
+const ListKho = () => {
 
   const { user: profile } = useGetMe();
   const [form] = Form.useForm();
-  const [title] = useState("Danh sách Lead");
+  const [title] = useState("Danh sách kho");
   const [listSale, setListSale] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [detailRecord, setDetailRecord] = useState({});
@@ -69,12 +68,12 @@ const LeadPage = () => {
 
   const CUSTOM_ACTION = [
     {
-      title: "Create",
+      title: "Mã đơn nhập ",
       dataIndex: 'staff',
       width: 150
     },
     {
-      title: "Dịch vụ",
+      title: "Mã đơn đặt ",
       ataIndex: 'serviceId',
       width: 200,
       ellipsis: true,
@@ -87,7 +86,7 @@ const LeadPage = () => {
       }
     },
     {
-      title: "Ngày",
+      title: "Ngày nhập",
       ataIndex: 'inTime',
       width: 200,
       ellipsis: true,
@@ -100,7 +99,7 @@ const LeadPage = () => {
       }
     },
     {
-      title: "Nguồn",
+      title: "Trạng thái ",
       ataIndex: 'source',
       width: 200,
       ellipsis: true,
@@ -251,7 +250,6 @@ const LeadPage = () => {
   const onHandleSubmitSaleLead = async (value) => {
     const data = await RequestUtils.Post(`/data/re-assign?dataId=${detailRecord?.id}&saleId=${value?.saleId}`, '');
     if (data?.errorCode === 200) {
-      f5List('data/lists');
       InAppEvent.normalSuccess("Tạo sale chăm sóc lead thành công");
       /* nếu tạo ok thì tắt popup */
       setIsOpen(false);
@@ -275,43 +273,12 @@ const LeadPage = () => {
         filter={<LeadFilter />}
         beforeSubmitFilter={beforeSubmitFilter}
         useGetAllQuery={useGetList}
-        apiPath={'data/lists'}
+        apiPath={'warehouse-history/fetch'}
         customClickCreate={onCreateLead}
         columns={CUSTOM_ACTION}
       />
-
-      <ModaleStyles title={
-        <div style={{ color: '#fff' }}>
-          Chọn sale chăm sóc lead
-        </div>
-      } open={isOpen} footer={false} onCancel={() => setIsOpen(false)}>
-        <div style={{ padding: 15 }}>
-          <Form
-            name="basic"
-            layout='vertical'
-            form={form}
-            onFinish={onHandleSubmitSaleLead}
-          >
-            <FormSelect
-              required={true}
-              label="Chọn sale"
-              name="saleId"
-              placeholder="Sale phụ trách"
-              resourceData={listSale || []}
-              valueProp="id"
-              titleProp="fullName"
-            />
-            <Form.Item style={{ display: 'flex', justifyContent: 'end', marginTop: 10 }}>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-            </Form.Item>
-          </Form>
-        </div>
-      </ModaleStyles>
-
     </div>
   )
 }
 
-export default LeadPage
+export default ListKho

@@ -38,7 +38,6 @@ const NewLead = ({ title, closeModal, data }) => {
   }, [data]);
 
   const onSubmit = async (dataCreate) => {
-
     if (Object.entries(data)?.length > 0) {
       const param = {
         ...data,  

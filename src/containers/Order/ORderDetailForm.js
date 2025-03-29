@@ -873,6 +873,7 @@ const OrderDtailForm = ({ data, title }) => {
     const datas = await RequestUtils.Post('/customer-order/update-cohoi', params);
     if (datas?.errorCode === 200) {
       setOnOpen(false);
+      f5List('order/fetch');
       InAppEvent.normalSuccess("Thanh toán thành công");
     } else {
       InAppEvent.normalError("Tạo đơn hàng thất bại");

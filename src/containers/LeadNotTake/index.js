@@ -7,6 +7,7 @@ import { InAppEvent } from 'utils/FuseUtils';
 import { HASH_MODAL_CLOSE } from 'configs';
 import { Col, Row, Table, Tabs } from 'antd';
 import { columnsTake, TableColumnInteract } from './ColumTable';
+import { f5List } from 'utils/dataUtils';
 
 const log = (value) => console.log('[container.product.index] ', value);
 const TakeNotLead = ({ closeModal, title, data }) => {
@@ -32,6 +33,7 @@ const TakeNotLead = ({ closeModal, title, data }) => {
     }
     const newData = await RequestUtils.Post('/data/create-lead-care', params);
     if (newData?.errorCode === 200) {
+      f5List('data/not-taken-care');
       InAppEvent.normalSuccess("Cập nhật thành công");
       InAppEvent.emit(HASH_MODAL_CLOSE);
     }
