@@ -1,86 +1,65 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
-import { SelectOutlined, EditTwoTone } from '@ant-design/icons';
 import RestList from 'components/RestLayout/RestList';
-import LeadFilter, { statusData } from './Filter';
+import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
-import { Button, Form, Select, Tag, Tooltip } from 'antd';
-import { arrayEmpty, dateFormatOnSubmit } from 'utils/dataUtils';
-import { getColorStatusLead, getSource, getStatusLead, getStatusService, STATUS_LEAD } from 'configs/constant';
+import { Form, Tag } from 'antd';
+import { arrayEmpty, dateFormatOnSubmit, formatMoney } from 'utils/dataUtils';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
-import { cloneDeep, map } from 'lodash';
-import FormSelect from 'components/form/FormSelect';
 import useGetMe from 'hooks/useGetMe';
 
-const roleUserSale = "ROLE_SALE";
-const roleUserAdmin = "ROLE_ADMIN";
-const roleUser = "ROLE_USER"
+const thStyle = {
+  padding: "8px 12px",
+  borderBottom: "2px solid #ddd",
+  fontWeight: "bold",
+};
+
+const tdStyle = {
+  padding: "8px 12px",
+  borderBottom: "1px solid #ddd",
+};
+
 const ListKho = () => {
 
   const { user: profile } = useGetMe();
-  const [form] = Form.useForm();
   const [title] = useState("Danh sách kho");
-  const [listSale, setListSale] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
-  const [detailRecord, setDetailRecord] = useState({});
-
-  const newRoleUser = profile?.userProfiles?.map(item => item?.type);
-  const hasAdminRole = newRoleUser.some(role => role === roleUserAdmin);
-  const hasSaleRole = newRoleUser.some(role => role === roleUserSale);
-  const hasUserRole = newRoleUser.some(role => role === roleUser);
-  const shouldHideLeadLinks = (hasSaleRole || hasUserRole) && !hasAdminRole;
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [listStatus, setListStatus] = useState([]);
+  const [listProvince, setListProvince] = useState([]);
 
   useEffect(() => {
     (async () => {
-      const { data } = await RequestUtils.Get('/user/list-sale');
-      if (data) {
-        setListSale(data);
+      const [status, province] = await Promise.all([
+        await RequestUtils.Get(`/warehouse-history/fetch-status`),
+        await RequestUtils.Get(`/provider/fetch?page=${page}&limit=${limit}`)
+      ])
+      if ( status || province) {
+        setListProvince(province?.data?.embedded);
+        setListStatus(status?.data);
       }
     })()
   }, [])
 
-  useEffect(() => {
-    form.setFieldsValue({ saleId: detailRecord?.saleId })
-  }, [form, detailRecord])
-
-  const onEdit = (item, text) => {
-    let title = text === 'base' ? 'Tạo cơ hội' : 'Sửa lead mới # ' + item.id;
-    let hash = '#draw/lead.edit';
-    let data = cloneDeep(item);
-    InAppEvent.emit(HASH_MODAL, { hash, title, data });
-  }
-
-  const onHandleUpdateState = async (v, data) => {
-    const newData = {
-      ...data,
-      status: v
-    }
-    const result = await RequestUtils.Post(`/data/update?leadId=${data?.id}`, newData);
-    if (result?.errorCode === 200) {
-      InAppEvent.normalSuccess("Cập nhập thành công");
-    } else {
-      InAppEvent.normalError("Cập nhập thất bại");
-    }
-  }
-
   const CUSTOM_ACTION = [
     {
-      title: "Mã đơn nhập ",
-      dataIndex: 'staff',
+      title: "Người dùng",
+      dataIndex: 'userName',
       width: 150
     },
     {
-      title: "Mã đơn đặt ",
-      ataIndex: 'serviceId',
+      title: "Trạng thái",
+      ataIndex: 'status',
       width: 200,
       ellipsis: true,
       render: (item) => {
+        const nameStatus = listStatus.find(f => f?.id === item?.status);
         return (
           <div>
-            <Tag color="orange">{getStatusService(item?.serviceId)}</Tag>
+            <Tag color="orange">{nameStatus?.name}</Tag>
           </div>
         )
       }
@@ -99,133 +78,44 @@ const ListKho = () => {
       }
     },
     {
-      title: "Trạng thái ",
-      ataIndex: 'source',
+      title: "Giảm giá",
+      ataIndex: 'discount',
       width: 200,
       ellipsis: true,
       render: (item) => {
         return (
           <div>
-            {getSource(item?.source)}
+            {item?.discount || 'N/A'}
           </div>
         )
       }
     },
     {
-      title: "Khách hàng",
-      ataIndex: 'customerName',
+      title: "Nhà cung cấp",
+      ataIndex: 'providerId',
+      width: 200,
+      ellipsis: true,
+      render: (item) => {
+        const nameStatus = listProvince.find(f => f?.id === item?.providerId);
+        return (
+          <div>
+            {nameStatus?.name}
+          </div>
+        )
+      }
+    },
+    {
+      title: "Chi phí",
+      ataIndex: 'fee',
       width: 200,
       ellipsis: true,
       render: (item) => {
         return (
           <div>
-            {item?.customerName}
+            {formatMoney(item?.fee)}
           </div>
         )
       }
-    },
-    {
-      title: "Số đ/t",
-      ataIndex: 'customerMobile',
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {item?.customerMobile}
-          </div>
-        )
-      }
-    },
-    {
-      title: "Trạng thái",
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {!!shouldHideLeadLinks ? (
-              <Select
-                style={{ width: 170 }}
-                defaultValue={getStatusLead(item?.status)}
-                onChange={(v) => onHandleUpdateState(v, item)}
-                disabled={STATUS_LEAD.THANH_CO_HOI === item?.status ? true : false}
-              >
-                {map(statusData, (data, index) => (
-                  <Select.Option
-                    key={String(index)}
-                    value={data?.id}
-                  >
-                    {data?.name}
-                  </Select.Option>
-                ))}
-              </Select>
-
-            ) : <Tag color={getColorStatusLead(item?.status)}>{getStatusLead(item?.status)}</Tag>}
-          </div>
-        )
-      }
-    },
-    {
-      title: "Sale",
-      ataIndex: 'saleId',
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        const newSale = listSale.find(v => v?.id === item?.saleId);
-        return (
-          <div>
-            {newSale?.fullName || 'N/A'}
-          </div>
-        )
-      }
-    },
-    {
-      title: "Tạo cơ hội",
-      width: 120,
-      fixed: 'right',
-      render: (record) => (
-        <div style={{ display: 'flex', gap: 10 }}>
-          {record?.saleId && (
-            <div>
-              <Button color="danger" variant="dashed" onClick={() => onEdit(record, 'base')} size='small'>Tạo cơ hội</Button>
-            </div>
-          )}
-        </div>
-      )
-    },
-    {
-      title: "Thao tác",
-      width: 100,
-      fixed: 'right',
-      ellipsis: true,
-      render: (record) => (
-        <div>
-          <div style={{ display: 'flex', gap: 20 }}>
-            {/* <Button
-              color="primary"
-              size='small'
-              variant="dashed"
-              style={{ width: '100px' }}
-              onClick={() => {
-                setIsOpen(true);
-                setDetailRecord(record)
-              }}
-            >
-              {record?.saleId ? 'Chuyển sale' : 'Tạo sale'}
-            </Button> */}
-             <Tooltip style={{cursor: 'pointer'}} title={record?.saleId ? 'Chuyển sale' : 'Tạo sale'}>
-              <EditTwoTone style={{ color: '#1677ff', fontSize: 20 }} onClick={() => {
-                setIsOpen(true);
-                setDetailRecord(record)
-              }}/>
-             </Tooltip>
-             <Tooltip style={{cursor: 'pointer'}} title={'Detail'}>
-              <SelectOutlined style={{ color: '#1677ff', fontSize: 20 }} onClick={() => onEdit(record, 'detail')}/>
-             </Tooltip>
-          </div>
-        </div>
-      )
     }
   ];
 
@@ -242,21 +132,10 @@ const ListKho = () => {
   }, []);
 
   const onCreateLead = () => InAppEvent.emit(HASH_MODAL, {
-    hash: '#draw/lead.edit',
-    title: 'Tạo mới Lead',
+    hash: '#draw/warehouse.edit',
+    title: 'Tạo mới kho',
     data: {}
   });
-
-  const onHandleSubmitSaleLead = async (value) => {
-    const data = await RequestUtils.Post(`/data/re-assign?dataId=${detailRecord?.id}&saleId=${value?.saleId}`, '');
-    if (data?.errorCode === 200) {
-      InAppEvent.normalSuccess("Tạo sale chăm sóc lead thành công");
-      /* nếu tạo ok thì tắt popup */
-      setIsOpen(false);
-    } else {
-      InAppEvent.normalError("Tạo thất bại");
-    }
-  }
 
   return (
     <div>
@@ -274,6 +153,62 @@ const ListKho = () => {
         beforeSubmitFilter={beforeSubmitFilter}
         useGetAllQuery={useGetList}
         apiPath={'warehouse-history/fetch'}
+        expandable={{
+          expandedRowRender: (record) => {
+            return (
+              <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
+                {record.items && record.items.length > 0 ? (
+                  <table
+                    style={{
+                      width: "100%",
+                      borderCollapse: "collapse",
+                      background: "#fff",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <thead>
+                      <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
+                        <th style={thStyle}>Tên sản phẩm</th>
+                        <th style={thStyle}>Nhà cung cấp</th>
+                        <th style={thStyle}>Số lượng</th>
+                        <th style={thStyle}>Giá bán</th>
+                        <th style={thStyle}>Tổng tiền</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {record.items.map((sku, index) => {
+                        const nameStatus = listProvince?.find(f => f?.id === sku?.providerId);
+                        return (
+                          <tr key={index} style={{ borderBottom: "1px solid #ddd" }}>
+                            {/* Chỉ hiển thị sku.code ở hàng đầu tiên của detail */}
+                            <td style={tdStyle}>
+                              {sku?.productName || "N/A"}
+                            </td>
+                            <td style={tdStyle}>
+                              {nameStatus?.name || "N/A"}
+                            </td>
+                            <td style={tdStyle}>
+                              {sku?.quality}
+                            </td>
+                            <td style={tdStyle}>
+                              {formatMoney(sku?.price)}
+                            </td>
+                            <td style={tdStyle}>
+                              {formatMoney(sku?.fee) || "N/A"}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p>Không có SKU nào</p>
+                )}
+              </div>
+            )
+          },
+        }}
         customClickCreate={onCreateLead}
         columns={CUSTOM_ACTION}
       />

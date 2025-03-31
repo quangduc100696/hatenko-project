@@ -551,12 +551,12 @@ const OrderDtailForm = ({ data, title }) => {
       render: (_, record) => {
         const product = productDetails.find((p) => p.id === record.productId);
         return (
-                  <Image
-                  width={70}
-                  src={`${product?.image ? `${GATEWAY}${product?.image}` : '/img/image_not_found.png'}`}
-                  alt='image'
-                />
-                )
+          <Image
+          width={70}
+          src={`${product?.image ? `${GATEWAY}${product?.image}` : '/img/image_not_found.png'}`}
+          alt='image'
+        />
+        )
       },
     },
     {
@@ -764,9 +764,10 @@ const OrderDtailForm = ({ data, title }) => {
     const datas = await RequestUtils.Post('/order/save', params);
     if (datas?.errorCode === 200) {
       InAppEvent.emit(HASH_MODAL_CLOSE);
-      InAppEvent.normalSuccess("Tạo cơ hội thành công");
+      f5List('order/fetch');
+      InAppEvent.normalSuccess("Tạo đơn hàng thành công");
     } else {
-      InAppEvent.normalError("Tạo cơ hội thất bại");
+      InAppEvent.normalError("Tạo đơn hàng thất bại");
     }
   };
 

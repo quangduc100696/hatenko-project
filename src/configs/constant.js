@@ -111,8 +111,6 @@ export const getColorStatusLead = (option) => {
   }
 }
 
-
-
 export const getStatusService = (option) => {
   switch (option) {
     case SERVICE_ID.PRINTGO:
@@ -125,5 +123,6 @@ export const getStatusService = (option) => {
       return 'N/A';
   }
 }
+
 
 
