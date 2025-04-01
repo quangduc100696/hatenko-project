@@ -152,7 +152,7 @@ const ListKho = () => {
         filter={<LeadFilter />}
         beforeSubmitFilter={beforeSubmitFilter}
         useGetAllQuery={useGetList}
-        apiPath={'warehouse-history/fetch'}
+        apiPath={'warehouse/fetch-stock'}
         expandable={{
           expandedRowRender: (record) => {
             return (
