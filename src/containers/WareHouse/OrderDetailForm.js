@@ -52,9 +52,9 @@ const OrderDetailForm = () => {
   const [listWareHouse, setListWareHose] = useState([]);
   const [dtWarehose, setDtWarehose] = useState({});
 
-  let totalPrice = newSp(listSp).reduce((sum, item) => sum + item?.price, 0);
+  let totalPrice = newSp(listSp).reduce((sum, item) => sum + item?.priceRef, 0);
   let totalQuanlity = newSp(listSp)?.reduce((sum, item) => sum + item?.quantity, 0);
-  let total = newSp(listSp)?.reduce((sum, item) => sum + item?.price * item?.quantity, 0);
+  let total = newSp(listSp)?.reduce((sum, item) => sum + item?.priceRef * item?.quantity, 0);
 
   useEffect(() => {
     (async () => {
@@ -147,12 +147,21 @@ const OrderDetailForm = () => {
         return (
           <InputNumber
             min={1}
-            value={item.priceRef || 1}
+            value={item.priceRef}
             onChange={(value) => {
-              const newData = listSp?.map(f => ({
-                ...f,
-                value: f?.value?.id === item.id ? { ...f?.value, price: value } : f?.value
-              }));
+              const newData = listSp.map(f => {
+                if (f.value?.id === item.id) {
+                  return {
+                    ...f, // Sao chép toàn bộ object để tránh tham chiếu
+                    detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
+                    value: {
+                      ...f.value,
+                      priceRef: value
+                    }
+                  };
+                }
+                return f;
+              });
               setListSp(newData);
             }}
           />
@@ -162,7 +171,6 @@ const OrderDetailForm = () => {
     {
       title: 'Số lượng',
       render: (item) => {
-
         return (
           <InputNumber
             min={1}
@@ -246,12 +254,12 @@ const OrderDetailForm = () => {
       title: 'Thành tiền',
       render: (item) => {
         const discount = item;
-        const totalAmount = item?.price * item?.quantity || 0;
+        const totalAmount = item?.priceRef * item?.quantity || 0;
         const discountValue = discount?.discountUnit === "percent"
           ? (totalAmount * discount?.discountValue) / 100
           : discount?.discountValue;
 
-        let total = item?.price * item?.quantity
+        let total = item?.priceRef * item?.quantity
         return (
           <div>
             {formatMoney(total)}
@@ -300,12 +308,13 @@ const OrderDetailForm = () => {
     const params = {
       userName: profile?.fullName,
       status: value?.name,
+      stockId: value?.warehouseId,
       providerId: value?.providerId,
       items: producs,
       fee: tongdon
     }
 
-    const datas = await RequestUtils.Post('/warehouse/created-stock', params);
+    const datas = await RequestUtils.Post('/warehouse-history/created', params);
     if (datas?.errorCode === 200) {
       InAppEvent.emit(HASH_MODAL_CLOSE);
       f5List('warehouse-history/fetch');
