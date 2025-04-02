@@ -4,12 +4,13 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
-import { Form, Tag } from 'antd';
+import { Button, Form, Tag } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit, formatMoney } from 'utils/dataUtils';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
 import useGetMe from 'hooks/useGetMe';
+import { cloneDeep } from 'lodash';
 
 const thStyle = {
   padding: "8px 12px",
@@ -116,6 +117,19 @@ const ListKho = () => {
           </div>
         )
       }
+    },
+    {
+      title: "Thao tác",
+      width: 100,
+      fixed: 'right',
+      ellipsis: true,
+      render: (record) => (
+        <div style={{ display: 'flex', gap: 10 }}>
+          <Button color="primary" variant="dashed" onClick={() => onHandleEdit(record)} size='small'>
+            Chi tiết
+          </Button>
+        </div>
+      )
     }
   ];
 
@@ -136,6 +150,12 @@ const ListKho = () => {
     title: 'Tạo mới kho',
     data: {}
   });
+
+  const onHandleEdit = (record) => {
+    let title = 'Chi tiết kho';
+    let hash = '#draw/warehouse.edit';
+    InAppEvent.emit(HASH_MODAL, { hash, title, data: record });
+  }
 
   return (
     <div>

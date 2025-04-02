@@ -1,10 +1,10 @@
 import React from 'react'
 import OrderDetailForm from './OrderDetailForm'
 
-const WareHouse = () => {
+const WareHouse = ({title, data}) => {
   return (
     <div>
-      <OrderDetailForm/>
+      <OrderDetailForm title={title} data={data}/>
     </div>
   )
 }

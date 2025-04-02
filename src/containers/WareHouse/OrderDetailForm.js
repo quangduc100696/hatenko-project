@@ -13,19 +13,6 @@ import FormSelect from 'components/form/FormSelect';
 import FormSelectAPI from 'components/form/FormSelectAPI';
 import useGetMe from 'hooks/useGetMe';
 
-const newSp = (data) => {
-  const mergedData = data.map((item, i) => ({
-    ...item.value,
-    ...item.detail,
-    key: i,
-    price: item.value?.price,
-    discountValue: item.value?.discountValue,
-    discountUnit: item.value?.discountUnit,
-    skuId: item.value?.skuId,
-  }));
-  return mergedData
-};
-
 const thStyle = {
   padding: "8px 12px",
   borderBottom: "2px solid #ddd",
@@ -37,14 +24,14 @@ const tdStyle = {
   borderBottom: "1px solid #ddd",
 };
 
-const OrderDetailForm = () => {
+const OrderDetailForm = ({title, data}) => {
 
   const { user: profile } = useGetMe();
   const [form] = Form.useForm();
   const [textSearch, setTextSearch] = useState('');
   const [filterSp, setFilterSp] = useState([]);
   const [listProduct, setListProduct] = useState([]);
-  const [listSp, setListSp] = useState([]);
+  const [listSp, setListSp] = useState(data?.items || []);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [listProvince, setListProvince] = useState([]);
@@ -52,10 +39,42 @@ const OrderDetailForm = () => {
   const [listWareHouse, setListWareHose] = useState([]);
   const [dtWarehose, setDtWarehose] = useState({});
 
+  const newSp = (data) => {
+    if(title === 'Chi tiết kho') {
+      let result = [];
+      for (const item of data) {
+        const newData = listProduct?.filter(f => f?.id === item?.productId);
+        const mergedData = newData.map((v, i) => ({
+          ...v,
+          discountValue: item.value?.discountValue,
+          discountUnit: item.value?.discountUnit,
+          skuId: item.value?.skuId,
+          price: item?.price,
+          priceRef: item?.price || v?.priceRef,
+          quantity: item?.quality || v?.quantity,
+          providerId: item?.providerId,
+          key: i
+        }));
+        result.push(mergedData);
+      }
+      return result.flat();
+    } else {
+      const mergedData = data.map((item, i) => ({
+        ...item.value,
+        ...item.detail,
+        key: i,
+        price: item.value?.price,
+        discountValue: item.value?.discountValue,
+        discountUnit: item.value?.discountUnit,
+        skuId: item.value?.skuId,
+      }));
+      return mergedData
+    }
+  };
+
   let totalPrice = newSp(listSp).reduce((sum, item) => sum + item?.priceRef, 0);
   let totalQuanlity = newSp(listSp)?.reduce((sum, item) => sum + item?.quantity, 0);
   let total = newSp(listSp)?.reduce((sum, item) => sum + item?.priceRef * item?.quantity, 0);
-
   useEffect(() => {
     (async () => {
       const [product, province, warhouse] = await Promise.all([
@@ -68,6 +87,16 @@ const OrderDetailForm = () => {
       setListWareHose(warhouse?.data)
     })()
   }, [])
+
+  useEffect(() => {
+    if(data) {
+      const detailProvince = listProvince?.find(f => f?.id === data?.providerId);
+      const detailWarehoseId = listWareHouse?.find(f => f?.id === data?.stockId);
+      setDtProvider(detailProvince);   
+      setDtWarehose(detailWarehoseId);
+      form.setFieldsValue({ providerId: data?.providerId, warehouseId: data?.stockId, name: data?.status}); 
+    }
+  },[data, listProvince, listWareHouse])
 
   const columns = [
     {
@@ -149,20 +178,25 @@ const OrderDetailForm = () => {
             min={1}
             value={item.priceRef}
             onChange={(value) => {
-              const newData = listSp.map(f => {
-                if (f.value?.id === item.id) {
-                  return {
-                    ...f, // Sao chép toàn bộ object để tránh tham chiếu
-                    detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
-                    value: {
-                      ...f.value,
-                      priceRef: value
-                    }
-                  };
+              const newData = (title === 'Chi tiết kho' ? newSp(listSp) : listSp).map(f => {  
+                if(title === 'Chi tiết kho') {
+                  if (f.id === item.id) {
+                    return {
+                      ...f, // Sao chép toàn bộ object để tránh tham chiếu
+                      priceRef: f?.id === item.id ? value : null,
+                      productId: item?.id
+                    };
+                  }
+                } else {
+                  if (f.value?.id === item.id) {
+                    return {
+                      ...f, // Sao chép toàn bộ object để tránh tham chiếu
+                      value: f?.value?.id === item.id ? { ...f?.value, priceRef: value } : f?.value
+                    };
+                  }
                 }
-                return f;
               });
-              setListSp(newData);
+              setListSp(newData);           
             }}
           />
         )
@@ -175,14 +209,26 @@ const OrderDetailForm = () => {
           <InputNumber
             min={1}
             value={item?.quantity}
-            formatter={(value) => console.log(value)}
-            parser={(value) => value?.replace(/\./g, "")}
             onChange={(value) => {
-              const newData = listSp?.map(f => ({
-                ...f,
-                value: f?.value?.id === item.id ? { ...f?.value, quantity: value } : f?.value
-              }));
-              setListSp(newData);
+              const newData = (title === 'Chi tiết kho' ? newSp(listSp) : listSp).map(f => {  
+                if(title === 'Chi tiết kho') {
+                  if (f.id === item.id) {
+                    return {
+                      ...f, // Sao chép toàn bộ object để tránh tham chiếu
+                      quantity: f?.id === item.id ? value : null,
+                      productId: item?.id
+                    };
+                  }
+                } else {
+                  if (f.value?.id === item.id) {
+                    return {
+                      ...f, // Sao chép toàn bộ object để tránh tham chiếu
+                      value: f?.value?.id === item.id ? { ...f?.value, quantity: value } : f?.value
+                    };
+                  }
+                }
+              });
+              setListSp(newData);  
             }}
           />
         )
@@ -253,6 +299,7 @@ const OrderDetailForm = () => {
     {
       title: 'Thành tiền',
       render: (item) => {
+
         const discount = item;
         const totalAmount = item?.priceRef * item?.quantity || 0;
         const discountValue = discount?.discountUnit === "percent"
@@ -297,7 +344,7 @@ const OrderDetailForm = () => {
         productId: item?.id,
         productName: item?.name,
         skuId: item?.skuId,
-        skuInfo: item?.skus.map(item => item?.id).join(", "),
+        skuInfo: JSON.stringify(item?.skus.map(item => item?.skuDetail)),
         quality: item?.quantity,
         price: item?.price,
         fee: item?.price * item?.quantity,
@@ -314,7 +361,7 @@ const OrderDetailForm = () => {
       fee: tongdon
     }
 
-    const datas = await RequestUtils.Post('/warehouse-history/created', params);
+    const datas = title === 'Chi tiết kho' ? RequestUtils.Post('/warehouse-history/update', params) : await RequestUtils.Post('/warehouse-history/created', params);
     if (datas?.errorCode === 200) {
       InAppEvent.emit(HASH_MODAL_CLOSE);
       f5List('warehouse-history/fetch');
@@ -370,7 +417,7 @@ const OrderDetailForm = () => {
 
   return (
     <div style={{ marginTop: 15 }}>
-      <Form onFinish={onHandleCreateOdder} layout="vertical" >
+      <Form form={form} onFinish={onHandleCreateOdder} layout="vertical" >
         <Row gutter={[16, 16]}>
           <Col xl={14}>
             <div style={{ boxShadow: 'rgba(99, 99, 99, 0.2) 0px 2px 8px 0px', padding: 10, borderRadius: 3, minHeight: 220 }}>
@@ -581,7 +628,7 @@ const OrderDetailForm = () => {
           </Col>
         </Row>
         <div style={{ display: 'flex', justifyContent: 'end', marginBottom: 50 }}>
-          <CustomButton title="Tạo kho" htmlType="submit" />
+          <CustomButton title={title === 'chi tiết kho' ? 'Cập nhật' : "Tạo kho"} htmlType="submit" />
         </div>
       </Form>
     </div>
