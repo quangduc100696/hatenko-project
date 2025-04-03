@@ -353,6 +353,7 @@ const OrderDetailForm = ({title, data}) => {
     const tongdon = newSp(listSp).reduce((total, item) => total + (item.price * item.quantity), 0);
 
     const params = {
+      id: data?.id || null,
       userName: profile?.fullName,
       status: value?.name,
       stockId: value?.warehouseId,
@@ -361,7 +362,7 @@ const OrderDetailForm = ({title, data}) => {
       fee: tongdon
     }
 
-    const datas = title === 'Chi tiết kho' ? RequestUtils.Post('/warehouse-history/update', params) : await RequestUtils.Post('/warehouse-history/created', params);
+    const datas = title === 'Chi tiết kho' ? await RequestUtils.Post('/warehouse-history/updated', params) : await RequestUtils.Post('/warehouse-history/created', params);
     if (datas?.errorCode === 200) {
       InAppEvent.emit(HASH_MODAL_CLOSE);
       f5List('warehouse-history/fetch');
@@ -440,6 +441,8 @@ const OrderDetailForm = ({title, data}) => {
               <br />
               <div style={{ paddingBottom: 5 }}><span style={{ color: '#b5acae', fontWeight: 500, paddingRight: 10 }}>Tên NCC:</span> {dtProvider?.name || 'N/A'}</div>
               <div style={{ paddingBottom: 10 }}><span style={{ color: '#b5acae', fontWeight: 500, paddingRight: 20 }}>Địa chỉ:</span> {dtProvider?.address || 'N/A'}</div>
+              <div style={{ paddingBottom: 10 }}><span style={{ color: '#b5acae', fontWeight: 500, paddingRight: 20 }}>Liên hệ:</span> {dtProvider?.phoneContact || 'N/A'}</div>
+              <div style={{ paddingBottom: 10 }}><span style={{ color: '#b5acae', fontWeight: 500, paddingRight: 20 }}>Đại diện:</span> {dtProvider?.representative || 'N/A'}</div>
             </div>
           </Col>
           <Col xl={10}>
