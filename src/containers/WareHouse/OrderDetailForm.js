@@ -48,10 +48,10 @@ const OrderDetailForm = ({title, data}) => {
           ...v,
           discountValue: item.value?.discountValue,
           discountUnit: item.value?.discountUnit,
-          skuId: item.value?.skuId,
+          skuId: item?.skuId,
           price: item?.price,
-          priceRef: item?.price || v?.priceRef,
-          quantity: item?.quality || v?.quantity,
+          priceRef: item?.priceRef || v?.priceRef,
+          quantity: item?.quantity || v?.quantity,
           providerId: item?.providerId,
           key: i
         }));
@@ -196,7 +196,7 @@ const OrderDetailForm = ({title, data}) => {
                   }
                 }
               });
-              setListSp(newData);           
+              setListSp(newData)          
             }}
           />
         )
@@ -305,7 +305,6 @@ const OrderDetailForm = ({title, data}) => {
         const discountValue = discount?.discountUnit === "percent"
           ? (totalAmount * discount?.discountValue) / 100
           : discount?.discountValue;
-
         let total = item?.priceRef * item?.quantity
         return (
           <div>
@@ -345,7 +344,7 @@ const OrderDetailForm = ({title, data}) => {
         productName: item?.name,
         skuId: item?.skuId,
         skuInfo: JSON.stringify(item?.skus.map(item => item?.skuDetail)),
-        quality: item?.quantity,
+        quatity: item?.quantity,
         price: item?.price,
         fee: item?.price * item?.quantity,
       }
@@ -361,12 +360,11 @@ const OrderDetailForm = ({title, data}) => {
       items: producs,
       fee: tongdon
     }
-
     const datas = title === 'Chi tiết kho' ? await RequestUtils.Post('/warehouse-history/updated', params) : await RequestUtils.Post('/warehouse-history/created', params);
     if (datas?.errorCode === 200) {
       InAppEvent.emit(HASH_MODAL_CLOSE);
       f5List('warehouse-history/fetch');
-      InAppEvent.normalSuccess("Tạo kho thành công");
+      InAppEvent.normalSuccess( title === 'Chi tiết kho' ? "Cập nhật thành công" : "Tạo kho thành công");
     } else {
       InAppEvent.normalError("Tạo kho thất bại");
     }
@@ -626,12 +624,12 @@ const OrderDetailForm = ({title, data}) => {
           </Col>
           <Col md={6} xs={6}>
             <p>
-              <strong>Giá trị chiết khấu </strong>
+              <strong></strong>
             </p>
           </Col>
         </Row>
         <div style={{ display: 'flex', justifyContent: 'end', marginBottom: 50 }}>
-          <CustomButton title={title === 'chi tiết kho' ? 'Cập nhật' : "Tạo kho"} htmlType="submit" />
+          <CustomButton title={title === 'Chi tiết kho' ? 'Cập nhật' : "Tạo kho"} htmlType="submit" />
         </div>
       </Form>
     </div>
