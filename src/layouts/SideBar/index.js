@@ -57,10 +57,11 @@ function SideBar() {
 			getItem(<Link to="/sale/m-enterprice">Doanh nghiệp</Link>, 'enterprice', <GroupOutlined />)
 		]),
     getItem('Kho vận', 'warehouse', <OrderedListOutlined /> , [
-			getItem(<Link to="/warehouse/in-store"> Trong kho </Link>, 'tt-theo-don', <UnorderedListOutlined />),
+			getItem(<Link to="/warehouse/trong-kho"> Trong kho </Link>, 'tt-theo-don', <UnorderedListOutlined />),
 			getItem(<Link to="/warehouse/xuat-kho"> Xuất kho </Link>, 'xk-theo-don', <UnorderedListOutlined />),
       getItem(<Link to="/warehouse/da-giao"> Đã giao </Link>, 'da-giao-theo-don', <UnorderedListOutlined />),
-      getItem(<Link to="/warehouse/danh-sach-kho">Nhập kho</Link>, 'd.s.kho', <DeploymentUnitOutlined />)
+      getItem(<Link to="/warehouse/nhap-kho">Nhập kho</Link>, 'n.kho', <DeploymentUnitOutlined />),
+      getItem(<Link to="/warehouse/danh-sach-kho">Danh sách kho</Link>, 'd.s.kho', <DeploymentUnitOutlined />)
 		]),
 		getItem('Báo cáo', 'report', <ReportFIcon />, [
 			getItem(<Link to="/sale/report-common">Bảng tin</Link>, 'report_common', <BarChartOutlined />),

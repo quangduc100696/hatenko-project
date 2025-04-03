@@ -12,7 +12,7 @@ import { arrayEmpty, arrayNotEmpty, formatMoney, formatDiscount, f5List } from "
 import CustomButton from 'components/CustomButton';
 import FormTextArea from "components/form/FormTextArea";
 import { ShowPriceStyles } from "../Order/styles";
-import { calPriceOff } from "utils/tools";
+import { calPriceOff, formatterInputNumber, parserInputNumber } from "utils/tools";
 import FormHidden from "components/form/FormHidden";
 import { useMount } from "hooks/MyHooks";
 import { generateInForm } from "../Order/utils";
@@ -280,6 +280,8 @@ const OrderDtailForm = ({ data }) => {
             <InputNumber
               min={0}
               style={{ width: 80 }}
+              formatter={formatterInputNumber}
+              parser={parserInputNumber}
               value={discount?.discountValue} // Hiển thị đúng giá trị hiện tại
               onChange={(value) => {
                 const newData = listSp?.map(f => ({

@@ -12,7 +12,7 @@ import FormInputNumber from 'components/form/FormInputNumber';
 import { DISCOUNT_UNIT_CONST } from 'configs/localData';
 import FormTextArea from 'components/form/FormTextArea';
 import { ShowPriceStyles } from 'containers/Order/styles';
-import { calPriceOff } from 'utils/tools';
+import { calPriceOff, formatterInputNumber, parserInputNumber } from 'utils/tools';
 import { arrayEmpty, arrayNotEmpty, f5List, formatMoney } from 'utils/dataUtils';
 import CustomButton from 'components/CustomButton';
 import { useMount } from 'hooks/MyHooks';
@@ -269,6 +269,8 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
           <InputNumber
             min={1}
             value={item.price}
+            formatter={formatterInputNumber}
+            parser={parserInputNumber}
             onChange={(value) => {
               const newData = listSp.map(f => {
                 if (f.value?.id === item.id) {

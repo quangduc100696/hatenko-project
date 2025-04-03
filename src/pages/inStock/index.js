@@ -4,9 +4,9 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
-import { Button, Form, Tag } from 'antd';
+import { Button, Form, Image, Tag } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit, formatMoney } from 'utils/dataUtils';
-import { HASH_MODAL } from 'configs';
+import { GATEWAY, HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
 import useGetMe from 'hooks/useGetMe';
@@ -23,45 +23,35 @@ const tdStyle = {
   borderBottom: "1px solid #ddd",
 };
 
-const ListKho = () => {
+const ListInStocK = () => {
 
   const { user: profile } = useGetMe();
-  const [title] = useState("Danh sách kho");
+  const [title] = useState("Trong kho");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [listStatus, setListStatus] = useState([]);
   const [listProvince, setListProvince] = useState([]);
-  const approveOrder = profile?.userProfiles.map(f => f.type).includes("ROLE_ADMIN")
 
   useEffect(() => {
     (async () => {
-      const [status, province] = await Promise.all([
-        await RequestUtils.Get(`/warehouse-history/fetch-status`),
+      const [province] = await Promise.all([
         await RequestUtils.Get(`/provider/fetch?page=${page}&limit=${limit}`)
       ])
-      if (status || province) {
+      if (province) {
         setListProvince(province?.data?.embedded);
-        setListStatus(status?.data);
       }
     })()
   }, [])
 
   const CUSTOM_ACTION = [
     {
-      title: "Người dùng",
-      dataIndex: 'userName',
-      width: 150
-    },
-    {
-      title: "Trạng thái",
+      title: "Tên mã S/P",
       ataIndex: 'status',
       width: 200,
       ellipsis: true,
       render: (item) => {
-        const nameStatus = listStatus.find(f => f?.id === item?.status);
         return (
           <div>
-            <Tag color="orange">{nameStatus?.name}</Tag>
+            {item?.skuName}
           </div>
         )
       }
@@ -80,14 +70,14 @@ const ListKho = () => {
       }
     },
     {
-      title: "Giảm giá",
-      ataIndex: 'discount',
+      title: "Tên kho",
+      ataIndex: 'stockName',
       width: 200,
       ellipsis: true,
       render: (item) => {
         return (
           <div>
-            {item?.discount || 'N/A'}
+            {item?.stockName || 'N/A'}
           </div>
         )
       }
@@ -107,6 +97,19 @@ const ListKho = () => {
       }
     },
     {
+      title: "Số lượng",
+      ataIndex: 'quantity',
+      width: 200,
+      ellipsis: true,
+      render: (item) => {
+        return (
+          <div>
+            {item?.quantity}
+          </div>
+        )
+      }
+    },
+    {
       title: "Chi phí",
       ataIndex: 'fee',
       width: 200,
@@ -119,26 +122,26 @@ const ListKho = () => {
         )
       }
     },
-    {
-      title: "Thao tác",
-      width: 190,
-      fixed: 'right',
-      ellipsis: true,
-      render: (record) => {
-        return (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
-            {approveOrder && record.status === 3 && (
-              <Button color="danger" variant="dashed" onClick={() => onHandleApproveStatus(record)} size='small'>
-                Duyệt lệnh
-              </Button>
-            )}
-            <Button color="primary" variant="dashed" onClick={() => onHandleEdit(record)} size='small'>
-              Chi tiết
-            </Button>
-          </div>
-        )
-      }
-    }
+    // {
+    //   title: "Thao tác",
+    //   width: 190,
+    //   fixed: 'right',
+    //   ellipsis: true,
+    //   render: (record) => {
+    //     return (
+    //       <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
+    //         {approveOrder && record.status === 3 && (
+    //           <Button color="danger" variant="dashed" onClick={() => onHandleApproveStatus(record)} size='small'>
+    //             Duyệt lệnh
+    //           </Button>
+    //         )}
+    //         <Button color="primary" variant="dashed" onClick={() => onHandleEdit(record)} size='small'>
+    //           Chi tiết
+    //         </Button>
+    //       </div>
+    //     )
+    //   }
+    // }
   ];
 
   const onData = useCallback((values) => {
@@ -154,25 +157,8 @@ const ListKho = () => {
   }, []);
 
   const onCreateLead = () => InAppEvent.emit(HASH_MODAL, {
-    hash: '#draw/warehouse.edit',
-    title: 'Tạo mới kho',
-    data: {}
+ 
   });
-
-  const onHandleEdit = (record) => {
-    let title = 'Chi tiết kho';
-    let hash = '#draw/warehouse.edit';
-    InAppEvent.emit(HASH_MODAL, { hash, title, data: record });
-  }
-
-  // duyệt lệnh
-  const onHandleApproveStatus = async (record) => {
-    await RequestUtils.Get(`/warehouse-history/fetch-status?id=${record?.id}`).then(data => {
-      if(data?.errorCode === 200) {
-        InAppEvent.normalSuccess("Duyệt lệnh thành công ?");
-      }
-    })
-  }
 
   return (
     <div>
@@ -187,14 +173,16 @@ const ListKho = () => {
         onData={onData}
         initialFilter={{ limit: 10, page: 1 }}
         filter={<LeadFilter />}
+        hasCreate={false}
         beforeSubmitFilter={beforeSubmitFilter}
         useGetAllQuery={useGetList}
-        apiPath={'warehouse-history/fetch'}
+        apiPath={'warehouse/fetch'}
         expandable={{
           expandedRowRender: (record) => {
+            const nameStatus = listProvince.find(f => f?.id === record?.product?.providerId);
             return (
               <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
-                {record.items && record.items.length > 0 ? (
+                {record.product ? (
                   <table
                     style={{
                       width: "100%",
@@ -206,37 +194,40 @@ const ListKho = () => {
                   >
                     <thead>
                       <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
+                        <th style={thStyle}>Mã đơn</th>
                         <th style={thStyle}>Tên sản phẩm</th>
+                        <th style={thStyle}>Hình ảnh</th>
                         <th style={thStyle}>Nhà cung cấp</th>
-                        <th style={thStyle}>Số lượng</th>
-                        <th style={thStyle}>Giá bán</th>
-                        <th style={thStyle}>Tổng tiền</th>
+                        <th style={thStyle}>Đơn vị</th>
+                        <th style={thStyle}>Thuộc tính</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {record.items.map((sku, index) => {
-                        const nameStatus = listProvince?.find(f => f?.id === sku?.providerId);
-                        return (
-                          <tr key={index} style={{ borderBottom: "1px solid #ddd" }}>
-                            {/* Chỉ hiển thị sku.code ở hàng đầu tiên của detail */}
-                            <td style={tdStyle}>
-                              {sku?.productName || "N/A"}
-                            </td>
-                            <td style={tdStyle}>
-                              {nameStatus?.name || "N/A"}
-                            </td>
-                            <td style={tdStyle}>
-                              {sku?.quality}
-                            </td>
-                            <td style={tdStyle}>
-                              {formatMoney(sku?.price)}
-                            </td>
-                            <td style={tdStyle}>
-                              {formatMoney(sku?.fee) || "N/A"}
-                            </td>
-                          </tr>
-                        )
-                      })}
+                      <td style={tdStyle}>
+                        {record.product?.code || "N/A"}
+                      </td>
+                      <td style={tdStyle}>
+                        {record.product?.name || "N/A"}
+                      </td>
+                      <td style={tdStyle}>
+                        <Image
+                          width={70}
+                          src={`${record.product?.image ? `${GATEWAY}${record.product?.image}` : '/img/image_not_found.png'}`}
+                          alt='image'
+                        />
+                      </td>
+                      <td style={tdStyle}>
+                        {nameStatus?.name || "N/A"}
+                      </td>
+                      <td style={tdStyle}>
+                        {record.product?.unit || "N/A"}
+                      </td>
+                      <td style={tdStyle}>
+                        <p style={{ marginRight: "10px" }}>
+                          <strong>{record.product.listProperties[0]?.name}:</strong> {record.product.listProperties[0]?.value}
+                        </p>
+                        {record.product.listProperties?.length > 1 && <span> ...</span>}
+                      </td>
                     </tbody>
                   </table>
                 ) : (
@@ -253,4 +244,4 @@ const ListKho = () => {
   )
 }
 
-export default ListKho
+export default ListInStocK

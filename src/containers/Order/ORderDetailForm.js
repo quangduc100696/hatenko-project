@@ -256,7 +256,7 @@ import { arrayEmpty, arrayNotEmpty, f5List, formatMoney, formatTime } from "util
 import CustomButton from 'components/CustomButton';
 import FormTextArea from "components/form/FormTextArea";
 import { ShowPriceStyles } from "../Order/styles";
-import { calPriceOff } from "utils/tools";
+import { calPriceOff, formatterInputNumber, parserInputNumber } from "utils/tools";
 import FormHidden from "components/form/FormHidden";
 import { useMount } from "hooks/MyHooks";
 import { generateInForm } from "../Order/utils";
@@ -624,6 +624,8 @@ const OrderDtailForm = ({ data, title }) => {
             <InputNumber
               min={0}
               style={{ width: 80 }}
+              formatter={formatterInputNumber}
+              parser={parserInputNumber}
               value={item.discountValue} // Hiển thị đúng giá trị hiện tại
               disabled={title === 'Tạo mới đơn hàng' ? false : true}
               onChange={(value) => {

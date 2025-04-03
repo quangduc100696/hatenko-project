@@ -12,6 +12,7 @@ import { ContainerSerchSp } from 'containers/Lead/styles';
 import FormSelect from 'components/form/FormSelect';
 import FormSelectAPI from 'components/form/FormSelectAPI';
 import useGetMe from 'hooks/useGetMe';
+import { formatterInputNumber, parserInputNumber } from 'utils/tools';
 
 const thStyle = {
   padding: "8px 12px",
@@ -38,6 +39,7 @@ const OrderDetailForm = ({title, data}) => {
   const [dtProvider, setDtProvider] = useState({});
   const [listWareHouse, setListWareHose] = useState([]);
   const [dtWarehose, setDtWarehose] = useState({});
+  const [feeout, setFee] = useState(null);
 
   const newSp = (data) => {
     if(title === 'Chi tiết kho') {
@@ -176,6 +178,8 @@ const OrderDetailForm = ({title, data}) => {
         return (
           <InputNumber
             min={1}
+            formatter={formatterInputNumber}
+            parser={parserInputNumber}
             value={item.priceRef}
             onChange={(value) => {
               const newData = (title === 'Chi tiết kho' ? newSp(listSp) : listSp).map(f => {  
@@ -234,68 +238,6 @@ const OrderDetailForm = ({title, data}) => {
         )
       }
     },
-    // {
-    //   title: 'Chiết khấu',
-    //   render: (item) => {
-    //     return (
-    //       <div>
-    //         <InputNumber
-    //           min={0}
-    //           style={{ width: 80 }}
-    //           value={item?.discountValue} // Hiển thị đúng giá trị hiện tại
-    //           onChange={(value) => {
-    //             const newData = listSp.map(f => {
-    //               if (f.value?.id === item.id) {
-    //                 return {
-    //                   ...f, // Sao chép toàn bộ object để tránh tham chiếu
-    //                   value: {
-    //                     ...f.value,
-    //                     discountValue: value
-    //                   }
-    //                 };
-    //               }
-    //               return f;
-    //             });
-    //             setListSp(newData);
-    //           }}
-    //         />
-    //       </div>
-    //     )
-    //   }
-    // },
-    // {
-    //   title: 'Loại chiết khấu',
-    //   render: (item) => {
-
-    //     return (
-    //       <div>
-    //         <Select
-    //           value={item?.discountUnit}
-    //           onChange={(value) => {
-    //             const newData = listSp.map(f => {
-    //               if (f.value?.id === item.id) {
-    //                 return {
-    //                   ...f,
-    //                   detail: { ...f.detail },
-    //                   value: {
-    //                     ...f.value,
-    //                     discountUnit: value
-    //                   }
-    //                 };
-    //               }
-    //               return f;
-    //             });
-    //             setListSp(newData);
-    //           }}
-    //         >
-    //           {DISCOUNT_UNIT_CONST?.map((f, id) => (
-    //             <Select.Option key={id} value={f?.value}>{f?.text}</Select.Option>
-    //           ))}
-    //         </Select>
-    //       </div>
-    //     );
-    //   }
-    // },
     {
       title: 'Thành tiền',
       render: (item) => {
@@ -358,7 +300,7 @@ const OrderDetailForm = ({title, data}) => {
       stockId: value?.warehouseId,
       providerId: value?.providerId,
       items: producs,
-      fee: tongdon
+      fee: feeout ? feeout : tongdon
     }
     const datas = title === 'Chi tiết kho' ? await RequestUtils.Post('/warehouse-history/updated', params) : await RequestUtils.Post('/warehouse-history/created', params);
     if (datas?.errorCode === 200) {
@@ -400,7 +342,6 @@ const OrderDetailForm = ({title, data}) => {
       { value: { ...value, skus: Array(value?.skus[0]), skusCoppy: value?.skus }, detail: [] } // Bọc trong dấu `{}` để tạo object
     ]);
     InAppEvent.normalSuccess("Thêm sản phẩm thành công");
-    form.resetFields();
     setFilterSp([]);
     setTextSearch('');
   };
@@ -412,6 +353,10 @@ const OrderDetailForm = ({title, data}) => {
   const onHandleWareHose = (id) => {
     const detailWareHose = listWareHouse.find(f => f.id === id);
     setDtWarehose(detailWareHose);
+  }
+
+  const onHandleFee = (fee) => {
+    setFee(fee)
   }
 
   return (
@@ -497,16 +442,18 @@ const OrderDetailForm = ({title, data}) => {
                   placeholder="Trạng thái"
                 />
               </Col>
-              <Col xl={6}>
-                <b><label>Sản phẩm</label></b>
-                <Input
-                  prefix={<SearchOutlined />}
-                  style={{ marginTop: 8 }}
-                  value={textSearch}
-                  placeholder="Thêm sản phẩm vào đơn"
-                  onChange={handleChange}
-                />
-              </Col>
+              {title !== 'Chi tiết kho' && (
+                <Col xl={6}>
+                  <b><label>Sản phẩm</label></b>
+                  <Input
+                    prefix={<SearchOutlined />}
+                    style={{ marginTop: 8 }}
+                    value={textSearch}
+                    placeholder="Thêm sản phẩm vào đơn"
+                    onChange={handleChange}
+                  />
+                </Col>
+              )}
             </Row>
             {filterSp.length > 0 && (
               <ContainerSerchSp>
@@ -549,7 +496,6 @@ const OrderDetailForm = ({title, data}) => {
                     </div>
                   </div>
                 ))}
-
               </ContainerSerchSp>
             )}
           </div>
@@ -624,7 +570,13 @@ const OrderDetailForm = ({title, data}) => {
           </Col>
           <Col md={6} xs={6}>
             <p>
-              <strong></strong>
+              <InputNumber
+                min={1}
+                formatter={formatterInputNumber}
+                parser={parserInputNumber}
+                placeholder='Tổng tiền sau nhập'
+                onChange={onHandleFee}
+              />
             </p>
           </Col>
         </Row>
