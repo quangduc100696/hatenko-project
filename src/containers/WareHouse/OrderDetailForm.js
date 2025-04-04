@@ -45,14 +45,14 @@ const OrderDetailForm = ({title, data}) => {
     if(title === 'Chi tiết kho') {
       let result = [];
       for (const item of data) {
-        const newData = listProduct?.filter(f => f?.id === item?.productId);
+        const newData = listProduct.filter(f => f.id === item?.productId);
         const mergedData = newData.map((v, i) => ({
           ...v,
           discountValue: item.value?.discountValue,
           discountUnit: item.value?.discountUnit,
           skuId: item?.skuId,
           price: item?.price,
-          priceRef: item?.priceRef || v?.priceRef,
+          priceRef: item?.priceRef,
           quantity: item?.quantity || v?.quantity,
           providerId: item?.providerId,
           key: i
@@ -188,9 +188,10 @@ const OrderDetailForm = ({title, data}) => {
                     return {
                       ...f, // Sao chép toàn bộ object để tránh tham chiếu
                       priceRef: f?.id === item.id ? value : null,
-                      productId: item?.id
+                      productId: f?.id
                     };
                   }
+                  return f;
                 } else {
                   if (f.value?.id === item.id) {
                     return {
@@ -200,7 +201,24 @@ const OrderDetailForm = ({title, data}) => {
                   }
                 }
               });
-              setListSp(newData)          
+              if(title === 'Chi tiết kho') {
+                const newItem = newData.map(value => {
+                  return {
+                    discount: null,
+                    fee: value?.priceRef * value?.quantity || 0,
+                    priceRef: value?.priceRef        ,
+                    productId: value?.id,
+                    productName: value?.name,
+                    providerId: value?.providerId,
+                    quantity: value?.quantity,
+                    skuId: value?.skuId,
+                    skuInfo: JSON.stringify(value?.skus.map(item => item?.skuDetail)),
+                  }
+                })
+                setListSp(newItem);  
+              } else {
+                setListSp(newData);  
+              }        
             }}
           />
         )
@@ -223,6 +241,7 @@ const OrderDetailForm = ({title, data}) => {
                       productId: item?.id
                     };
                   }
+                  return f;
                 } else {
                   if (f.value?.id === item.id) {
                     return {
@@ -232,7 +251,24 @@ const OrderDetailForm = ({title, data}) => {
                   }
                 }
               });
-              setListSp(newData);  
+              if(title === 'Chi tiết kho') {
+                const newItem = newData.map(value => {
+                  return {
+                    discount: null,
+                    fee: value?.priceRef * value?.quantity || 0,
+                    priceRef: value?.priceRef        ,
+                    productId: value?.id,
+                    productName: value?.name,
+                    providerId: value?.providerId,
+                    quantity: value?.quantity,
+                    skuId: value?.skuId,
+                    skuInfo: JSON.stringify(value?.skus.map(item => item?.skuDetail)),
+                  }
+                })
+                setListSp(newItem);  
+              } else {
+                setListSp(newData);  
+              }
             }}
           />
         )
@@ -270,7 +306,7 @@ const OrderDetailForm = ({title, data}) => {
   ];
 
   const onHandleDeleteSp = (record) => {
-    const items = listSp?.filter(f => f?.value?.id !== record?.id);
+    const items = listSp?.filter(f => (f?.value?.id || f?.productId) !== record?.id);
     setListSp(items)
   }
 
@@ -337,10 +373,28 @@ const OrderDetailForm = ({title, data}) => {
       InAppEvent.normalInfo("Sản phẩm này đã có trong danh sách ?");
       return;
     }
-    setListSp((pre = []) => [
-      ...pre,
-      { value: { ...value, skus: Array(value?.skus[0]), skusCoppy: value?.skus }, detail: [] } // Bọc trong dấu `{}` để tạo object
-    ]);
+    if(title === 'Chi tiết kho') {
+      const newDetail = {
+        discount: null,
+        fee: value?.priceRef * value?.quantity || 0,
+        priceRef: value?.priceRef        ,
+        productId: value?.id,
+        productName: value?.name,
+        providerId: value?.providerId,
+        quantity: value?.quantity,
+        skuId: value?.skuId,
+        skuInfo: JSON.stringify(value?.skus.map(item => item?.skuDetail)),
+      }
+      setListSp((pre = []) => [
+        ...pre,
+        newDetail
+      ]);
+    } else {
+      setListSp((pre = []) => [
+        ...pre,
+        { value: { ...value, skus: Array(value?.skus[0]), skusCoppy: value?.skus }, detail: [] } // Bọc trong dấu `{}` để tạo object
+      ]);
+    }
     InAppEvent.normalSuccess("Thêm sản phẩm thành công");
     setFilterSp([]);
     setTextSearch('');
@@ -442,7 +496,6 @@ const OrderDetailForm = ({title, data}) => {
                   placeholder="Trạng thái"
                 />
               </Col>
-              {title !== 'Chi tiết kho' && (
                 <Col xl={6}>
                   <b><label>Sản phẩm</label></b>
                   <Input
@@ -453,7 +506,6 @@ const OrderDetailForm = ({title, data}) => {
                     onChange={handleChange}
                   />
                 </Col>
-              )}
             </Row>
             {filterSp.length > 0 && (
               <ContainerSerchSp>

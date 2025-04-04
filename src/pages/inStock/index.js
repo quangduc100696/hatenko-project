@@ -44,6 +44,19 @@ const ListInStocK = () => {
 
   const CUSTOM_ACTION = [
     {
+      title: "Mã S/P",
+      ataIndex: 'status',
+      width: 200,
+      ellipsis: true,
+      render: (item) => {
+        return (
+          <div>
+            {item?.product?.code}
+          </div>
+        )
+      }
+    },
+    {
       title: "Tên mã S/P",
       ataIndex: 'status',
       width: 200,
@@ -57,6 +70,34 @@ const ListInStocK = () => {
       }
     },
     {
+      title: "Tên sản phẩm",
+      ataIndex: 'status',
+      width: 200,
+      ellipsis: true,
+      render: (item) => {
+        return (
+          <div>
+            {item?.product?.name}
+          </div>
+        )
+      }
+    },
+    {
+      title: "Hình ảnh",
+      ataIndex: 'status',
+      width: 200,
+      ellipsis: true,
+      render: (item) => {
+        return (
+          <Image
+            width={70}
+            src={`${item.product?.image ? `${GATEWAY}${item.product?.image}` : '/img/image_not_found.png'}`}
+            alt='image'
+          />
+        )
+      }
+    },
+    {
       title: "Ngày nhập",
       ataIndex: 'inTime',
       width: 200,
@@ -64,7 +105,7 @@ const ListInStocK = () => {
       render: (item) => {
         return (
           <div>
-            {dateFormatOnSubmit(item?.inTime)}
+            {dateFormatOnSubmit(item?.product?.updatedTime)}
           </div>
         )
       }
@@ -157,7 +198,7 @@ const ListInStocK = () => {
   }, []);
 
   const onCreateLead = () => InAppEvent.emit(HASH_MODAL, {
- 
+
   });
 
   return (

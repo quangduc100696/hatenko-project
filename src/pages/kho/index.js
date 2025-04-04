@@ -52,20 +52,20 @@ const ListKho = () => {
       dataIndex: 'userName',
       width: 150
     },
-    {
-      title: "Trạng thái",
-      ataIndex: 'status',
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        const nameStatus = listStatus.find(f => f?.id === item?.status);
-        return (
-          <div>
-            <Tag color="orange">{nameStatus?.name}</Tag>
-          </div>
-        )
-      }
-    },
+    // {
+    //   title: "Trạng thái",
+    //   ataIndex: 'status',
+    //   width: 200,
+    //   ellipsis: true,
+    //   render: (item) => {
+    //     const nameStatus = listStatus.find(f => f?.id === item?.status);
+    //     return (
+    //       <div>
+    //         <Tag color="orange">{nameStatus?.name}</Tag>
+    //       </div>
+    //     )
+    //   }
+    // },
     {
       title: "Ngày nhập",
       ataIndex: 'inTime',
