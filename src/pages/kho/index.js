@@ -26,7 +26,7 @@ const tdStyle = {
 const ListKho = () => {
 
   const { user: profile } = useGetMe();
-  const [title] = useState("Danh sách kho");
+  const [title] = useState("Nhập kho");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [listStatus, setListStatus] = useState([]);

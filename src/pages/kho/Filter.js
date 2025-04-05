@@ -1,7 +1,10 @@
 import { Row, Col } from 'antd';
+import FormDatePicker from 'components/form/FormDatePicker';
 import FormInput from 'components/form/FormInput';
 import FormSelect from 'components/form/FormSelect';
 import { SOURCE, STATUS_LEAD } from 'configs/constant';
+import { useEffect, useState } from 'react';
+import RequestUtils from 'utils/RequestUtils';
 
 const resourceData = [
   { id: SOURCE.FACEBOOK, name: 'Facebook' },
@@ -29,22 +32,75 @@ export const statusData = [
 
 const LeadFilter = () => {
 
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [product, setProduct] = useState([]);
+  const [provinceWareHouse, setProvinceWareHouse] = useState([]);
+  const [listStatatus, setListStatus] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const [sp, province, status] = await Promise.all([
+        await RequestUtils.Get(`/product/fetch`),
+        await RequestUtils.Get(`/provider/fetch?page=${page}&limit=${limit}`),
+        await RequestUtils.Get(`/warehouse-history/fetch-status`)
+      ]);
+      setProduct(sp?.data?.embedded);
+      setProvinceWareHouse(province?.data?.embedded);
+      setListStatus(status?.data);
+    })()
+  },[])
+
   return (
     <>
       <Row gutter={16}>
         <Col xl={6} lg={6} md={6} xs={24}>
-          <FormInput
-            name={'customerMobile'}
-            placeholder="Số điện thoại"
+          <FormSelect
+            required={false}
+            name="productId"
+            label="Sản phẩm"
+            placeholder="Sản phẩm"
+            resourceData={product || []}
+            valueProp="id"
+            titleProp="name"
           />
         </Col>
         <Col xl={6} lg={6} md={6} xs={24}>
-          <FormInput
-            name={'customerEmail'}
-            placeholder="Email"
+          <FormSelect
+            required={false}
+            name="providerId"
+            label="Nhà cung cấp"
+            placeholder="Nhà cung cấp"
+            resourceData={provinceWareHouse || []}
+            valueProp="id"
+            titleProp="name"
           />
         </Col>
-
+        <Col xl={6} lg={6} md={6} xs={24}>
+          <FormSelect
+            required={false}
+            name="status"
+            label="Trạng thái"
+            placeholder="Trạng thái"
+            resourceData={listStatatus || []}
+            valueProp="id"
+            titleProp="name"
+          />
+        </Col>
+        <Col xl={6} lg={6} md={6} xs={24}>
+          <FormDatePicker
+            format='YYYY-MM-DD'
+            name='from'
+            placeholder="Ngày bắt đầu"
+          />
+        </Col>
+        <Col xl={6} lg={6} md={6} xs={24}>
+          <FormDatePicker
+            format='YYYY-MM-DD'
+            name='to'
+            placeholder="Đến ngày"
+          />
+        </Col>
         {/* <Col xl={6} lg={6} md={6} xs={24}>
           <FormDatePicker
             format='YYYY-MM-DD'

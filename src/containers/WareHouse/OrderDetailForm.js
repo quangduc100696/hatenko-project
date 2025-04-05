@@ -324,6 +324,7 @@ const OrderDetailForm = ({title, data}) => {
         skuInfo: JSON.stringify(item?.skus.map(item => item?.skuDetail)),
         quantity: item?.quantity,
         price: item?.price,
+        priceRef: item?.priceRef,
         fee: item?.price * item?.quantity,
       }
     })
@@ -377,7 +378,7 @@ const OrderDetailForm = ({title, data}) => {
       const newDetail = {
         discount: null,
         fee: value?.priceRef * value?.quantity || 0,
-        priceRef: value?.priceRef        ,
+        priceRef: value?.priceRef,
         productId: value?.id,
         productName: value?.name,
         providerId: value?.providerId,
