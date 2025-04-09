@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { PhoneOutlined, MailOutlined, UserAddOutlined, FacebookOutlined, AimOutlined, FundOutlined} from '@ant-design/icons';
 import { Col, Row, Table, Tabs } from 'antd';
 import RequestUtils from 'utils/RequestUtils';
-import { columnsTake, TableColumnInteract } from './ColumTable';
+import { columnsTake, TableColumnInteract, TableColumnOrderUnfinished } from './ColumTable';
 
 const newDataCare = (dataCares, data) => {
   const newData = dataCares?.map(item => {
@@ -90,7 +90,7 @@ const TakeLead = ({ data }) => {
             {
               label: <div style={{fontSize: 12, fontWeight: 500 }}><FundOutlined style={{paddingRight: 8}}/>ĐƠN CHƯA H/T</div>,
               key: '3',
-              children: '',
+              children: <Table style={{ marginBottom: 20 }} dataSource={customer?.donChuaHoanThanh} pagination={false} columns={TableColumnOrderUnfinished} />,
             },
           ]}
         />

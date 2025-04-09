@@ -9,6 +9,7 @@ import LeadNotTakeRouter from './LeadNotTakeRouter.js';
 import LeadTakeRouter from './LeadTakeRouter.js';
 import CohoiRouter from './CohoiRouter.js';
 import WareHoseRouter from './WareHouseRouter.js';
+import CutomerRetailRouter from './CustomerRetailRouter.js';
 
 const modalRoutes = [
   ...ProductRoute,
@@ -17,7 +18,8 @@ const modalRoutes = [
   ...LeadNotTakeRouter,
   ...LeadTakeRouter,
   ...CohoiRouter,
-  ...WareHoseRouter
+  ...WareHoseRouter,
+  ...CutomerRetailRouter
 ]
 const log = (key, val) => console.log('[routes.draw-routes] ' + key + ' ', val);
 const notFoundHash = { Component: () => <div /> };

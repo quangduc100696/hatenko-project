@@ -625,9 +625,10 @@ const OrderDetailForm = ({title, data}) => {
             <p>
               <InputNumber
                 min={1}
+                value={data?.fee}
                 formatter={formatterInputNumber}
                 parser={parserInputNumber}
-                placeholder='Tổng tiền sau nhập'
+                placeholder='Tổng tiền thực tế'
                 onChange={onHandleFee}
               />
             </p>

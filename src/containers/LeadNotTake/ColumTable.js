@@ -1,7 +1,7 @@
 import { Tag } from "antd";
 import { getColorStatusLead, getSource, getStatusLead } from "configs/constant";
 import { useEffect, useState } from "react";
-import { dateFormatOnSubmit, formatTime } from "utils/dataUtils";
+import { dateFormatOnSubmit, formatMoney, formatTime } from "utils/dataUtils";
 import RequestUtils from "utils/RequestUtils";
 
 export const columnsTake = [
@@ -118,4 +118,55 @@ export const TableColumnInteract = () => {
   ];
   return columnInteract;
 }
+
+
+export const TableColumnOrderUnfinished = [
+  {
+      title: 'Mã đơn',
+      dataIndex: 'code',
+      key: 'code',
+  },
+  {
+      title: 'Số điện thoại',
+      dataIndex: 'customerMobilePhone',
+      key: 'customerMobilePhone',
+  },
+  {
+      title: 'Tên người nhận',
+      dataIndex: 'customerReceiverName',
+      key: 'customerReceiverName',
+  },
+  {
+      title: 'Email',
+      render: (item) => {
+          return (
+              <div>
+                  {item?.customerEmail}
+              </div>
+          )
+      }
+  },
+  {
+      title: 'Địa chỉ',
+      render: (item) => {
+          return (
+              <div>
+                  {item?.customerAddress || 'N/A'}
+              </div>
+          )
+      }
+  },
+  {
+      title: 'Tổng tiền',
+
+      render: (item) => {
+          return (
+              <div>
+                  {formatMoney(item.total)}
+              </div>
+          )
+      }
+  },
+];
+
 

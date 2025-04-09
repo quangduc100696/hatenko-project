@@ -4,7 +4,7 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
-import { Image } from 'antd';
+import { Button, Image } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit, formatTime } from 'utils/dataUtils';
 import { GATEWAY, HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
@@ -125,26 +125,21 @@ const ListCustomerRetail = () => {
         )
       }
     },
-    // {
-    //   title: "Thao tác",
-    //   width: 190,
-    //   fixed: 'right',
-    //   ellipsis: true,
-    //   render: (record) => {
-    //     return (
-    //       <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
-    //         {approveOrder && record.status === 3 && (
-    //           <Button color="danger" variant="dashed" onClick={() => onHandleApproveStatus(record)} size='small'>
-    //             Duyệt lệnh
-    //           </Button>
-    //         )}
-    //         <Button color="primary" variant="dashed" onClick={() => onHandleEdit(record)} size='small'>
-    //           Chi tiết
-    //         </Button>
-    //       </div>
-    //     )
-    //   }
-    // }
+    {
+      title: "Thao tác",
+      width: 120,
+      fixed: 'right',
+      ellipsis: true,
+      render: (record) => {
+        return (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
+            <Button color="primary" variant="dashed" onClick={() => onHandleEdit(record)} size='small'>
+              Chi tiết
+            </Button>
+          </div>
+        )
+      }
+    }
   ];
 
   const onData = useCallback((values) => {
@@ -166,8 +161,8 @@ const ListCustomerRetail = () => {
   });
 
   const onHandleEdit = (record) => {
-    let title = 'Chi tiết kho';
-    let hash = '#draw/warehouse.edit';
+    let title = 'Thông tin khách hàng';
+    let hash = '#draw/cutomerRetail.edit';
     InAppEvent.emit(HASH_MODAL, { hash, title, data: record });
   }
 

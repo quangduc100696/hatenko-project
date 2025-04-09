@@ -91,6 +91,17 @@ const Index = () => {
       render: (skus) => <PriceView skus={skus}/>
     },
     {
+      title:"Số lượng tổng",
+      width: 150,
+      ellipsis: true,
+      render: (item) => {
+        const totalQuantity = item?.warehouses.reduce((total, v) => total + v.quantity, 0);
+        return (
+          <div style={{textAlign: 'center'}}>{totalQuantity === 0 ? 'Chưa cập nhật' : totalQuantity}</div>
+        )
+      }
+    },
+    {
       title:"Created",
       dataIndex:'createdTime',
       width:120,

@@ -369,7 +369,7 @@ const OrderDtailForm = ({ data, title }) => {
   const [itemOrder, setItemOrder] = useState([]);
   const [isCheckForm, setIsCheckForm] = useState(false)
   const [productDetails, setProductDetails] = useState([]);
-   const [vat, setVat] = useState(data?.vat);
+  const [vat, setVat] = useState(data?.vat);
 
   const [formData, setFormData] = useState({
     gender: "",
@@ -423,11 +423,11 @@ const OrderDtailForm = ({ data, title }) => {
 
   useEffect(() => {
     const productIds = data?.details
-    ?.flatMap((detail) => detail.items?.map((item) => item.productId) || [])
-    .filter(Boolean); // Loại bỏ giá trị null hoặc undefined
+      ?.flatMap((detail) => detail.items?.map((item) => item.productId) || [])
+      .filter(Boolean); // Loại bỏ giá trị null hoặc undefined
     (async () => {
       if (!Array.isArray(productIds) || productIds.length === 0) return;
-    
+
       try {
         const productDetails = await RequestUtils.Get(`/product/find-list-id?ids=${productIds.join(",")}`);
         setProductDetails(Array.isArray(productDetails?.data) ? productDetails.data : []);
@@ -552,10 +552,10 @@ const OrderDtailForm = ({ data, title }) => {
         const product = productDetails.find((p) => p.id === record.productId);
         return (
           <Image
-          width={70}
-          src={`${product?.image ? `${GATEWAY}${product?.image}` : '/img/image_not_found.png'}`}
-          alt='image'
-        />
+            width={70}
+            src={`${product?.image ? `${GATEWAY}${product?.image}` : '/img/image_not_found.png'}`}
+            alt='image'
+          />
         )
       },
     },
@@ -610,11 +610,67 @@ const OrderDtailForm = ({ data, title }) => {
     },
     {
       title: 'Đơn giá',
-      render: (item) => <span>{item?.price}</span>
+      render: (item) => {
+        return (
+          <div>
+            <InputNumber
+              min={0}
+              style={{ width: 120 }}
+              formatter={formatterInputNumber}
+              parser={parserInputNumber}
+              value={item.price} // Hiển thị đúng giá trị hiện tại
+              disabled={title === 'Tạo mới đơn hàng' ? false : true}
+              onChange={(value) => {
+                const newData = listSp.map(f => {
+                  if (f.value?.id === item.id) {
+                    return {
+                      ...f, // Sao chép toàn bộ object để tránh tham chiếu
+                      detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
+                      value: {
+                        ...f.value,
+                        price: value
+                      }
+                    };
+                  }
+                  return f;
+                });
+                setListSp(newData);
+              }}
+            />
+          </div>
+        )
+      }
     },
     {
       title: 'Số lượng',
-      render: (item) => <span>{item?.quantity}</span>
+      render: (item) => {
+        return (
+          <InputNumber
+            min={0}
+            style={{ width: 120 }}
+            formatter={formatterInputNumber}
+            parser={parserInputNumber}
+            value={item.quantity} // Hiển thị đúng giá trị hiện tại
+            disabled={title === 'Tạo mới đơn hàng' ? false : true}
+            onChange={(value) => {
+              const newData = listSp.map(f => {
+                if (f.value?.id === item.id) {
+                  return {
+                    ...f, // Sao chép toàn bộ object để tránh tham chiếu
+                    detail: { ...f.detail }, // Sao chép detail để tránh thay đổi không mong muốn
+                    value: {
+                      ...f.value,
+                      quantity: value
+                    }
+                  };
+                }
+                return f;
+              });
+              setListSp(newData);
+            }}
+          />
+        )
+      }
     },
     {
       title: 'Chiết khấu',
@@ -694,16 +750,16 @@ const OrderDtailForm = ({ data, title }) => {
       render: (item) => {
         const discount = item?.discount ? JSON.parse(item.discount) : {}; // Xử lý nếu null hoặc undefined
         const totalAmount = (item?.price || 0) * (item?.quantity || 0); // Tránh undefined
-      
-        const discountValue = discount?.discountUnit === "percent"
-          ? (totalAmount * (discount?.discountValue || 0)) / 100
+
+        const discountValue = item?.discountUnit === "percent"
+          ? (totalAmount * (item?.discountValue || 0)) / 100
           : (discount?.discountValue || 0); // Nếu không có giá trị thì mặc định là 0
-    
+
         const total = totalAmount - discountValue;
-    
+
         return (
           <div>
-            {formatMoney(Math.max(total, 0))} 
+            {formatMoney(Math.max(total, 0))}
             {/* Đảm bảo không bị giá trị âm */}
           </div>
         );
@@ -756,7 +812,7 @@ const OrderDtailForm = ({ data, title }) => {
         saleId: customer?.iCustomer?.saleId || null,
         gender: customer?.iCustomer?.gender || formData?.gender,
         name: customer?.iCustomer?.name || formData?.name,
-        email: customer?.iCustomer?.email || formData?.email ,
+        email: customer?.iCustomer?.email || formData?.email,
         mobile: customer?.iCustomer?.mobile || formData?.phone,
         createdAt: customer?.iCustomer?.createdAt || Math.floor(Date.now() / 1000),
         updatedAt: customer?.iCustomer?.updatedAt || Math.floor(Date.now() / 1000),
@@ -1279,8 +1335,8 @@ const OrderDtailForm = ({ data, title }) => {
             </Col>
             <Col md={12} xs={12}>
               <p>
-                <span style={{ marginRight: 10 }}>Vat: 
-                  <Select placeholder="Chọn Vat" value={vat} style={{width: 160, marginLeft: 5}} onChange={onHandleVat}>
+                <span style={{ marginRight: 10 }}>Vat:
+                  <Select placeholder="Chọn Vat" value={vat} style={{ width: 160, marginLeft: 5 }} onChange={onHandleVat}>
                     <Select.Option value={8}>8%</Select.Option>
                     <Select.Option value={10}>10%</Select.Option>
                   </Select>

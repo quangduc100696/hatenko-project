@@ -6,7 +6,7 @@ import RequestUtils from 'utils/RequestUtils';
 import { InAppEvent } from 'utils/FuseUtils';
 import { HASH_MODAL_CLOSE } from 'configs';
 import { Col, Row, Table, Tabs } from 'antd';
-import { columnsTake, TableColumnInteract } from './ColumTable';
+import { columnsTake, TableColumnInteract, TableColumnOrderUnfinished } from './ColumTable';
 import { f5List } from 'utils/dataUtils';
 
 const log = (value) => console.log('[container.product.index] ', value);
@@ -104,7 +104,7 @@ const TakeNotLead = ({ closeModal, title, data }) => {
             {
               label: <div style={{fontSize: 12, fontWeight: 500 }}><FundOutlined style={{paddingRight: 8}}/>ĐƠN CHƯA H/T</div>,
               key: '3',
-              children: '',
+               children: <Table style={{ marginBottom: 20 }} dataSource={customer?.donChuaHoanThanh} pagination={false} columns={TableColumnOrderUnfinished} />,
             },
           ]}
         />
