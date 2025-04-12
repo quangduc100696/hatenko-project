@@ -108,15 +108,13 @@ const OrderDtailForm = ({ data }) => {
     return sum + itemTotal;
   }, 0);
 
-  
-
   useEffect(() => {
     const productIds = data?.details
-    ?.flatMap((detail) => detail.items?.map((item) => item.productId) || [])
-    .filter(Boolean); // Loại bỏ giá trị null hoặc undefined
+      ?.flatMap((detail) => detail.items?.map((item) => item.productId) || [])
+      .filter(Boolean); // Loại bỏ giá trị null hoặc undefined
     (async () => {
       if (!Array.isArray(productIds) || productIds.length === 0) return;
-    
+
       try {
         const productDetails = await RequestUtils.Get(`/product/find-list-id?ids=${productIds.join(",")}`);
         setProductDetails(Array.isArray(productDetails?.data) ? productDetails.data : []);
@@ -236,12 +234,12 @@ const OrderDtailForm = ({ data }) => {
       render: (_, record) => {
         const product = productDetails.find((p) => p.id === record.productId);
         return (
-                  <Image
-                  width={70}
-                  src={`${product?.image ? `${GATEWAY}${product?.image}` : '/img/image_not_found.png'}`}
-                  alt='image'
-                />
-                )
+          <Image
+            width={70}
+            src={`${product?.image ? `${GATEWAY}${product?.image}` : '/img/image_not_found.png'}`}
+            alt='image'
+          />
+        )
       },
     },
     {
@@ -287,15 +285,16 @@ const OrderDtailForm = ({ data }) => {
                 const newData = listSp?.map(f => ({
                   ...f,
                   items: f?.items?.map(v =>
-                    v?.id === item.id ? { ...v, discount: JSON.stringify(
-                      {
-                        discountUnit: discount?.discountUnit,
-                        discountValue: value
-                      }
-                    ) } : v
+                    v?.id === item.id ? {
+                      ...v, discount: JSON.stringify(
+                        {
+                          discountUnit: discount?.discountUnit,
+                          discountValue: value
+                        }
+                      )
+                    } : v
                   )
                 }));
-                setListSp(newData);
                 setListSp(newData);
               }}
             />
@@ -315,12 +314,14 @@ const OrderDtailForm = ({ data }) => {
                 const newData = listSp?.map(f => ({
                   ...f,
                   items: f?.items?.map(v =>
-                    v?.id === item.id ? { ...v, discount: JSON.stringify(
-                      {
-                        discountUnit: value,
-                        discountValue: discount?.discountValue
-                      }
-                    ) } : v
+                    v?.id === item.id ? {
+                      ...v, discount: JSON.stringify(
+                        {
+                          discountUnit: value,
+                          discountValue: discount?.discountValue
+                        }
+                      )
+                    } : v
                   )
                 }));
                 setListSp(newData);
@@ -481,7 +482,8 @@ const OrderDtailForm = ({ data }) => {
       }),
       discountValue: value.discountValue || 0,
       discountUnit: value.discountUnit || null,
-      total: value.quantity * value.price
+      total: value.quantity * value.price,
+      warehouses: value?.warehouses
     };
 
     setListSp((prev = []) => {
@@ -513,7 +515,7 @@ const OrderDtailForm = ({ data }) => {
         items: [...(updatedList[targetDetailIndex].items || []), newItems],
         total: (updatedList[targetDetailIndex].total || 0) + newItems.total
       };
-      
+
       return updatedList;
     });
 
@@ -609,45 +611,48 @@ const OrderDtailForm = ({ data }) => {
 
           {filterSp.length > 0 && (
             <ContainerSerchSp>
-              {filterSp.map((item) => (
-                <div key={item.id} className='wrap-search-sp'>
-                  {/* Hàng chính của sản phẩm */}
-                  <div
-                    className='btn_hover_sp'
-                    style={{ display: 'flex', alignItems: 'center', width: '100%' }}
-                    onClick={() => {
-                      setFilterSp(filterSp.map(f =>
-                        f.id === item.id ? { ...f, showSkus: !f.showSkus } : f
-                      ));
-                      onHandleCreateSp({ ...item, skuId: item?.skus[0]?.id, skuName: item?.name, price: item.skus[0]?.listPriceRange[0]?.price, stock: item?.skus[0]?.stock })
-                    }}
-                  >
-                    {/* Cột hình ảnh sản phẩm */}
-                    <div className='btn_wrap-sp'>
-                      <Image
-                        src={item.image ? `${GATEWAY}${item.image}` : '/img/image_not_found.png'}
-                        alt={item.name}
-                        style={{ width: 50, height: 50, marginRight: 15, objectFit: 'cover', borderRadius: 5 }}
-                      />
-                    </div>
+              {filterSp.map((item) => {
+                const totalQuantity = item?.warehouses.reduce((total, v) => total + v.quantity, 0);
+                return (
+                  <div key={item.id} className='wrap-search-sp'>
+                    {/* Hàng chính của sản phẩm */}
+                    <div
+                      className='btn_hover_sp'
+                      style={{ display: 'flex', alignItems: 'center', width: '100%' }}
+                      onClick={() => {
+                        setFilterSp(filterSp.map(f =>
+                          f.id === item.id ? { ...f, showSkus: !f.showSkus } : f
+                        ));
+                        onHandleCreateSp({ ...item, skuId: item?.skus[0]?.id, skuName: item?.name, price: item.skus[0]?.listPriceRange[0]?.price, stock: item?.skus[0]?.stock })
+                      }}
+                    >
+                      {/* Cột hình ảnh sản phẩm */}
+                      <div className='btn_wrap-sp'>
+                        <Image
+                          src={item.image ? `${GATEWAY}${item.image}` : '/img/image_not_found.png'}
+                          alt={item.name}
+                          style={{ width: 50, height: 50, marginRight: 15, objectFit: 'cover', borderRadius: 5 }}
+                        />
+                      </div>
 
-                    {/* Cột thông tin sản phẩm */}
-                    <div style={{ width: '55%', paddingTop: 10, paddingLeft: 10 }}>
-                      <strong>{item.name}</strong>
-                    </div>
+                      {/* Cột thông tin sản phẩm */}
+                      <div style={{ width: '55%', paddingTop: 10, paddingLeft: 10 }}>
+                        <strong>{item.name}</strong>
+                      </div>
 
-                    {/* Cột giá bán và số lượng tồn */}
-                    <div style={{ width: '30%', paddingTop: 10, textAlign: 'right' }}>
-                      <p style={{ marginBottom: 5, fontSize: 14, fontWeight: 'bold', color: '#d9534f' }}>
-                        {formatMoney(item.skus[0]?.listPriceRange[0]?.price || 0)}
-                      </p>
-                      <p style={{ marginBottom: 0, fontSize: 12, color: '#5bc0de' }}>
-                        Tồn kho: {item.stock || 0}
-                      </p>
+                      {/* Cột giá bán và số lượng tồn */}
+                      <div style={{ width: '30%', paddingTop: 10, textAlign: 'right' }}>
+                        <p style={{ marginBottom: 5, fontSize: 14, fontWeight: 'bold', color: '#d9534f' }}>
+                          {formatMoney(item.skus[0]?.listPriceRange[0]?.price || 0)}
+                        </p>
+                        <p style={{ marginBottom: 0, fontSize: 12, color: '#5bc0de' }}>
+                          Tồn kho: {totalQuantity|| 0}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
 
             </ContainerSerchSp>
           )}
@@ -658,6 +663,7 @@ const OrderDtailForm = ({ data }) => {
           scroll={{ x: 1700 }}
           expandable={{
             expandedRowRender: (record) => {
+              const newTonkho = listProduct.flatMap(f => f.warehouses || []).find(v => v.skuId === record?.skuId);
               return (
                 <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
                   {record ? (
@@ -674,6 +680,7 @@ const OrderDtailForm = ({ data }) => {
                         <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
                           <th style={thStyle}>Tên SKU</th>
                           <th style={thStyle}>Giá bán</th>
+                          <th style={thStyle}>Tồn kho</th>
                           <th style={thStyle}>Chi tiết</th>
                         </tr>
                       </thead>
@@ -682,6 +689,9 @@ const OrderDtailForm = ({ data }) => {
                           <td style={tdStyle}>{record.name}</td>
                           <td style={tdStyle}>
                             {formatMoney(record?.price)}
+                          </td>
+                          <td style={tdStyle}>
+                            {newTonkho?.quantity}
                           </td>
                           <td style={tdStyle}>
                             {(() => {

@@ -95,9 +95,9 @@ const Index = () => {
       width: 150,
       ellipsis: true,
       render: (item) => {
-        const totalQuantity = item?.warehouses.reduce((total, v) => total + v.quantity, 0);
+        const result = item?.warehouses.find(w => item?.skus?.some(sku => sku?.id === w?.skuId));
         return (
-          <div style={{textAlign: 'center'}}>{totalQuantity === 0 ? 'Chưa cập nhật' : totalQuantity}</div>
+          <div style={{textAlign: 'center'}}>{result?.quantity || 'Chưa cập nhật'}</div>
         )
       }
     },

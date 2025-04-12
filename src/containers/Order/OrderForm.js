@@ -1,11 +1,14 @@
 import { Form, Tag, Tabs, Row } from "antd";
 import { SnippetsOutlined } from '@ant-design/icons';
 import ORderDetailForm from "./ORderDetailForm";
+import OrderPayment from "./OrderPayment";
 
 const OrderForm = ({data, title}) => {
   const items = [
     { key: '1', label: 'Chi tiết đơn hàng', children: <ORderDetailForm data={data} title={title}/>},
-    { key: '2', label: 'Thanh toán', children: '' },
+    ...(title !== 'Tạo mới đơn hàng' ? [
+      { key: '2', label: 'Thanh toán', children: <OrderPayment data={data} title={title}/> }
+    ] : []),
     { key: '3', label: 'Thông tin công ty', children: '' }
   ];
   return <>

@@ -622,7 +622,8 @@ const OrderDetailForm = ({title, data}) => {
             </p>
           </Col>
           <Col md={6} xs={6}>
-            <p>
+            <p style={{display: 'flex', alignItems: 'center'}}>
+              <strong> Tổng nhập sau: </strong>
               <InputNumber
                 min={1}
                 value={data?.fee}

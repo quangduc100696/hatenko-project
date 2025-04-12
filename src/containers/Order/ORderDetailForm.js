@@ -968,7 +968,6 @@ const OrderDtailForm = ({ data, title }) => {
 
   const onHandleVat = (vat) => setVat(vat);
 
-
   return <>
     <div style={{ marginTop: 15 }}>
       <p><strong>Thông tin khách hàng</strong></p>
@@ -1075,57 +1074,61 @@ const OrderDtailForm = ({ data, title }) => {
           Thêm sản phẩm
         </Button> */}
         <div style={{ position: 'relative', width: '100%' }}>
-          <div>
-            <Input
-              style={{ width: '30%', float: 'right', marginBottom: 20 }}
-              prefix={<SearchOutlined />}
-              value={textSearch}
-              placeholder="Thêm sản phẩm vào đơn"
-              onChange={handleChange}
-            />
-          </div>
-
+          {title === 'Chi tiết đơn hàng #' ? '' : (
+            <div>
+              <Input
+                style={{ width: '30%', float: 'right', marginBottom: 20 }}
+                prefix={<SearchOutlined />}
+                value={textSearch}
+                placeholder="Thêm sản phẩm vào đơn"
+                onChange={handleChange}
+              />
+            </div>
+          )}
           {filterSp.length > 0 && (
             <ContainerSerchSp>
-              {filterSp.map((item) => (
-                <div key={item.id} className='wrap-search-sp'>
-                  {/* Hàng chính của sản phẩm */}
-                  <div
-                    className='btn_hover_sp'
-                    style={{ display: 'flex', alignItems: 'center', width: '100%' }}
-                    onClick={() => {
-                      setFilterSp(filterSp.map(f =>
-                        f.id === item.id ? { ...f, showSkus: !f.showSkus } : f
-                      ));
-                      onHandleCreateSp({ ...item, skuId: item?.skus[0]?.id, skuName: item?.name, price: item.skus[0]?.listPriceRange[0]?.price, stock: item?.skus[0]?.stock })
-                    }}
-                  >
-                    {/* Cột hình ảnh sản phẩm */}
-                    <div className='btn_wrap-sp'>
-                      <Image
-                        src={item.image ? `${GATEWAY}${item.image}` : '/img/image_not_found.png'}
-                        alt={item.name}
-                        style={{ width: 50, height: 50, marginRight: 15, objectFit: 'cover', borderRadius: 5 }}
-                      />
-                    </div>
+              {filterSp.map((item) => {
+                const totalQuantity = item?.warehouses.reduce((total, v) => total + v.quantity, 0);
+                return (
+                  <div key={item.id} className='wrap-search-sp'>
+                    {/* Hàng chính của sản phẩm */}
+                    <div
+                      className='btn_hover_sp'
+                      style={{ display: 'flex', alignItems: 'center', width: '100%' }}
+                      onClick={() => {
+                        setFilterSp(filterSp.map(f =>
+                          f.id === item.id ? { ...f, showSkus: !f.showSkus } : f
+                        ));
+                        onHandleCreateSp({ ...item, skuId: item?.skus[0]?.id, skuName: item?.name, price: item.skus[0]?.listPriceRange[0]?.price, stock: item?.skus[0]?.stock })
+                      }}
+                    >
+                      {/* Cột hình ảnh sản phẩm */}
+                      <div className='btn_wrap-sp'>
+                        <Image
+                          src={item.image ? `${GATEWAY}${item.image}` : '/img/image_not_found.png'}
+                          alt={item.name}
+                          style={{ width: 50, height: 50, marginRight: 15, objectFit: 'cover', borderRadius: 5 }}
+                        />
+                      </div>
 
-                    {/* Cột thông tin sản phẩm */}
-                    <div style={{ width: '55%', paddingTop: 10, paddingLeft: 10 }}>
-                      <strong>{item.name}</strong>
-                    </div>
+                      {/* Cột thông tin sản phẩm */}
+                      <div style={{ width: '55%', paddingTop: 10, paddingLeft: 10 }}>
+                        <strong>{item.name}</strong>
+                      </div>
 
-                    {/* Cột giá bán và số lượng tồn */}
-                    <div style={{ width: '30%', paddingTop: 10, textAlign: 'right' }}>
-                      <p style={{ marginBottom: 5, fontSize: 14, fontWeight: 'bold', color: '#d9534f' }}>
-                        {formatMoney(item.skus[0]?.listPriceRange[0]?.price || 0)}
-                      </p>
-                      <p style={{ marginBottom: 0, fontSize: 12, color: '#5bc0de' }}>
-                        Tồn kho: {item.stock || 0}
-                      </p>
+                      {/* Cột giá bán và số lượng tồn */}
+                      <div style={{ width: '30%', paddingTop: 10, textAlign: 'right' }}>
+                        <p style={{ marginBottom: 5, fontSize: 14, fontWeight: 'bold', color: '#d9534f' }}>
+                          {formatMoney(item.skus[0]?.listPriceRange[0]?.price || 0)}
+                        </p>
+                        <p style={{ marginBottom: 0, fontSize: 12, color: '#5bc0de' }}>
+                          Tồn kho: {totalQuantity || 0}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
 
             </ContainerSerchSp>
           )}
@@ -1135,105 +1138,116 @@ const OrderDtailForm = ({ data, title }) => {
           columns={columns}
           scroll={{ x: 1700 }}
           expandable={{
-            expandedRowRender: (record) => (
-              title === 'Tạo mới đơn hàng' ? (
-                <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
-                  {record.skus && record.skus.length > 0 ? (
-                    <table
-                      style={{
-                        width: "100%",
-                        borderCollapse: "collapse",
-                        background: "#fff",
-                        borderRadius: "8px",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <thead>
-                        <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
-                          <th style={thStyle}>Tên SKU</th>
-                          <th style={thStyle}>Giá bán</th>
-                          <th style={thStyle}>Chi tiết</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {record.skus?.map((sku) => (
-                          <tr key={sku?.id} style={{ borderBottom: "1px solid #ddd" }}>
-                            <td style={tdStyle}>{sku?.name}</td>
-                            <td style={tdStyle}>
-                              {sku?.listPriceRange.map((price) => price.price.toLocaleString() + " VND").join(", ")}
-                            </td>
-                            <td style={tdStyle}>
-                              <p style={{ marginRight: "10px" }}>
-                                <strong>{sku?.skuDetail[0]?.name}:</strong> {sku?.skuDetail[0]?.value}
-                              </p>
-                              {sku?.skuDetail.length > 1 && <span> ...</span>}
-                            </td>
+            expandedRowRender: (record) => {
+              const newTonkho = listProduct.flatMap(f => f.warehouses || []).find(v => v.skuId === record?.skuId);
+              return (
+                title === 'Tạo mới đơn hàng' ? (
+                  <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
+                    {record.skus && record.skus.length > 0 ? (
+                      <table
+                        style={{
+                          width: "100%",
+                          borderCollapse: "collapse",
+                          background: "#fff",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <thead>
+                          <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
+                            <th style={thStyle}>Tên SKU</th>
+                            <th style={thStyle}>Giá bán</th>
+                            <th style={thStyle}>Tồn kho</th>
+                            <th style={thStyle}>Chi tiết</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <p>Không có SKU nào</p>
-                  )}
-                </div>
-              ) : (
-                <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
-                  {record ? (
-                    <table
-                      style={{
-                        width: "100%",
-                        borderCollapse: "collapse",
-                        background: "#fff",
-                        borderRadius: "8px",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <thead>
-                        <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
-                          <th style={thStyle}>Tên SKU</th>
-                          <th style={thStyle}>Giá bán</th>
-                          <th style={thStyle}>Chi tiết</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr style={{ borderBottom: "1px solid #ddd" }}>
-                          <td style={tdStyle}>{record.name}</td>
-                          <td style={tdStyle}>
-                            {formatMoney(record?.price)}
-                          </td>
-                          <td style={tdStyle}>
-                            {(() => {
-                              let parsedSkuInfo = [];
-                              try {
-                                if (record?.skuInfo) {
-                                  parsedSkuInfo = JSON.parse(record?.skuInfo);
-                                }
-                              } catch (error) {
-                                console.error("Lỗi parse JSON:", error);
-                              }
-                              return parsedSkuInfo.map((detail) => (
-                                <p key={detail.id} style={{ marginRight: "10px" }}>
-                                  <strong>{detail.name}:</strong> {detail.value}
+                        </thead>
+                        <tbody>
+                          {record.skus?.map((sku) => (
+                            <tr key={sku?.id} style={{ borderBottom: "1px solid #ddd" }}>
+                              <td style={tdStyle}>{sku?.name}</td>
+                              <td style={tdStyle}>
+                                {sku?.listPriceRange.map((price) => price.price.toLocaleString() + " VND").join(", ")}
+                              </td>
+                              <td style={tdStyle}>
+                                {newTonkho?.quantity}
+                              </td>
+                              <td style={tdStyle}>
+                                <p style={{ marginRight: "10px" }}>
+                                  <strong>{sku?.skuDetail[0]?.name}:</strong> {sku?.skuDetail[0]?.value}
                                 </p>
-                              ));
-                            })()}
-                          </td>
-                          {/* <td style={tdStyle}>
-                        {parsedSkuInfo.map((detail) => (
-                          <p key={detail.id} style={{ marginRight: "10px" }}>
-                            <strong>{detail.name}:</strong> {detail.value}
-                          </p>
-                        ))}
-                      </td> */}
-                        </tr>
-                      </tbody>
-                    </table>
-                  ) : (
-                    <p>Không có SKU nào</p>
-                  )}
-                </div>
+                                {sku?.skuDetail.length > 1 && <span> ...</span>}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p>Không có SKU nào</p>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
+                    {record ? (
+                      <table
+                        style={{
+                          width: "100%",
+                          borderCollapse: "collapse",
+                          background: "#fff",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <thead>
+                          <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
+                            <th style={thStyle}>Tên SKU</th>
+                            <th style={thStyle}>Giá bán</th>
+                            <th style={thStyle}>Tồn kho</th>
+                            <th style={thStyle}>Chi tiết</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr style={{ borderBottom: "1px solid #ddd" }}>
+                            <td style={tdStyle}>{record.name}</td>
+                            <td style={tdStyle}>
+                              {formatMoney(record?.price)}
+                            </td>
+                            <td style={tdStyle}>
+                                {newTonkho?.quantity}
+                              </td>
+                            <td style={tdStyle}>
+                              {(() => {
+                                let parsedSkuInfo = [];
+                                try {
+                                  if (record?.skuInfo) {
+                                    parsedSkuInfo = JSON.parse(record?.skuInfo);
+                                  }
+                                } catch (error) {
+                                  console.error("Lỗi parse JSON:", error);
+                                }
+                                return parsedSkuInfo.map((detail) => (
+                                  <p key={detail.id} style={{ marginRight: "10px" }}>
+                                    <strong>{detail.name}:</strong> {detail.value}
+                                  </p>
+                                ));
+                              })()}
+                            </td>
+                            {/* <td style={tdStyle}>
+                          {parsedSkuInfo.map((detail) => (
+                            <p key={detail.id} style={{ marginRight: "10px" }}>
+                              <strong>{detail.name}:</strong> {detail.value}
+                            </p>
+                          ))}
+                        </td> */}
+                          </tr>
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p>Không có SKU nào</p>
+                    )}
+                  </div>
+                )
               )
-            ),
+            },
           }}
 
           dataSource={newSp(listSp)}

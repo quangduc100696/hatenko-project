@@ -589,8 +589,10 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
 
         {filterSp.length > 0 && (
           <ContainerSerchSp>
-            {filterSp.map((item) => (
-              <div key={item.id} className='wrap-search-sp'>
+            {filterSp.map((item) => {
+              const totalQuantity = item?.warehouses.reduce((total, v) => total + v.quantity, 0);
+              return (
+                <div key={item.id} className='wrap-search-sp'>
                 {/* Hàng chính của sản phẩm */}
                 <div
                   className='btn_hover_sp'
@@ -622,7 +624,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                       {formatMoney(item.skus[0]?.listPriceRange[0]?.price || 0)}
                     </p>
                     <p style={{ marginBottom: 0, fontSize: 12, color: '#5bc0de' }}>
-                      Tồn kho: {item.stock || 0}
+                      Tồn kho: {totalQuantity || 0}
                     </p>
                   </div>
                 </div>
@@ -647,7 +649,8 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                   </div>
                 )} */}
               </div>
-            ))}
+              )
+            })}
 
           </ContainerSerchSp>
         )}
@@ -658,8 +661,10 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
           columns={columns}
           scroll={{ x: 1700 }}
           expandable={{
-            expandedRowRender: (record) => (
-              <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
+            expandedRowRender: (record) => {
+              const newTonkho = listProduct.flatMap(f => f.warehouses || []).find(v => v.skuId === record?.skuId);
+              return (
+                <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
                 {record.skus && record.skus.length > 0 ? (
                   <table
                     style={{
@@ -674,6 +679,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                       <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
                         <th style={thStyle}>Tên SKU</th>
                         <th style={thStyle}>Giá bán</th>
+                        <th style={thStyle}>Tồn kho</th>
                         <th style={thStyle}>Chi tiết</th>
                       </tr>
                     </thead>
@@ -683,6 +689,9 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                           <td style={tdStyle}>{sku?.name}</td>
                           <td style={tdStyle}>
                             {sku?.listPriceRange.map((price) => price.price.toLocaleString() + " VND").join(", ")}
+                          </td>
+                          <td style={tdStyle}>
+                            {newTonkho?.quantity}
                           </td>
                           <td style={tdStyle}>
                             <p style={{ marginRight: "10px" }}>
@@ -698,7 +707,8 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
                   <p>Không có SKU nào</p>
                 )}
               </div>
-            ),
+              )
+            },
           }}
           dataSource={newSp(listSp)}
           pagination={false}
