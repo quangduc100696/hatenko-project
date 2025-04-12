@@ -91,16 +91,24 @@ const Index = () => {
       render: (skus) => <PriceView skus={skus}/>
     },
     {
-      title:"Số lượng tổng",
+      title: "Số lượng tổng",
       width: 150,
       ellipsis: true,
       render: (item) => {
-        const result = item?.warehouses.find(w => item?.skus?.some(sku => sku?.id === w?.skuId));
+        const results = item?.warehouses.filter(w => 
+          item?.skus?.some(sku => sku?.id === w?.skuId)
+        );
         return (
-          <div style={{textAlign: 'center'}}>{result?.quantity || 'Chưa cập nhật'}</div>
-        )
+          <div style={{ textAlign: 'center' }}>
+            {results.length > 0
+              ? results.map((r, idx) => (
+                  <div key={idx}>{r?.quantity || 'Chưa cập nhật'}</div>
+                ))
+              : 'Chưa cập nhật'}
+          </div>
+        );
       }
-    },
+    },    
     {
       title:"Created",
       dataIndex:'createdTime',
