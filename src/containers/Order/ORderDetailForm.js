@@ -427,10 +427,11 @@ const OrderDtailForm = ({ data, title }) => {
       .filter(Boolean); // Loại bỏ giá trị null hoặc undefined
     (async () => {
       if (!Array.isArray(productIds) || productIds.length === 0) return;
-
       try {
-        const productDetails = await RequestUtils.Get(`/product/find-list-id?ids=${productIds.join(",")}`);
-        setProductDetails(Array.isArray(productDetails?.data) ? productDetails.data : []);
+        if(productIds) {
+          const productDetails = await RequestUtils.Get(`/product/find-list-id?ids=${productIds.join(",")}`);
+          setProductDetails(Array.isArray(productDetails?.data) ? productDetails.data : []);
+        }
       } catch (error) {
         console.error("Error fetching product details:", error);
       }
@@ -532,7 +533,7 @@ const OrderDtailForm = ({ data, title }) => {
       key: 'name',
       render: (_, record) => {
         const product = productDetails.find((p) => p.id === record.productId);
-        return product?.name || "N/A";
+        return product?.name || record?.name;
       },
     },
     {
@@ -541,7 +542,7 @@ const OrderDtailForm = ({ data, title }) => {
       key: 'code',
       render: (_, record) => {
         const product = productDetails.find((p) => p.id === record.productId);
-        return product?.code || "N/A";
+        return product?.code || record?.code;
       },
     },
     {
@@ -553,7 +554,7 @@ const OrderDtailForm = ({ data, title }) => {
         return (
           <Image
             width={70}
-            src={`${product?.image ? `${GATEWAY}${product?.image}` : '/img/image_not_found.png'}`}
+            src={`${product?.image ? `${GATEWAY}${product?.image}` : (record?.image ? `${GATEWAY}${record?.image}` : '/img/image_not_found.png')}`}
             alt='image'
           />
         )
@@ -565,7 +566,7 @@ const OrderDtailForm = ({ data, title }) => {
       key: 'unit',
       render: (_, record) => {
         const product = productDetails.find((p) => p.id === record.productId);
-        return product?.unit || "N/A";
+        return product?.unit || record?.unit;
       },
     },
     {
@@ -753,8 +754,7 @@ const OrderDtailForm = ({ data, title }) => {
 
         const discountValue = item?.discountUnit === "percent"
           ? (totalAmount * (item?.discountValue || 0)) / 100
-          : (discount?.discountValue || 0); // Nếu không có giá trị thì mặc định là 0
-
+          : (item?.discountValue || 0); // Nếu không có giá trị thì mặc định là 0 
         const total = totalAmount - discountValue;
 
         return (
