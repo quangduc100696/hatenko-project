@@ -325,10 +325,10 @@ const OrderDetailForm = ({title, data}) => {
         quantity: item?.quantity,
         price: item?.price,
         priceRef: item?.priceRef,
-        fee: item?.price * item?.quantity,
+        fee: item?.priceRef * item?.quantity,
       }
     })
-    const tongdon = newSp(listSp).reduce((total, item) => total + (item.price * item.quantity), 0);
+    const tongdon = newSp(listSp).reduce((total, item) => total + (item.priceRef * item.quantity), 0);
 
     const params = {
       id: data?.id || null,
