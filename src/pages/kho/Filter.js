@@ -30,24 +30,16 @@ export const statusData = [
   { id: STATUS_LEAD.THANH_CO_HOI, name: 'Thành cơ hội' },
 ]
 
-const LeadFilter = () => {
+const LeadFilter = ({listProvince, listStatus}) => {
 
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
   const [product, setProduct] = useState([]);
-  const [provinceWareHouse, setProvinceWareHouse] = useState([]);
-  const [listStatatus, setListStatus] = useState([]);
 
   useEffect(() => {
     (async () => {
-      const [sp, province, status] = await Promise.all([
+      const [sp] = await Promise.all([
         await RequestUtils.Get(`/product/fetch`),
-        await RequestUtils.Get(`/provider/fetch?page=${page}&limit=${limit}`),
-        await RequestUtils.Get(`/warehouse-history/fetch-status`)
       ]);
       setProduct(sp?.data?.embedded);
-      setProvinceWareHouse(province?.data?.embedded);
-      setListStatus(status?.data);
     })()
   },[])
 
@@ -71,7 +63,7 @@ const LeadFilter = () => {
             name="providerId"
             label="Nhà cung cấp"
             placeholder="Nhà cung cấp"
-            resourceData={provinceWareHouse || []}
+            resourceData={listProvince || []}
             valueProp="id"
             titleProp="name"
           />
@@ -82,7 +74,7 @@ const LeadFilter = () => {
             name="status"
             label="Trạng thái"
             placeholder="Trạng thái"
-            resourceData={listStatatus || []}
+            resourceData={listStatus || []}
             valueProp="id"
             titleProp="name"
           />

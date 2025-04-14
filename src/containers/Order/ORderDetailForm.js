@@ -269,6 +269,7 @@ import { ContainerSerchSp, ModaleCreateCohoiStyle } from "containers/Lead/styles
 import FormInput from "components/form/FormInput";
 import ModaleStyles from "pages/lead/style";
 import FormDatePicker from "components/form/FormDatePicker";
+import { useOrderContext } from "./OrderContext";
 
 
 /* Hàm này check nếu số lượng có trong khoảng giá sp thì lấy giá đó ngược lại lấy giá nhập  */
@@ -350,15 +351,16 @@ const columnss = [
 
 const OrderDtailForm = ({ data, title }) => {
 
+  const { listSp, customer, setListSp, setCustomer } = useOrderContext();
   const { record, updateRecord } = useContext(FormContextCustom);
   const [detailSp, setDetailSp] = useState([])
   const [detailArr, setDetailArr] = useState([]);
   const [priceSp, setPriceSp] = useState(null);
   const [form] = Form.useForm();
   const [FormQuanlity] = Form.useForm();
-  const [customer, setCustomer] = useState({});
+  // const [customer, setCustomer] = useState({});
   const [isOpen, setIsOpen] = useState(false);
-  const [listSp, setListSp] = useState(data?.details || []);
+  // const [listSp, setListSp] = useState(data?.details || []);
   const [recordetail, setRecodetail] = useState({});
   const [onOpen, setOnOpen] = useState(false);
   const [listProduct, setListProduct] = useState([]);

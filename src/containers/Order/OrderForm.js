@@ -2,6 +2,7 @@ import { Form, Tag, Tabs, Row } from "antd";
 import { SnippetsOutlined } from '@ant-design/icons';
 import ORderDetailForm from "./ORderDetailForm";
 import OrderPayment from "./OrderPayment";
+import { OrderProvider } from "./OrderContext";
 
 const OrderForm = ({data, title}) => {
   const items = [
@@ -28,7 +29,9 @@ const OrderForm = ({data, title}) => {
         }}
       </Form.Item>
     </Row> */}
-    <Tabs defaultActiveKey="1" items={items}/>
+    <OrderProvider data={data}>
+      <Tabs defaultActiveKey="1" items={items}/>
+    </OrderProvider>
   </>
 }
 

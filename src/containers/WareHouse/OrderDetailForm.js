@@ -25,7 +25,7 @@ const tdStyle = {
   borderBottom: "1px solid #ddd",
 };
 
-const OrderDetailForm = ({title, data}) => {
+const OrderDetailForm = ({title, listProvince, data}) => {
 
   const { user: profile } = useGetMe();
   const [form] = Form.useForm();
@@ -35,7 +35,6 @@ const OrderDetailForm = ({title, data}) => {
   const [listSp, setListSp] = useState(data?.items || []);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [listProvince, setListProvince] = useState([]);
   const [dtProvider, setDtProvider] = useState({});
   const [listWareHouse, setListWareHose] = useState([]);
   const [dtWarehose, setDtWarehose] = useState({});
@@ -81,11 +80,9 @@ const OrderDetailForm = ({title, data}) => {
     (async () => {
       const [product, province, warhouse] = await Promise.all([
         await RequestUtils.Get(`/product/fetch`),
-        await RequestUtils.Get(`/provider/fetch?page=${page}&limit=${limit}`),
         await RequestUtils.Get(`/warehouse/fetch-stock`)
       ])
       setListProduct(product?.data?.embedded);
-      setListProvince(province?.data?.embedded);
       setListWareHose(warhouse?.data)
     })()
   }, [])
