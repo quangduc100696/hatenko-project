@@ -11,6 +11,7 @@ import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/d
 import { cloneDeep } from 'lodash';
 import OrderService from 'services/OrderService';
 import { DetailsStyle } from './styles';
+import RequestUtils from 'utils/RequestUtils';
 
 const thStyle = {
   padding: "8px 12px",
@@ -120,13 +121,28 @@ const Order = () => {
     },
     {
       title: "",
-      width: 100,
+      width: 150,
       fixed: 'right',
-      render: (record) => (
-        <Button color="danger" variant="dashed" onClick={() => onEdit(record)} size='small'>Chi tiết</Button>
-      )
+      render: (record) => {
+        return (
+          <>
+            <Button style={{marginBottom: 10}} color="primary" variant="dashed" onClick={() => onHandleWareHouse(record)} size='small'>
+              Xuất kho
+            </Button>
+            <Button color="danger" variant="dashed" onClick={() => onEdit(record)} size='small'>Chi tiết</Button>
+          </>
+        )
+      }
     }
   ];
+
+  const onHandleWareHouse = async (result) => {
+    //const data = await RequestUtils.Get(`/warehouse-export/find-order-id?orderId=${result?.id}`);
+    let title = 'Xuất kho #';
+    let hash = '#draw/actionXuatKho.edit';
+    let data = cloneDeep(result);
+    InAppEvent.emit(HASH_MODAL, { hash, title, data });
+  }
 
   const beforeSubmitFilter = useCallback((values) => {
     dateFormatOnSubmit(values, ['from', 'to']);

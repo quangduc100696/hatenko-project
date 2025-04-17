@@ -36,6 +36,8 @@ const FormSelectAPI = ({
   createDefaultValues,
   onData = (values) => values,
   fnLoadData,
+  checked,
+  title = '',
   ...props
 }) => {
   const { f5List } = useContext(MyContext);
@@ -109,7 +111,13 @@ const FormSelectAPI = ({
     }
     // const value = inputRef?.current?.input?.value ?? '';
     if(value && apiAddNewItem) {
-      const dataPost = { [searchKey]: value, ...(createDefaultValues || {})}
+      let dataPost = { [searchKey]: value, ...(createDefaultValues || {})}
+      if(title === 'xuat kho') {
+        dataPost = {
+          ...dataPost,
+          type: checked ? 1 : 0
+        };
+      }
       const {data, errorCode, message: msg } = await RequestUtils.Post("/" + apiAddNewItem, dataPost);
       if(errorCode !== SUCCESS_CODE) {
         message.error(msg);

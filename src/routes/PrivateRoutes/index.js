@@ -13,6 +13,7 @@ import { ListKhoConfig } from './KhoConfig';
 import { ListInstockConfig } from './TrongkhoConfig';
 import { ListWareHouseConfig } from './ListKhoConfig';
 import { ListCustomerRetailConfig } from './CustomerRetailConfig';
+import { WareHouseConfig } from './WareHouseConfig';
 
 const OrderPage = React.lazy(() => import('pages/order'));
 const SaleConfig = {
@@ -34,7 +35,8 @@ const routeConfigs = [
     ListKhoConfig,
     ListInstockConfig,
     ListWareHouseConfig,
-    ListCustomerRetailConfig
+    ListCustomerRetailConfig,
+    WareHouseConfig
 ];
 
 const routes = [

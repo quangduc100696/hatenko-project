@@ -781,6 +781,7 @@ const OrderDtailForm = ({ data, title }) => {
 
       newSp(listSp)?.forEach(item => {
         const skuDetails = item?.skus?.map(sku => sku?.skuDetail).flat();
+        const newTonkho = listProduct.flatMap(f => f.warehouses || []).find(v => v.skuId === item?.skuId);
         mergedItems.push({
           productId: item?.id,
           skuInfo: JSON.stringify(skuDetails),
@@ -788,6 +789,7 @@ const OrderDtailForm = ({ data, title }) => {
           skuId: item?.skuId,
           quantity: item?.quantity,
           price: item?.price,
+          inventory: newTonkho?.quantity,
           discount: JSON.stringify({ discountValue: item?.discountValue, discountUnit: item?.discountUnit })
         });
       });

@@ -457,6 +457,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
 
       newSp(listSp)?.forEach(item => {
         const skuDetails = item?.skus?.map(sku => sku?.skuDetail).flat();
+        const newTonkho = listProduct.flatMap(f => f.warehouses || []).find(v => v.skuId === item?.skuId);
         mergedItems.push({
           productId: item?.id,
           skuInfo: JSON.stringify(skuDetails),
@@ -464,6 +465,7 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
           skuId: item?.skuId,
           quantity: item?.quantity,
           price: item?.price,
+          inventory: newTonkho?.quantity,
           discount: JSON.stringify({ discountValue: item?.discountValue, discountUnit: item?.discountUnit })
         });
       });
