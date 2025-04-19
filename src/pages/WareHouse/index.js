@@ -87,14 +87,14 @@ const Listwarehouse = () => {
         )
       }
     },
-    {
-      title: "",
-      width: 100,
-      fixed: 'right',
-      render: (record) => (
-        <Button color="danger" variant="dashed" onClick={() => onEdit(record)} size='small'>Detail</Button>
-      )
-    }
+    // {
+    //   title: "",
+    //   width: 100,
+    //   fixed: 'right',
+    //   render: (record) => (
+    //     <Button color="danger" variant="dashed" onClick={() => onEdit(record)} size='small'>Detail</Button>
+    //   )
+    // }
   ];
 
   const beforeSubmitFilter = useCallback((values) => {
@@ -122,6 +122,7 @@ const Listwarehouse = () => {
         onData={onData}
         initialFilter={{ limit: 10, page: 1 }}
         filter={<Filter />}
+        hasCreate={false}
         beforeSubmitFilter={beforeSubmitFilter}
         useGetAllQuery={useGetList}
         expandable={{
