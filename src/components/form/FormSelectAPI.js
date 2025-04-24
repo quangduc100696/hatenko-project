@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import RequestUtils from 'utils/RequestUtils';
-import { Form, Select, Spin, Divider, Input, Button, message } from 'antd';
+import { Form, Select, Spin, Divider, Input, Button, message, Checkbox } from 'antd';
 import { get } from 'lodash';
 import debounce from 'lodash/debounce';
 import { useTranslation } from 'react-i18next';
@@ -36,13 +36,14 @@ const FormSelectAPI = ({
   createDefaultValues,
   onData = (values) => values,
   fnLoadData,
-  checked,
   title = '',
+  checkSttWarehouse = false,
   ...props
 }) => {
   const { f5List } = useContext(MyContext);
   const [ localFilter, setLocalFilter ] = useState(filter || {});
   const [ loading, setLoading ] = useState(false);
+  const [ checkStatus, setCheckStatus ] = useState(false);
   const [ resourceData, setData ] = useState([]);
   const [ value, setValue ] = useState('');
 
@@ -112,10 +113,10 @@ const FormSelectAPI = ({
     // const value = inputRef?.current?.input?.value ?? '';
     if(value && apiAddNewItem) {
       let dataPost = { [searchKey]: value, ...(createDefaultValues || {})}
-      if(title === 'xuat kho') {
+      if(title === 'Xuất kho') {
         dataPost = {
           ...dataPost,
-          type: checked ? 1 : 0
+          type: checkStatus ? 1 : 0
         };
       }
       const {data, errorCode, message: msg } = await RequestUtils.Post("/" + apiAddNewItem, dataPost);
@@ -144,6 +145,10 @@ const FormSelectAPI = ({
     /* eslint-disable-next-line */
   }, [localFilter]);
 
+  const onHandleCheck = (e) => {
+    setCheckStatus(e.target.checked);
+  }
+
   return (
     <Form.Item
       label={t(label)}
@@ -163,6 +168,11 @@ const FormSelectAPI = ({
           <>
             { menu }
             <Divider style={{ margin: '8px 0'}} />
+            <div style={{display: 'flex', justifyContent: 'end', marginBottom: 10}}>
+              {title === 'Xuất kho' && (
+                <Checkbox onChange={onHandleCheck}>Confirm xuất kho</Checkbox>
+              )}
+            </div>
             <div  style={{ padding: "0 8px 4px", display: "flex", alignItems: "end"}} >
               { !isShowModalCreateNewItem && 
                 <Input
@@ -173,6 +183,7 @@ const FormSelectAPI = ({
                   onKeyDown={(e) => e.stopPropagation()}
                 /> 
               }
+              
               <Button 
                 type="text" 
                 icon={<PlusOutlined />} 

@@ -26,6 +26,7 @@ const tdStyle = {
 
 const Order = () => {
 
+  const [newOrder, setNewOrder] = useState([]);
   const onEdit = (item) => {
     let title = 'Chi tiết đơn hàng #';
     let hash = '#draw/order.edit';
@@ -38,7 +39,6 @@ const Order = () => {
     title: 'Tạo mới đơn hàng',
     data: {}
   });
-
   const [title] = useState("Danh sách đơn hàng");
   const CUSTOM_ACTION = [
     {
@@ -137,11 +137,15 @@ const Order = () => {
   ];
 
   const onHandleWareHouse = async (result) => {
-    //const data = await RequestUtils.Get(`/warehouse-export/find-order-id?orderId=${result?.id}`);
-    let title = 'Xuất kho #';
-    let hash = '#draw/actionXuatKho.edit';
-    let data = cloneDeep(result);
-    InAppEvent.emit(HASH_MODAL, { hash, title, data });
+    const newOrder = await RequestUtils.Get(`/warehouse-export/find-order-id?orderId=${result?.id}`);
+    if(!newOrder?.data) {
+      InAppEvent.normalInfo('Đơn hàng chưa được xuất kho')
+    } else {
+      let title = 'Xuất kho #';
+      let hash = '#draw/actionXuatKho.edit';
+      let dataOrder = cloneDeep(newOrder?.data);
+      InAppEvent.emit(HASH_MODAL, { hash, title, data: {result: result, orderWarhouse: dataOrder} });
+    }
   }
 
   const beforeSubmitFilter = useCallback((values) => {

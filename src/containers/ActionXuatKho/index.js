@@ -6,7 +6,7 @@ import FormTextArea from 'components/form/FormTextArea';
 import { GATEWAY, HASH_MODAL_CLOSE } from 'configs';
 import { DISCOUNT_UNIT_CONST } from 'configs/localData';
 import React, { useEffect, useState } from 'react'
-import { formatMoney } from 'utils/dataUtils';
+import { dateFormatOnSubmit, formatMoney } from 'utils/dataUtils';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
 import { formatterInputNumber, parserInputNumber } from 'utils/tools';
@@ -23,24 +23,24 @@ const tdStyle = {
   borderBottom: "1px solid #ddd",
 };
 
-const ActionXuatKho = ({ data }) => {
-  const [dataOrder, setDataOrder] = useState([]);
+const ActionXuatKho = ({data }) => {
+  const { orderWarhouse, result } = data;
   const [listProduct, setListProduct] = useState([]);
   const [listSp, setListSp] = useState(data?.details || []);
   const [productDetails, setProductDetails] = useState([]);
-  const [checkStatus, setCheckStatus] = useState(false);
+  const [newOrder, setNewOrder] = useState(orderWarhouse);
 
   useEffect(() => {
     (async () => {
-      const order = await RequestUtils.Get(`/warehouse-export/find-order-id?orderId=${data?.id}`);
+      // const order = await RequestUtils.Get(`/warehouse-export/find-order-id?orderId=${result?.id}`);
       const listProduct = await RequestUtils.Get(`/product/fetch`);
       setListProduct(listProduct?.data?.embedded);
-      setDataOrder(order?.data)
+      // setDataOrder(order?.data)
     })()
   }, [data])
 
   useEffect(() => {
-    const productIds = data?.details
+    const productIds = result?.details
       ?.flatMap((detail) => detail.items?.map((item) => item.productId) || [])
       .filter(Boolean); // Loại bỏ giá trị null hoặc undefined
     (async () => {
@@ -71,154 +71,92 @@ const ActionXuatKho = ({ data }) => {
   const columns = [
     Table.EXPAND_COLUMN,
     {
-      title: 'Tên sản phẩm',
-      dataIndex: 'name',
-      key: 'name',
-      render: (_, record) => {
-        const product = productDetails.find((p) => p.id === record.productId);
-        return product?.name || record?.name;
-      },
-    },
-    {
-      title: 'Mã sản phẩm',
-      dataIndex: 'code',
-      key: 'code',
-      render: (_, record) => {
-        const product = productDetails.find((p) => p.id === record.productId);
-        return product?.code || record?.code;
-      },
-    },
-    {
-      title: 'Hình ảnh',
-      dataIndex: 'image',
-      key: 'image',
-      render: (_, record) => {
-        const product = productDetails.find((p) => p.id === record.productId);
+      title: 'Số lần xuất kho',
+      render: (record) => {
         return (
-          <Image
-            width={70}
-            src={`${product?.image ? `${GATEWAY}${product?.image}` : (record?.image ? `${GATEWAY}${record?.image}` : '/img/image_not_found.png')}`}
-            alt='image'
-          />
+          <div>Lần {record?.stt}</div>
         )
       },
     },
     {
-      title: 'Đơn vi tính',
-      dataIndex: 'unit',
-      key: 'unit',
-      render: (_, record) => {
-        const product = productDetails.find((p) => p.id === record.productId);
-        return (
-          <>{`${record.quantity} ${product?.unit || record?.unit}`}</>
-        )
-      },
-    },
-    // {
-    //   title: 'SKU',
-    //   render: (item) => {
-    //     return (
-    //       <div>
-    //         <Select
-    //           style={{ width: 200 }}
-    //           value={!item?.skus ? '' : item?.skus[0]?.name}
-    //           onChange={(value) => {
-    //             const newData = listSp.map(f => {
-    //               if (f.value?.id === item.id) {
-    //                 return {
-    //                   ...f,
-    //                   detail: { ...f.detail },
-    //                   value: {
-    //                     ...f.value,
-    //                     skus: [JSON.parse(value)]
-    //                   }
-    //                 };
-    //               }
-    //               return f;
-    //             });
-    //             setListSp(newData);
-    //           }}
-    //         >
-    //           {item?.skusCoppy?.map((f, id) => (
-    //             <Select.Option key={id} value={JSON.stringify(f)}>{f?.name}</Select.Option>
-    //           ))}
-    //         </Select>
-    //       </div>
-    //     );
-    //   }
-    // },
-    {
-      title: 'Đơn giá',
-      render: (item) => {
+      title: 'Trạng thái Confirm',
+      render: (record) => {
         return (
           <div>
-            {formatMoney(item.price)}
+            {record.statusConfirm === 0 ? 'Chưa Confirm' : 'Đã Confirm'}
           </div>
         )
-      }
-    },
-    {
-      title: 'Số lượng',
-      render: (item) => {
-        return (
-          <>{item.quantity}</>
-        )
-      }
+      },
     },
     // {
-    //   title: 'Chiết khấu',
+    //   title: 'Hình ảnh',
+    //   dataIndex: 'image',
+    //   key: 'image',
+    //   render: (_, record) => {
+    //     const product = productDetails.find((p) => p.id === record.productId);
+    //     return (
+    //       <Image
+    //         width={70}
+    //         src={`${product?.image ? `${GATEWAY}${product?.image}` : (record?.image ? `${GATEWAY}${record?.image}` : '/img/image_not_found.png')}`}
+    //         alt='image'
+    //       />
+    //     )
+    //   },
+    // },
+    // {
+    //   title: 'Đơn vi tính',
+    //   dataIndex: 'unit',
+    //   key: 'unit',
+    //   render: (_, record) => {
+    //     const product = productDetails.find((p) => p.id === record.productId);
+    //     return (
+    //       <>{`${record.quantity} ${product?.unit || record?.unit}`}</>
+    //     )
+    //   },
+    // },
+    // {
+    //   title: 'Đơn giá',
     //   render: (item) => {
     //     return (
     //       <div>
-    //         {item.discountValue || 'N/A'}
+    //         {formatMoney(item.price)}
     //       </div>
     //     )
     //   }
     // },
     // {
-    //   title: 'Loại chiết khấu',
+    //   title: 'Số lượng',
     //   render: (item) => {
-    //     console.log(DISCOUNT_UNIT_CONST.filter(v => v.value === item?.discountUnit));
-    //     console.log(item);
+    //     return (
+    //       <>{item.quantity}</>
+    //     )
+    //   }
+    // },
+    // {
+    //   title: 'Tổng tiền',
+    //   render: (item) => {
+    //     const discount = item?.discount ? JSON.parse(item.discount) : {}; // Xử lý nếu null hoặc undefined
+    //     const totalAmount = (item?.price || 0) * (item?.quantity || 0); // Tránh undefined
+
+    //     const discountValue = item?.discountUnit === "percent"
+    //       ? (totalAmount * (item?.discountValue || 0)) / 100
+    //       : (item?.discountValue || 0); // Nếu không có giá trị thì mặc định là 0 
+    //     const total = totalAmount - discountValue;
 
     //     return (
     //       <div>
-    //         {DISCOUNT_UNIT_CONST.filter(v => v.value === item?.discountUnit)?.map((f, id) => (
-    //           <div key={id}>{f?.text}</div>
-    //         ))}
+    //         {formatMoney(Math.max(total, 0))}
+    //         {/* Đảm bảo không bị giá trị âm */}
     //       </div>
     //     );
     //   }
-    // },
-    {
-      title: 'Tổng tiền',
-      render: (item) => {
-        const discount = item?.discount ? JSON.parse(item.discount) : {}; // Xử lý nếu null hoặc undefined
-        const totalAmount = (item?.price || 0) * (item?.quantity || 0); // Tránh undefined
-
-        const discountValue = item?.discountUnit === "percent"
-          ? (totalAmount * (item?.discountValue || 0)) / 100
-          : (item?.discountValue || 0); // Nếu không có giá trị thì mặc định là 0 
-        const total = totalAmount - discountValue;
-
-        return (
-          <div>
-            {formatMoney(Math.max(total, 0))}
-            {/* Đảm bảo không bị giá trị âm */}
-          </div>
-        );
-      }
-    }
+    // }
 
   ];
 
-  const onHandleCheck = (e) => {
-    setCheckStatus(e.target.checked);
-  }
-
   const onHandleCreateOdder = async (value) => {
     // nếu có dataOrder thì dùng update còn ngược lại thì add
-    if (!dataOrder) {
+    if (!newOrder) {
       const newDetail = data?.details.map(v => {
         const newItems = v?.items.map(v => {
           const product = productDetails.find((p) => p.id === v.productId);
@@ -250,14 +188,14 @@ const ActionXuatKho = ({ data }) => {
         details: newDetail
       }
       await RequestUtils.Post('/warehouse-export/created', params).then(data => {
-        if(data?.errorCode === 200) {
+        if (data?.errorCode === 200) {
           InAppEvent.emit(HASH_MODAL_CLOSE);
           InAppEvent.normalSuccess("Xuất kho thành công");
         }
       })
     } else {
       const param = {
-        ...dataOrder,
+        ...newOrder,
         status: value?.name
       }
       const cleanedData = {
@@ -265,7 +203,7 @@ const ActionXuatKho = ({ data }) => {
         items: param.items.map(({ stt, ...rest }) => rest)
       };
       await RequestUtils.Post('/warehouse-export/updated', cleanedData).then(data => {
-        if(data?.errorCode === 200) {
+        if (data?.errorCode === 200) {
           InAppEvent.emit(HASH_MODAL_CLOSE);
           InAppEvent.normalSuccess("Cập nhật xuất kho thành công");
         }
@@ -278,27 +216,6 @@ const ActionXuatKho = ({ data }) => {
 
       <Form onFinish={onHandleCreateOdder} layout="vertical" >
         <div style={{ height: 15 }}></div>
-        <Row>
-          <Col xl={6}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-              <b>Trạng thái</b>
-              <Checkbox onChange={onHandleCheck}>Confirm xuất kho</Checkbox>
-            </div>
-            <FormSelectAPI
-              required
-              apiPath='warehouse-export/fetch-status'
-              apiAddNewItem='warehouse-export/created-status'
-              onData={(data) => data ?? []}
-              label=""
-              checked={checkStatus}
-              title="xuat kho"
-              name="name"
-              placeholder="Trạng thái"
-            />
-          </Col>
-          <Col xl={6}>
-          </Col>
-        </Row>
         <p>
           <strong>Thông tin sản phẩm</strong>
         </p>
@@ -311,7 +228,7 @@ const ActionXuatKho = ({ data }) => {
               const newTonkho = listProduct.flatMap(f => f.warehouses || []).find(v => v.skuId === record?.skuId);
               return (
                 <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
-                  {record ? (
+                  {record?.detaiItems ? (
                     <table
                       style={{
                         width: "100%",
@@ -323,46 +240,124 @@ const ActionXuatKho = ({ data }) => {
                     >
                       <thead>
                         <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
-                          <th style={thStyle}>Tên SKU</th>
-                          <th style={thStyle}>Giá bán</th>
-                          <th style={thStyle}>Tồn kho</th>
-                          <th style={thStyle}>Chi tiết</th>
+                          <th style={thStyle}>Tên sản phầm</th>
+                          <th style={thStyle}>Ngày tạo</th>
+                          <th style={thStyle}>Đơn giá</th>
+                          <th style={thStyle}>Số lượng</th>
+                          <th style={thStyle}>SKU</th>
+                          <th style={thStyle}>Tổng tiền</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr style={{ borderBottom: "1px solid #ddd" }}>
-                          <td style={tdStyle}>{record.name}</td>
-                          <td style={tdStyle}>
-                            {formatMoney(record?.price)}
-                          </td>
-                          <td style={tdStyle}>
-                            {newTonkho?.quantity}
-                          </td>
-                          <td style={tdStyle}>
-                            {(() => {
-                              let parsedSkuInfo = [];
-                              try {
-                                if (record?.skuInfo) {
-                                  parsedSkuInfo = JSON.parse(record?.skuInfo);
-                                }
-                              } catch (error) {
-                                console.error("Lỗi parse JSON:", error);
-                              }
-                              return parsedSkuInfo.map((detail) => (
-                                <p key={detail.id} style={{ marginRight: "10px" }}>
-                                  <strong>{detail.name}:</strong> {detail.value}
-                                </p>
-                              ));
-                            })()}
-                          </td>
-                          {/* <td style={tdStyle}>
-                      {parsedSkuInfo.map((detail) => (
-                        <p key={detail.id} style={{ marginRight: "10px" }}>
-                          <strong>{detail.name}:</strong> {detail.value}
-                        </p>
-                      ))}
-                    </td> */}
-                        </tr>
+                        {record?.detaiItems.map((item, i) => {
+                          return (
+                            <tr key={i} style={{ borderBottom: "1px solid #ddd" }}>
+                              <td style={tdStyle}>{item?.name}</td>
+                              <td style={tdStyle}>
+                                {dateFormatOnSubmit(item?.createdAt)}
+                              </td>
+                              <td style={tdStyle}>
+                                <InputNumber
+                                  min={0}
+                                  style={{ width: 120 }}
+                                  formatter={formatterInputNumber}
+                                  parser={parserInputNumber}
+                                  value={item?.price} // Hiển thị đúng giá trị hiện tại
+                                  onChange={(value) => {
+                                    setNewOrder(prev => {
+                                      const updatedItems = prev.items.map(v => {
+                                        return {
+                                          ...v,
+                                          detaiItems: v.detaiItems.map(sp => {
+                                            if (sp.skuId === item.skuId) {
+                                              return { ...sp, price: value };
+                                            }
+                                            return sp;
+                                          })
+                                        };
+                                      });
+                                      // Cập nhật info đồng bộ với items
+                                      const updatedInfo = updatedItems.map(item => ({
+                                        status: item.status,
+                                        statusConfirm: item.statusConfirm,
+                                        detaiItems: item.detaiItems,
+                                        stt: item.stt
+                                      }));
+                                      return {
+                                        ...prev,
+                                        items: updatedItems,
+                                        info: JSON.stringify(updatedInfo)
+                                      };
+                                    });
+                                  }}
+                                />
+                              </td>
+                              <td style={tdStyle}>
+                                <InputNumber
+                                  min={0}
+                                  style={{ width: 120 }}
+                                  formatter={formatterInputNumber}
+                                  parser={parserInputNumber}
+                                  value={item?.quantity}
+                                  onChange={(value) => {
+                                    if (value == null) return; // tránh set null hoặc undefined
+                                    setNewOrder(prev => {
+                                      const updatedItems = prev.items.map(v => {
+                                        return {
+                                          ...v,
+                                          detaiItems: v.detaiItems.map(sp => {
+                                            if (sp.skuId === item.skuId) {
+                                              return { ...sp, quantity: value, total: value * sp.price };
+                                            }
+                                            return sp; // các item khác thì giữ nguyên, không thông báo
+                                          })
+                                        };
+                                      });
+                                      const updatedInfo = updatedItems.map(item => ({
+                                        status: item.status,
+                                        statusConfirm: item.statusConfirm,
+                                        detaiItems: item.detaiItems,
+                                        stt: item.stt
+                                      }));
+                                      return {
+                                        ...prev,
+                                        items: updatedItems,
+                                        info: JSON.stringify(updatedInfo)
+                                      };
+                                    });
+                                  }}
+                                />
+                              </td>
+                              <td style={tdStyle}>
+                                {(() => {
+                                  let parsedSkuInfo = [];
+                                  try {
+                                    if (item?.skuInfo) {
+                                      parsedSkuInfo = JSON.parse(item?.skuInfo);
+                                    }
+                                  } catch (error) {
+                                    console.error("Lỗi parse JSON:", error);
+                                  }
+                                  return (
+                                    <p style={{ marginRight: "10px" }}>
+                                      <strong>{parsedSkuInfo[0]?.name}:</strong> {parsedSkuInfo[1]?.value}...
+                                    </p>
+                                  )
+                                })()}
+                              </td>
+                              <td style={tdStyle}>
+                                {formatMoney(item?.total)}
+                              </td>
+                              {/* <td style={tdStyle}>
+                          {parsedSkuInfo.map((detail) => (
+                            <p key={detail.id} style={{ marginRight: "10px" }}>
+                              <strong>{detail.name}:</strong> {detail.value}
+                            </p>
+                          ))}
+                        </td> */}
+                            </tr>
+                          )
+                        })}
                       </tbody>
                     </table>
                   ) : (
@@ -372,7 +367,7 @@ const ActionXuatKho = ({ data }) => {
               )
             },
           }}
-          dataSource={newSp(listSp)}
+          dataSource={newOrder?.items}
           pagination={false}
         />
         <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
@@ -416,6 +411,21 @@ const ActionXuatKho = ({ data }) => {
             </p> */}
           </Col>
         </Row>
+          <Row justify={'end'}>
+            <Col xl={6}>
+              <b style={{paddingBottom: 10}}>Trạng thái</b>
+              <FormSelectAPI
+                required
+                apiPath='warehouse-export/fetch-status'
+                apiAddNewItem='warehouse-export/created-status'
+                onData={(data) => data ?? []}
+                label=""
+                title="Xuất kho"
+                name="name"
+                placeholder="Trạng thái"
+              />
+            </Col>
+          </Row>
         <div style={{ display: 'flex', justifyContent: 'end', marginBottom: 50 }}>
           <CustomButton title="Xuất đơn" htmlType="submit" />
         </div>
