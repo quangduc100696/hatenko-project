@@ -139,13 +139,12 @@ const Order = () => {
   const onHandleWareHouse = async (result) => {
     const newOrder = await RequestUtils.Get(`/warehouse-export/find-order-id?orderId=${result?.id}`);
     if(!newOrder?.data) {
-      InAppEvent.normalInfo('Đơn hàng chưa được xuất kho')
-    } else {
-      let title = 'Xuất kho #';
-      let hash = '#draw/actionXuatKho.edit';
-      let dataOrder = cloneDeep(newOrder?.data);
-      InAppEvent.emit(HASH_MODAL, { hash, title, data: {result: result, orderWarhouse: dataOrder} });
+      InAppEvent.normalInfo('Đơn hàng chưa được xuất kho bạn cần chọn sản phẩm để xuất kho')
     }
+    let title = 'Xuất kho #';
+    let hash = '#draw/actionXuatKho.edit';
+    let dataOrder = cloneDeep(newOrder?.data);
+    InAppEvent.emit(HASH_MODAL, { hash, title, data: {result: result, orderWarhouse: dataOrder} });
   }
 
   const beforeSubmitFilter = useCallback((values) => {
