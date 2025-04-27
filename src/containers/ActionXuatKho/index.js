@@ -359,6 +359,9 @@ const ActionXuatKho = ({ data }) => {
   }
 
   const createOrdernotFound = async (value) => {
+    const now = new Date();
+    const formatted = now.toISOString().replace('T', ' ').substring(0, 19);
+
     const newDetail = listSp.map(v => {
       const newItem = {
         name: v?.name,
@@ -368,22 +371,19 @@ const ActionXuatKho = ({ data }) => {
         price: v.price,
         quantity: v?.quantity,
         total: v?.total,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: formatted,
+        updatedAt: formatted,
         status: v.status,
-        warehouseId: v.warehouse[0]?.id
+        warehouseId: v.warehouses[0]?.id
       };
-      return {
-        createdAt: v?.createdAt,
-        updatedAt: v?.updatedAt,
-        items: newItem
-      }
+      return newItem
     })
+
     const params = {
       orderId: result?.id,
       note: value?.note,
       status: value?.name,
-      details: newDetail
+      details: [{createdAt: formatted, updatedAt: formatted, items: newDetail,}]
     }
     await RequestUtils.Post('/warehouse-export/created', params).then(data => {
       if (data?.errorCode === 200) {
@@ -492,10 +492,9 @@ const ActionXuatKho = ({ data }) => {
               scroll={{ x: 1700 }}
               expandable={{
                 expandedRowRender: (record) => {
-                  const newTonkho = listProduct.flatMap(f => f.warehouses || []).find(v => v.skuId === record?.skuId);
                   return (
                     <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
-                      {record?.detaiItems ? (
+                      {record.skus?.length > 0 ? (
                         <table
                           style={{
                             width: "100%",
@@ -507,121 +506,24 @@ const ActionXuatKho = ({ data }) => {
                         >
                           <thead>
                             <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
-                              <th style={thStyle}>Tên sản phầm</th>
-                              <th style={thStyle}>Ngày tạo</th>
-                              <th style={thStyle}>Đơn giá</th>
-                              <th style={thStyle}>Số lượng</th>
+                              <th style={thStyle}>Tên SKU</th>
+                              <th style={thStyle}>Giá</th>
                               <th style={thStyle}>SKU</th>
-                              <th style={thStyle}>Tổng tiền</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {record?.detaiItems.map((item, i) => {
+                            {record.skus.map((item, i) => {
                               return (
                                 <tr key={i} style={{ borderBottom: "1px solid #ddd" }}>
                                   <td style={tdStyle}>{item?.name}</td>
                                   <td style={tdStyle}>
-                                    {dateFormatOnSubmit(item?.createdAt)}
+                                    {item.listPriceRange.map(item => formatMoney(item.price)).join(", ")}
                                   </td>
                                   <td style={tdStyle}>
-                                    <InputNumber
-                                      min={0}
-                                      style={{ width: 120 }}
-                                      formatter={formatterInputNumber}
-                                      parser={parserInputNumber}
-                                      value={item?.price} // Hiển thị đúng giá trị hiện tại
-                                      onChange={(value) => {
-                                        setNewOrder(prev => {
-                                          const updatedItems = prev.items.map(v => {
-                                            return {
-                                              ...v,
-                                              detaiItems: v.detaiItems.map(sp => {
-                                                if (sp.skuId === item.skuId) {
-                                                  return { ...sp, price: value };
-                                                }
-                                                return sp;
-                                              })
-                                            };
-                                          });
-                                          // Cập nhật info đồng bộ với items
-                                          const updatedInfo = updatedItems.map(item => ({
-                                            status: item.status,
-                                            statusConfirm: item.statusConfirm,
-                                            detaiItems: item.detaiItems,
-                                            stt: item.stt
-                                          }));
-                                          return {
-                                            ...prev,
-                                            items: updatedItems,
-                                            info: JSON.stringify(updatedInfo)
-                                          };
-                                        });
-                                      }}
-                                    />
+                                  <p style={{ marginRight: "10px" }}>
+                                    <strong>{item.skuDetail[0]?.name}:</strong> {item.skuDetail[1]?.value}...
+                                    </p>
                                   </td>
-                                  <td style={tdStyle}>
-                                    <InputNumber
-                                      min={0}
-                                      style={{ width: 120 }}
-                                      formatter={formatterInputNumber}
-                                      parser={parserInputNumber}
-                                      value={item?.quantity}
-                                      onChange={(value) => {
-                                        if (value == null) return; // tránh set null hoặc undefined
-                                        setNewOrder(prev => {
-                                          const updatedItems = prev.items.map(v => {
-                                            return {
-                                              ...v,
-                                              detaiItems: v.detaiItems.map(sp => {
-                                                if (sp.skuId === item.skuId) {
-                                                  return { ...sp, quantity: value, total: value * sp.price };
-                                                }
-                                                return sp; // các item khác thì giữ nguyên, không thông báo
-                                              })
-                                            };
-                                          });
-                                          const updatedInfo = updatedItems.map(item => ({
-                                            status: item.status,
-                                            statusConfirm: item.statusConfirm,
-                                            detaiItems: item.detaiItems,
-                                            stt: item.stt
-                                          }));
-                                          return {
-                                            ...prev,
-                                            items: updatedItems,
-                                            info: JSON.stringify(updatedInfo)
-                                          };
-                                        });
-                                      }}
-                                    />
-                                  </td>
-                                  <td style={tdStyle}>
-                                    {(() => {
-                                      let parsedSkuInfo = [];
-                                      try {
-                                        if (item?.skuInfo) {
-                                          parsedSkuInfo = JSON.parse(item?.skuInfo);
-                                        }
-                                      } catch (error) {
-                                        console.error("Lỗi parse JSON:", error);
-                                      }
-                                      return (
-                                        <p style={{ marginRight: "10px" }}>
-                                          <strong>{parsedSkuInfo[0]?.name}:</strong> {parsedSkuInfo[1]?.value}...
-                                        </p>
-                                      )
-                                    })()}
-                                  </td>
-                                  <td style={tdStyle}>
-                                    {formatMoney(item?.total)}
-                                  </td>
-                                  {/* <td style={tdStyle}>
-                          {parsedSkuInfo.map((detail) => (
-                            <p key={detail.id} style={{ marginRight: "10px" }}>
-                              <strong>{detail.name}:</strong> {detail.value}
-                            </p>
-                          ))}
-                        </td> */}
                                 </tr>
                               )
                             })}
@@ -749,7 +651,24 @@ const ActionXuatKho = ({ data }) => {
                                       parser={parserInputNumber}
                                       value={item?.quantity}
                                       onChange={(value) => {
-                                        if (value == null) return; // tránh set null hoặc undefined
+                                        // let isExceed = false;
+                                        // newOrder.items.map(v => {
+                                        //   return {
+                                        //     ...v,
+                                        //     detaiItems: v.detaiItems.map(sp => {
+                                        //       if (value > sp.quantity) {
+                                        //         isExceed = true;
+                                        //         return InAppEvent.normalInfo('Số lượng ko dc vượt qua số lượng xuất kho trong đơn')
+                                        //       }
+                                        //       return sp; 
+                                        //     })
+                                        //   };
+                                        // });
+
+                                        // if (isExceed) {
+                                        //   return; // ❌ Vượt quá => không làm gì nữa, không setNewOrder
+                                        // }
+
                                         setNewOrder(prev => {
                                           const updatedItems = prev.items.map(v => {
                                             return {
@@ -797,13 +716,6 @@ const ActionXuatKho = ({ data }) => {
                                   <td style={tdStyle}>
                                     {formatMoney(item?.total)}
                                   </td>
-                                  {/* <td style={tdStyle}>
-                          {parsedSkuInfo.map((detail) => (
-                            <p key={detail.id} style={{ marginRight: "10px" }}>
-                              <strong>{detail.name}:</strong> {detail.value}
-                            </p>
-                          ))}
-                        </td> */}
                                 </tr>
                               )
                             })}
