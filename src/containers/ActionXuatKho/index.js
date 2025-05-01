@@ -1,4 +1,4 @@
-import { Col, Form, Image, Input, InputNumber, Row, Table } from 'antd';
+import { Col, Form, Image, Input, InputNumber, Row, Select, Table } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import CustomButton from 'components/CustomButton';
 import FormInput from 'components/form/FormInput';
@@ -10,6 +10,18 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { dateFormatOnSubmit, formatMoney } from 'utils/dataUtils';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
+import { formatterInputNumber, parserInputNumber } from 'utils/tools';
+
+const thStyle = {
+  padding: "8px 12px",
+  borderBottom: "2px solid #ddd",
+  fontWeight: "bold",
+};
+
+const tdStyle = {
+  padding: "8px 12px",
+  borderBottom: "1px solid #ddd",
+};
 
 const ActionXuatKho = ({ data }) => {
   const { orderWarhouse, result } = data;
@@ -20,10 +32,13 @@ const ActionXuatKho = ({ data }) => {
   const [results, setResults] = useState(result);
   const [filterSp, setFilterSp] = useState([]);
   const [textSearch, setTextSearch] = useState('');
+  const [listStatus, setListStatus] = useState([]);
 
   useEffect(() => {
     (async () => {
       const listProduct = await RequestUtils.Get(`/product/fetch`);
+      const listStatus = await RequestUtils.Get(`/warehouse-export/fetch-status`);
+      setListStatus(listStatus.data);
       setListProduct(listProduct?.data?.embedded);
     })()
   }, [data])
@@ -49,6 +64,7 @@ const ActionXuatKho = ({ data }) => {
     Table.EXPAND_COLUMN,
     {
       title: 'Số lần xuất kho',
+      width: 150,
       render: (record) => {
         return (
           <div>Lần {record?.stt}</div>
@@ -57,10 +73,25 @@ const ActionXuatKho = ({ data }) => {
     },
     {
       title: 'Trạng thái Confirm',
+      width: 150,
       render: (record) => {
+        const nameStatus = listStatus.find(f => f.type === record.statusConfirm);
         return (
           <div>
             {record.statusConfirm === 0 ? 'Chưa Confirm' : 'Đã Confirm'}
+            {/* <Select
+              style={{ width: 200 }}
+              value={nameStatus?.name}
+              onChange={(e) => {
+                console.log(e);
+              }}
+            >
+              {listStatus.map((item, i) => {
+                return (
+                  <Select.Option key={i} value={item.type}>{item.name}</Select.Option>
+                )
+              })}
+            </Select> */}
           </div>
         )
       },
@@ -105,7 +136,7 @@ const ActionXuatKho = ({ data }) => {
       },
     },
     {
-      title: 'Số lượng',
+      title: 'Số lượng cần xuất',
       render: (record) => {
         const order = result?.details[0]?.items.find(o => o?.productId === record?.productId);
         const remaining = order?.quantity - record?.quantity;
@@ -151,9 +182,9 @@ const ActionXuatKho = ({ data }) => {
                     }
                     return v;
                   })
-                  return {...f, detaiItems: chidItem};
+                  return { ...f, detaiItems: chidItem };
                 })
-                setNewOrder(pre => ({...pre, items: newItem}))
+                setNewOrder(pre => ({ ...pre, items: newItem }))
               }}
             />
           )
@@ -171,11 +202,6 @@ const ActionXuatKho = ({ data }) => {
       },
     },
   ]
-
-  const onHandleDeleteSp = (record) => {
-    const newItem = listSp.filter(it => it?.id !== record?.id);
-    setListSp(newItem)
-  }
 
   const onHandleCreateOdder = async (value) => {
     // nếu có dataOrder thì dùng update còn ngược lại thì add
@@ -311,160 +337,78 @@ const ActionXuatKho = ({ data }) => {
             <Table
               columns={columns}
               scroll={{ x: 1700 }}
-              // expandable={{
-              //   expandedRowRender: (record) => {
-              //     const newTonkho = listProduct.flatMap(f => f.warehouses || []).find(v => v.skuId === record?.skuId);
-              //     return (
-              //       <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
-              //         {record?.detaiItems ? (
-              //           <table
-              //             style={{
-              //               width: "100%",
-              //               borderCollapse: "collapse",
-              //               background: "#fff",
-              //               borderRadius: "8px",
-              //               overflow: "hidden",
-              //             }}
-              //           >
-              //             <thead>
-              //               <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
-              //                 <th style={thStyle}>Tên sản phầm</th>
-              //                 <th style={thStyle}>Ngày tạo</th>
-              //                 <th style={thStyle}>Đơn giá</th>
-              //                 <th style={thStyle}>Số lượng</th>
-              //                 <th style={thStyle}>SKU</th>
-              //                 <th style={thStyle}>Tổng tiền</th>
-              //               </tr>
-              //             </thead>
-              //             <tbody>
-              //               {record?.detaiItems.map((item, i) => {
-              //                 return (
-              //                   <tr key={i} style={{ borderBottom: "1px solid #ddd" }}>
-              //                     <td style={tdStyle}>{item?.name}</td>
-              //                     <td style={tdStyle}>
-              //                       {dateFormatOnSubmit(item?.createdAt)}
-              //                     </td>
-              //                     <td style={tdStyle}>
-              //                       <InputNumber
-              //                         min={0}
-              //                         style={{ width: 120 }}
-              //                         formatter={formatterInputNumber}
-              //                         parser={parserInputNumber}
-              //                         value={item?.price} // Hiển thị đúng giá trị hiện tại
-              //                         onChange={(value) => {
-              //                           setNewOrder(prev => {
-              //                             const updatedItems = prev.items.map(v => {
-              //                               return {
-              //                                 ...v,
-              //                                 detaiItems: v.detaiItems.map(sp => {
-              //                                   if (sp.skuId === item.skuId) {
-              //                                     return { ...sp, price: value };
-              //                                   }
-              //                                   return sp;
-              //                                 })
-              //                               };
-              //                             });
-              //                             // Cập nhật info đồng bộ với items
-              //                             const updatedInfo = updatedItems.map(item => ({
-              //                               status: item.status,
-              //                               statusConfirm: item.statusConfirm,
-              //                               detaiItems: item.detaiItems,
-              //                               stt: item.stt
-              //                             }));
-              //                             return {
-              //                               ...prev,
-              //                               items: updatedItems,
-              //                               info: JSON.stringify(updatedInfo)
-              //                             };
-              //                           });
-              //                         }}
-              //                       />
-              //                     </td>
-              //                     <td style={tdStyle}>
-              //                       <InputNumber
-              //                         min={0}
-              //                         style={{ width: 120 }}
-              //                         formatter={formatterInputNumber}
-              //                         parser={parserInputNumber}
-              //                         value={item?.quantity}
-              //                         onChange={(value) => {
-              //                           // let isExceed = false;
-              //                           // newOrder.items.map(v => {
-              //                           //   return {
-              //                           //     ...v,
-              //                           //     detaiItems: v.detaiItems.map(sp => {
-              //                           //       if (value > sp.quantity) {
-              //                           //         isExceed = true;
-              //                           //         return InAppEvent.normalInfo('Số lượng ko dc vượt qua số lượng xuất kho trong đơn')
-              //                           //       }
-              //                           //       return sp; 
-              //                           //     })
-              //                           //   };
-              //                           // });
-
-              //                           // if (isExceed) {
-              //                           //   return; // ❌ Vượt quá => không làm gì nữa, không setNewOrder
-              //                           // }
-
-              //                           setNewOrder(prev => {
-              //                             const updatedItems = prev.items.map(v => {
-              //                               return {
-              //                                 ...v,
-              //                                 detaiItems: v.detaiItems.map(sp => {
-              //                                   if (sp.skuId === item.skuId) {
-              //                                     return { ...sp, quantity: value, total: value * sp.price };
-              //                                   }
-              //                                   return sp; // các item khác thì giữ nguyên, không thông báo
-              //                                 })
-              //                               };
-              //                             });
-              //                             const updatedInfo = updatedItems.map(item => ({
-              //                               status: item.status,
-              //                               statusConfirm: item.statusConfirm,
-              //                               detaiItems: item.detaiItems,
-              //                               stt: item.stt
-              //                             }));
-              //                             return {
-              //                               ...prev,
-              //                               items: updatedItems,
-              //                               info: JSON.stringify(updatedInfo)
-              //                             };
-              //                           });
-              //                         }}
-              //                       />
-              //                     </td>
-              //                     <td style={tdStyle}>
-              //                       {(() => {
-              //                         let parsedSkuInfo = [];
-              //                         try {
-              //                           if (item?.skuInfo) {
-              //                             parsedSkuInfo = JSON.parse(item?.skuInfo);
-              //                           }
-              //                         } catch (error) {
-              //                           console.error("Lỗi parse JSON:", error);
-              //                         }
-              //                         return (
-              //                           <p style={{ marginRight: "10px" }}>
-              //                             <strong>{parsedSkuInfo[0]?.name}:</strong> {parsedSkuInfo[1]?.value}...
-              //                           </p>
-              //                         )
-              //                       })()}
-              //                     </td>
-              //                     <td style={tdStyle}>
-              //                       {formatMoney(item?.total)}
-              //                     </td>
-              //                   </tr>
-              //                 )
-              //               })}
-              //             </tbody>
-              //           </table>
-              //         ) : (
-              //           <p>Không có SKU nào</p>
-              //         )}
-              //       </div>
-              //     )
-              //   },
-              // }}
+              expandable={{
+                expandedRowRender: (record) => {
+                  console.log('record', record);
+                  
+                  return (
+                    <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
+                      {record?.detaiItems ? (
+                        <table
+                          style={{
+                            width: "100%",
+                            borderCollapse: "collapse",
+                            background: "#fff",
+                            borderRadius: "8px",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <thead>
+                            <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
+                              <th style={thStyle}>Tên sản phầm</th>
+                              <th style={thStyle}>Ngày tạo</th>
+                              <th style={thStyle}>Đơn giá</th>
+                              <th style={thStyle}>Số lượng</th>
+                              <th style={thStyle}>SKU</th>
+                              <th style={thStyle}>Tổng tiền</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {record?.detaiItems.map((item, i) => {
+                              return (
+                                <tr key={i} style={{ borderBottom: "1px solid #ddd" }}>
+                                  <td style={tdStyle}>{item?.name}</td>
+                                  <td style={tdStyle}>
+                                    {dateFormatOnSubmit(item?.createdAt)}
+                                  </td>
+                                  <td style={tdStyle}>
+                                    {formatMoney(item?.price)}
+                                  </td>
+                                  <td style={tdStyle}>
+                                    {item?.quantity || 'N/A'}
+                                  </td>
+                                  <td style={tdStyle}>
+                                    {(() => {
+                                      let parsedSkuInfo = [];
+                                      try {
+                                        if (item?.skuInfo) {
+                                          parsedSkuInfo = JSON.parse(item?.skuInfo);
+                                        }
+                                      } catch (error) {
+                                        console.error("Lỗi parse JSON:", error);
+                                      }
+                                      return (
+                                        <p style={{ marginRight: "10px" }}>
+                                          <strong>{parsedSkuInfo[0]?.name}:</strong> {parsedSkuInfo[1]?.value}...
+                                        </p>
+                                      )
+                                    })()}
+                                  </td>
+                                  <td style={tdStyle}>
+                                    {formatMoney(item?.total)}
+                                  </td>
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <p>Không có SKU nào</p>
+                      )}
+                    </div>
+                  )
+                },
+              }}
               dataSource={newOrder?.items}
               pagination={false}
             />
