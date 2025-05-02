@@ -127,11 +127,11 @@ const ListKho = () => {
       render: (record) => {
         return (
           <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
-            {approveOrder && record.status === 3 && (
+            {/* {approveOrder && record.status === 3 && (
               <Button color="danger" variant="dashed" onClick={() => onHandleApproveStatus(record)} size='small'>
                 Duyệt lệnh
               </Button>
-            )}
+            )} */}
             <Button color="primary" variant="dashed" onClick={() => onHandleEdit(record)} size='small'>
               Chi tiết
             </Button>
@@ -166,13 +166,13 @@ const ListKho = () => {
   }
 
   // duyệt lệnh
-  const onHandleApproveStatus = async (record) => {
-    await RequestUtils.Get(`/warehouse-history/fetch-status?id=${record?.id}`).then(data => {
-      if (data?.errorCode === 200) {
-        InAppEvent.normalSuccess("Duyệt lệnh thành công ?");
-      }
-    })
-  }
+  // const onHandleApproveStatus = async (record) => {
+  //   await RequestUtils.Get(`/warehouse-history/fetch-status?id=${record?.id}`).then(data => {
+  //     if (data?.errorCode === 200) {
+  //       InAppEvent.normalSuccess("Duyệt lệnh thành công ?");
+  //     }
+  //   })
+  // }
 
   return (
     <div>

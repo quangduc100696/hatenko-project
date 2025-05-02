@@ -38,7 +38,7 @@ const OrderDetailForm = ({title, listProvince, data}) => {
   const [dtProvider, setDtProvider] = useState({});
   const [listWareHouse, setListWareHose] = useState([]);
   const [dtWarehose, setDtWarehose] = useState({});
-  const [feeout, setFee] = useState(null);
+  const [feeout, setFee] = useState(data?.fee);
 
   const newSp = (data) => {
     if(title === 'Chi tiết kho') {
@@ -78,7 +78,7 @@ const OrderDetailForm = ({title, listProvince, data}) => {
   let total = newSp(listSp)?.reduce((sum, item) => sum + item?.priceRef * item?.quantity, 0);
   useEffect(() => {
     (async () => {
-      const [product, province, warhouse] = await Promise.all([
+      const [product, warhouse] = await Promise.all([
         await RequestUtils.Get(`/product/fetch`),
         await RequestUtils.Get(`/warehouse/fetch-stock`)
       ])
@@ -170,7 +170,7 @@ const OrderDetailForm = ({title, listProvince, data}) => {
       key: 'name',
     },
     {
-      title: 'Đơn giá',
+      title: 'Giá tham khảo',
       render: (item) => {
         return (
           <InputNumber
@@ -623,7 +623,7 @@ const OrderDetailForm = ({title, listProvince, data}) => {
               <strong> Tổng nhập sau: </strong>
               <InputNumber
                 min={1}
-                value={data?.fee}
+                value={feeout}
                 formatter={formatterInputNumber}
                 parser={parserInputNumber}
                 placeholder='Tổng tiền thực tế'

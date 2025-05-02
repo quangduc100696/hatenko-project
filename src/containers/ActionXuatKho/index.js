@@ -322,6 +322,17 @@ const ActionXuatKho = ({ data }) => {
     setTextSearch('');
   };
 
+  const filteredWarehouseList = newOrder?.items[0].detaiItems.filter(warehouseItem => {
+    const matchedOrder = results.details[0]?.items.find(orderItem =>
+      orderItem.productId === warehouseItem.productId &&
+      orderItem.skuId === warehouseItem.skuId
+    );
+    const orderQty = matchedOrder?.quantity || 0;
+    const warehouseQty = warehouseItem.quantity ?? 0; // dùng ?? để giữ số 0 nếu quantity là null
+    const diff = orderQty - warehouseQty;
+    return diff !== 0; // chỉ giữ nếu còn thiếu hoặc dư
+  });
+
   return (
     <div>
       <Form onFinish={!newOrder ? createOrdernotFound : onHandleCreateOdder} layout="vertical" >
@@ -339,8 +350,6 @@ const ActionXuatKho = ({ data }) => {
               scroll={{ x: 1700 }}
               expandable={{
                 expandedRowRender: (record) => {
-                  console.log('record', record);
-                  
                   return (
                     <div style={{ padding: "10px", background: "#f9f9f9", borderRadius: "8px" }}>
                       {record?.detaiItems ? (
@@ -427,12 +436,16 @@ const ActionXuatKho = ({ data }) => {
               pagination={false}
             />
           ) : (
-            <Table
-              columns={colums2}
-              scroll={{ x: 1700 }}
-              dataSource={newOrder?.items[0].detaiItems}
-              pagination={false}
-            />
+            !filteredWarehouseList || filteredWarehouseList?.length <= 0 ? (
+              <div style={{ color: 'red' }}>Đã xuất hết sản phẩm theo đơn!</div>
+            ) : (
+              <Table
+                columns={colums2}
+                scroll={{ x: 1700 }}
+                dataSource={filteredWarehouseList}
+                pagination={false}
+              />
+            )
           )}
           <br />
           <Row justify={'end'}>
