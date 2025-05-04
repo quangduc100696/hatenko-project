@@ -115,6 +115,7 @@ const ListWareHouse = () => {
 
   const onCreateLead = () => {
     setIsOpen(true);
+    setDetailWareHouse({});
   }
 
   const onHandleCreateWareHouse = async (value) => {
@@ -145,12 +146,13 @@ const ListWareHouse = () => {
         customClickCreate={onCreateLead}
         columns={CUSTOM_ACTION}
       />
-
       <ModaleStyles title={
         <div style={{ color: '#fff' }}>
           Tạo kho
         </div>
-      } open={isOpen} footer={false} onCancel={() => setIsOpen(false)}>
+      } open={isOpen} footer={false} onCancel={() => {
+        setIsOpen(false);
+      }}>
         <div style={{ padding: 15 }}>
           <Form
             name="basic"

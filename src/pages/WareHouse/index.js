@@ -11,6 +11,7 @@ import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/d
 import ProductAttrService from 'services/ProductAttrService';
 import { cloneDeep } from 'lodash';
 import SkuView, { PriceView } from 'containers/Product/SkuView';
+import { getStatusWareHouse } from 'configs/constant';
 
 
 const thStyle = {
@@ -27,30 +28,29 @@ const tdStyle = {
 const Listwarehouse = () => {
 
   const onEdit = (item) => {
-    let title = 'Sửa sản phẩm # ' + item.id;
-    let hash = '#draw/product.edit';
+    let title = 'Xuất kho không theo đơn # ';
+    let hash = '#draw/warehouseAction.edit';
     let data = cloneDeep(item);
-    let skus = [], listProperties = [];
-    for (const property of item.listProperties) {
-      let attr = listProperties.find(i => i.attributedId === property.attributedId);
-      if (attr) {
-        attr.attributedValueId.push(property.attributedValueId);
-      } else {
-        attr = { attributedId: property.attributedId, attributedValueId: [property.attributedValueId] }
-        listProperties.push(attr);
-      }
-    }
-    for (const iSkus of item.skus) {
-      let item = { id: iSkus?.id, name: iSkus.name, listPriceRange: iSkus.listPriceRange }
-      let details = [];
-      for (const detail of iSkus.skuDetail) {
-        details.push({ id: detail?.id, attributedId: detail.attributedId, attributedValueId: detail.attributedValueId });
-      }
-      item.sku = details;
-      skus.push(item);
-    }
-    data.listProperties = listProperties;
-    data.skus = skus;
+    // for (const property of item.listProperties) {
+    //   let attr = listProperties.find(i => i.attributedId === property.attributedId);
+    //   if (attr) {
+    //     attr.attributedValueId.push(property.attributedValueId);
+    //   } else {
+    //     attr = { attributedId: property.attributedId, attributedValueId: [property.attributedValueId] }
+    //     listProperties.push(attr);
+    //   }
+    // }
+    // for (const iSkus of item.skus) {
+    //   let item = { id: iSkus?.id, name: iSkus.name, listPriceRange: iSkus.listPriceRange }
+    //   let details = [];
+    //   for (const detail of iSkus.skuDetail) {
+    //     details.push({ id: detail?.id, attributedId: detail.attributedId, attributedValueId: detail.attributedValueId });
+    //   }
+    //   item.sku = details;
+    //   skus.push(item);
+    // }
+    // data.listProperties = listProperties;
+    // data.skus = skus;
     InAppEvent.emit(HASH_MODAL, { hash, title, data });
   }
 
@@ -87,14 +87,14 @@ const Listwarehouse = () => {
         )
       }
     },
-    // {
-    //   title: "",
-    //   width: 100,
-    //   fixed: 'right',
-    //   render: (record) => (
-    //     <Button color="danger" variant="dashed" onClick={() => onEdit(record)} size='small'>Detail</Button>
-    //   )
-    // }
+    {
+      title: "Action",
+      width: 50,
+      fixed: 'right',
+      render: (record) => (
+        <Button color="primary" variant="dashed" size='small' onClick={() => onEdit(record)}>Cập nhật</Button>
+      )
+    }
   ];
 
   const beforeSubmitFilter = useCallback((values) => {
@@ -159,7 +159,7 @@ const Listwarehouse = () => {
                                     {v.name || 'N/A'}
                                   </td>
                                   <td style={tdStyle}>
-                                    {v.status}
+                                    {getStatusWareHouse(v.status)}
                                   </td>
                                   <td style={tdStyle}>
                                     {formatMoney(v.price)}

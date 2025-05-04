@@ -124,5 +124,20 @@ export const getStatusService = (option) => {
   }
 }
 
+export const getStatusWareHouse = (option) => {
+  switch (option) {
+    case 0:
+      return 'Chưa nhập';
+    case 1:
+      return 'Duyệt';
+    case 3:
+      return 'Duyệt';
+    case 4:
+      return 'Hoàn thành';
+    default:
+      return 'N/A';
+  }
+}
+
 
 
