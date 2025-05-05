@@ -1,4 +1,4 @@
-import { Col, Form, Image, Input, InputNumber, Row, Select, Table } from 'antd';
+import { Checkbox, Col, Form, Image, Input, InputNumber, Row, Select, Table } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import CustomButton from 'components/CustomButton';
 import FormInput from 'components/form/FormInput';
@@ -33,7 +33,28 @@ const ActionXuatKho = ({ data }) => {
   const [filterSp, setFilterSp] = useState([]);
   const [textSearch, setTextSearch] = useState('');
   const [listStatus, setListStatus] = useState([]);
+  const [newQuantity, setNewQuantity] = useState(null);
+  const totalQuantity = newOrder?.items.reduce((total, item) => {
+    const itemQuantity = item.detaiItems.reduce((sum, detail) => sum + detail.quantity, 0);
+    return total + itemQuantity;
+  }, 0);
 
+  const filteredWarehouseList = newOrder?.items[0].detaiItems.map(warehouseItem => {
+    const matchedOrder = results.details[0]?.items.find(orderItem =>
+      orderItem.productId === warehouseItem.productId &&
+      orderItem.skuId === warehouseItem.skuId
+    );
+    const orderQty = matchedOrder?.quantity || 0;
+    const warehouseQty = warehouseItem.quantity ?? 0;
+    const diff = orderQty - warehouseQty;
+    return {
+      ...warehouseItem,
+      diff,
+      orderQty,
+      warehouseQty,
+    };
+  });
+  
   useEffect(() => {
     (async () => {
       const listProduct = await RequestUtils.Get(`/product/fetch`);
@@ -59,6 +80,7 @@ const ActionXuatKho = ({ data }) => {
       }
     })();
   }, []);
+
 
   const columns = [
     Table.EXPAND_COLUMN,
@@ -139,12 +161,11 @@ const ActionXuatKho = ({ data }) => {
       title: 'Số lượng cần xuất',
       render: (record) => {
         const order = result?.details[0]?.items.find(o => o?.productId === record?.productId);
-        const remaining = order?.quantity - record?.quantity;
         return (
           !newOrder ? (
             <InputNumber
               min={1}
-              value={record?.quantity}
+              defaultValue={record?.quantity}
               onChange={(value) => {
                 if (value <= order.quantity) {
                   const newDetails = results.details?.map((f) => {
@@ -158,7 +179,7 @@ const ActionXuatKho = ({ data }) => {
                   setResults({ ...results, details: newDetails });
                 } else {
                   return InAppEvent.normalInfo(
-                    "Số lượng phải nhỏ hơn hoặc bằng số lượng đơn hàng"
+                    "Số lượng phải nhỏ hơn hoặc bằng số lượng đơn hàng "
                   );
                 }
               }}
@@ -166,25 +187,12 @@ const ActionXuatKho = ({ data }) => {
           ) : (
             <InputNumber
               min={1}
-              value={remaining || 1}
+              defaultValue={record?.diff || 1}
               onChange={(value) => {
                 if (value > order.quantity) {
-                  return InAppEvent.normalInfo('Số lượng phải nhỏ hơn hoặc bằng số lượng đơn hàng');
+                  return InAppEvent.normalInfo('Số lượng phải nhỏ hơn hoặc bằng số lượng đơn hàng ');
                 }
-                // ✅ Update state hợp lệ ở đây
-                const newItem = newOrder?.items.map(f => {
-                  const chidItem = f.detaiItems.map(v => {
-                    if (v.productId === record.productId) {
-                      return {
-                        ...v,
-                        quantity: value
-                      }
-                    }
-                    return v;
-                  })
-                  return { ...f, detaiItems: chidItem };
-                })
-                setNewOrder(pre => ({ ...pre, items: newItem }))
+                setNewQuantity(value)
               }}
             />
           )
@@ -192,14 +200,16 @@ const ActionXuatKho = ({ data }) => {
       },
     },
     {
-      title: 'Tổng tiền',
-      render: (record) => {
-        return (
+      title: 'Hành động',
+      dataIndex: '',
+      key: 'x',
+      render: (record) => (
+        <div style={{ display: 'flex', gap: 10 }}>
           <div>
-            {formatMoney(record.total)}
+          <Checkbox onChange={(e) => onHandleChecked(e, record)}>Chon sản phẩm để xuất</Checkbox>
           </div>
-        )
-      },
+        </div>
+      ),
     },
   ]
 
@@ -257,6 +267,30 @@ const ActionXuatKho = ({ data }) => {
           InAppEvent.normalSuccess("Cập nhật xuất kho thành công");
         }
       })
+    }
+  }
+  let sttCounter = Math.max(...(newOrder?.items.map(i => i.stt || 0) || [0])) + 1;
+  const onHandleChecked = (e, record) => {
+    if(e.target.checked) {
+      const newItemCopy = newOrder?.items.flatMap(f => {
+        const isMatch = f.detaiItems.some(v => v.productId === record.productId);
+        const order = result?.details[0]?.items.find(o => o?.productId === record?.productId);
+        const diff = order?.quantity - record?.quantity;
+        if (isMatch) {
+          // tạo bản sao mới có quantity thay đổi
+          const newDetaiItems = f.detaiItems.map(v => {
+            if (v.productId === record.productId) {
+              return { ...v, quantity: newQuantity || diff };
+            }
+            return v;
+          });
+      
+          const newItem = { ...f, detaiItems: newDetaiItems, stt: sttCounter };
+          return [f, newItem]; // giữ lại item gốc + thêm item mới
+        }
+        return [f]; // không thay đổi item không liên quan
+      });
+      setNewOrder(pre => ({ ...pre, items: newItemCopy }))
     }
   }
 
@@ -322,17 +356,6 @@ const ActionXuatKho = ({ data }) => {
     setTextSearch('');
   };
 
-  const filteredWarehouseList = newOrder?.items[0].detaiItems.filter(warehouseItem => {
-    const matchedOrder = results.details[0]?.items.find(orderItem =>
-      orderItem.productId === warehouseItem.productId &&
-      orderItem.skuId === warehouseItem.skuId
-    );
-    const orderQty = matchedOrder?.quantity || 0;
-    const warehouseQty = warehouseItem.quantity ?? 0; // dùng ?? để giữ số 0 nếu quantity là null
-    const diff = orderQty - warehouseQty;
-    return diff !== 0; // chỉ giữ nếu còn thiếu hoặc dư
-  });
-
   return (
     <div>
       <Form onFinish={!newOrder ? createOrdernotFound : onHandleCreateOdder} layout="vertical" >
@@ -369,7 +392,6 @@ const ActionXuatKho = ({ data }) => {
                               <th style={thStyle}>Đơn giá</th>
                               <th style={thStyle}>Số lượng</th>
                               <th style={thStyle}>SKU</th>
-                              <th style={thStyle}>Tổng tiền</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -403,9 +425,6 @@ const ActionXuatKho = ({ data }) => {
                                       )
                                     })()}
                                   </td>
-                                  <td style={tdStyle}>
-                                    {formatMoney(item?.total)}
-                                  </td>
                                 </tr>
                               )
                             })}
@@ -436,7 +455,7 @@ const ActionXuatKho = ({ data }) => {
               pagination={false}
             />
           ) : (
-            !filteredWarehouseList || filteredWarehouseList?.length <= 0 ? (
+            result.details[0].items[0].quantity === totalQuantity ? (
               <div style={{ color: 'red' }}>Đã xuất hết sản phẩm theo đơn!</div>
             ) : (
               <Table
