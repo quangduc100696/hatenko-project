@@ -124,6 +124,19 @@ export const getStatusService = (option) => {
   }
 }
 
+export const getStatusWareHouseExport = (option) => {
+  switch (option) {
+    case 1:
+      return 'Tạo mới';
+    case 2:
+      return 'Phê duyệt';
+    case 3:
+      return 'Hoàn thành';
+    default:
+      return 'N/A';
+  }
+}
+
 export const getStatusWareHouse = (option) => {
   switch (option) {
     case 0:

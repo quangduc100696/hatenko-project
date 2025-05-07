@@ -1,4 +1,4 @@
-import { Checkbox, Col, Form, Image, Input, InputNumber, Row, Select, Table } from 'antd';
+import { Checkbox, Col, Form, Image, Input, InputNumber, Row, Select, Table, Tag } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import CustomButton from 'components/CustomButton';
 import FormInput from 'components/form/FormInput';
@@ -11,6 +11,7 @@ import { dateFormatOnSubmit, formatMoney } from 'utils/dataUtils';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
 import { formatterInputNumber, parserInputNumber } from 'utils/tools';
+import { getStatusWareHouseExport } from 'configs/constant';
 
 const thStyle = {
   padding: "8px 12px",
@@ -34,27 +35,45 @@ const ActionXuatKho = ({ data }) => {
   const [textSearch, setTextSearch] = useState('');
   const [listStatus, setListStatus] = useState([]);
   const [newQuantity, setNewQuantity] = useState(null);
-  const totalQuantity = newOrder?.items.reduce((total, item) => {
-    const itemQuantity = item.detaiItems.reduce((sum, detail) => sum + detail.quantity, 0);
+  const [filterWareHouse, setFilterWareHouse] = useState([]);
+  const totalQuantity = newOrder?.items?.reduce((total, item) => {
+    const itemQuantity = item.detaiItems?.reduce((sum, detail) => sum + detail.quantity, 0);
     return total + itemQuantity;
   }, 0);
 
-  const filteredWarehouseList = newOrder?.items[0].detaiItems.map(warehouseItem => {
-    const matchedOrder = results.details[0]?.items.find(orderItem =>
-      orderItem.productId === warehouseItem.productId &&
-      orderItem.skuId === warehouseItem.skuId
-    );
-    const orderQty = matchedOrder?.quantity || 0;
-    const warehouseQty = warehouseItem.quantity ?? 0;
-    const diff = orderQty - warehouseQty;
-    return {
-      ...warehouseItem,
-      diff,
-      orderQty,
-      warehouseQty,
-    };
-  });
-  
+  useEffect(() => {
+    if(newOrder) {
+      // tìm object có stt cuối cùng
+      const result = newOrder?.items.reduce((maxObj, current) => {
+        if (
+          current.stt > (maxObj?.stt ?? -Infinity) || 
+          (current.stt === maxObj?.stt)
+        ) {
+          return current; // Ưu tiên object sau nếu stt bằng nhau
+        }
+        return maxObj;
+      }, null);
+      const filteredWarehouseList = result?.detaiItems?.map(warehouseItem => {
+        const matchedOrder = results.details[0]?.items.find(orderItem =>
+          orderItem.productId === warehouseItem.productId &&
+          orderItem.skuId === warehouseItem.skuId
+        );
+        const orderQty = matchedOrder?.quantity || 0;
+        const warehouseQty = warehouseItem.quantity ?? 0;
+        const diff = orderQty - warehouseQty;
+
+        return {
+          ...warehouseItem,
+          diff,
+          orderQty,
+          warehouseQty,
+        };
+      });
+      const newFilteredWarehouseList = filteredWarehouseList.filter(f => f.diff !== 0)
+      setFilterWareHouse(newFilteredWarehouseList)
+    }
+  },[])
+
   useEffect(() => {
     (async () => {
       const listProduct = await RequestUtils.Get(`/product/fetch`);
@@ -97,10 +116,9 @@ const ActionXuatKho = ({ data }) => {
       title: 'Trạng thái Confirm',
       width: 150,
       render: (record) => {
-        const nameStatus = listStatus.find(f => f.type === record.statusConfirm);
         return (
           <div>
-            {record.statusConfirm === 0 ? 'Chưa Confirm' : 'Đã Confirm'}
+             <Tag color="orange">{getStatusWareHouseExport(record.status)}</Tag>
             {/* <Select
               style={{ width: 200 }}
               value={nameStatus?.name}
@@ -168,15 +186,16 @@ const ActionXuatKho = ({ data }) => {
               defaultValue={record?.quantity}
               onChange={(value) => {
                 if (value <= order.quantity) {
-                  const newDetails = results.details?.map((f) => {
-                    return {
-                      ...f,
-                      items: f.items.map((item) =>
-                        item.id === record.id ? { ...item, quantity: value } : item
-                      ),
-                    };
-                  });
-                  setResults({ ...results, details: newDetails });
+                  // const newDetails = results.details?.map((f) => {
+                  //   return {
+                  //     ...f,
+                  //     items: f.items.map((item) =>
+                  //       item.id === record.id ? { ...item, quantity: value } : item
+                  //     ),
+                  //   };
+                  // });
+                  // setResults({ ...results, details: newDetails });
+                  setNewQuantity(value)
                 } else {
                   return InAppEvent.normalInfo(
                     "Số lượng phải nhỏ hơn hoặc bằng số lượng đơn hàng "
@@ -187,7 +206,7 @@ const ActionXuatKho = ({ data }) => {
           ) : (
             <InputNumber
               min={1}
-              defaultValue={record?.diff || 1}
+              defaultValue={record?.diff}
               onChange={(value) => {
                 if (value > order.quantity) {
                   return InAppEvent.normalInfo('Số lượng phải nhỏ hơn hoặc bằng số lượng đơn hàng ');
@@ -206,7 +225,7 @@ const ActionXuatKho = ({ data }) => {
       render: (record) => (
         <div style={{ display: 'flex', gap: 10 }}>
           <div>
-          <Checkbox onChange={(e) => onHandleChecked(e, record)}>Chon sản phẩm để xuất</Checkbox>
+            <Checkbox onChange={(e) => onHandleChecked(e, record)}>Chon sản phẩm để xuất</Checkbox>
           </div>
         </div>
       ),
@@ -269,28 +288,55 @@ const ActionXuatKho = ({ data }) => {
       })
     }
   }
-  let sttCounter = Math.max(...(newOrder?.items.map(i => i.stt || 0) || [0])) + 1;
+  let sttCounter = !newOrder ? '' : Math.max(...(newOrder?.items.map(i => i.stt || 0) || [0])) + 1;
   const onHandleChecked = (e, record) => {
-    if(e.target.checked) {
-      const newItemCopy = newOrder?.items.flatMap(f => {
-        const isMatch = f.detaiItems.some(v => v.productId === record.productId);
+    if(newOrder) {
+      if(e.target.checked) {
+        const results = newOrder?.items.reduce((maxObj, current) => {
+          if (
+            current.stt > (maxObj?.stt ?? -Infinity) || 
+            (current.stt === maxObj?.stt)
+          ) {
+            return current; // Ưu tiên object sau nếu stt bằng nhau
+          }
+          return maxObj;
+        }, null);
         const order = result?.details[0]?.items.find(o => o?.productId === record?.productId);
         const diff = order?.quantity - record?.quantity;
-        if (isMatch) {
-          // tạo bản sao mới có quantity thay đổi
-          const newDetaiItems = f.detaiItems.map(v => {
-            if (v.productId === record.productId) {
-              return { ...v, quantity: newQuantity || diff };
-            }
-            return v;
-          });
-      
-          const newItem = { ...f, detaiItems: newDetaiItems, stt: sttCounter };
-          return [f, newItem]; // giữ lại item gốc + thêm item mới
+        const newItems = {
+          ...results?.detaiItems[0],
+          quantity: newQuantity || diff
         }
-        return [f]; // không thay đổi item không liên quan
-      });
-      setNewOrder(pre => ({ ...pre, items: newItemCopy }))
+        const params = {
+          ...results,
+          detaiItems: Array(newItems),
+          stt: sttCounter
+        }
+        setNewOrder(pre => ({ ...pre, items: pre.items.concat(params) }))
+      } else {
+        setNewOrder(pre => ({ ...pre, items: pre.items.slice(0, -1) }))
+      }
+    } else {
+      if(e.target.checked) {
+        const newCheckItem = results.details[0]?.items.find(f => f?.productId === record?.productId);
+        console.log('newCheckItem', results);
+        const itemPush = {
+          ...newCheckItem,
+          quantity: newQuantity || newCheckItem.quantity
+        }
+        setResults(prev => {
+          const updatedDetails = [...prev.details];
+          const updatedItems = [...(updatedDetails[0].items || []), itemPush];
+          updatedDetails[0] = {
+            ...updatedDetails[0],
+            items: updatedItems
+          };
+          return {
+            ...prev,
+            details: updatedDetails
+          };
+        });
+      }
     }
   }
 
@@ -356,6 +402,9 @@ const ActionXuatKho = ({ data }) => {
     setTextSearch('');
   };
 
+  console.log('newOrder?.items', newOrder?.items);
+  
+
   return (
     <div>
       <Form onFinish={!newOrder ? createOrdernotFound : onHandleCreateOdder} layout="vertical" >
@@ -371,6 +420,7 @@ const ActionXuatKho = ({ data }) => {
             <Table
               columns={columns}
               scroll={{ x: 1700 }}
+              rowKey={(record) => record.stt} 
               expandable={{
                 expandedRowRender: (record) => {
                   return (
@@ -451,7 +501,7 @@ const ActionXuatKho = ({ data }) => {
             <Table
               columns={colums2}
               scroll={{ x: 1700 }}
-              dataSource={results.details[0]?.items}
+              dataSource={result.details[0]?.items}
               pagination={false}
             />
           ) : (
@@ -461,7 +511,7 @@ const ActionXuatKho = ({ data }) => {
               <Table
                 columns={colums2}
                 scroll={{ x: 1700 }}
-                dataSource={filteredWarehouseList}
+                dataSource={filterWareHouse}
                 pagination={false}
               />
             )
