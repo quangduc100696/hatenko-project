@@ -42,37 +42,35 @@ const ActionXuatKho = ({ data }) => {
   }, 0);
 
   useEffect(() => {
-    if(newOrder) {
-      // tìm object có stt cuối cùng
-      const result = newOrder?.items.reduce((maxObj, current) => {
-        if (
-          current.stt > (maxObj?.stt ?? -Infinity) || 
-          (current.stt === maxObj?.stt)
-        ) {
-          return current; // Ưu tiên object sau nếu stt bằng nhau
-        }
-        return maxObj;
-      }, null);
-      const filteredWarehouseList = result?.detaiItems?.map(warehouseItem => {
-        const matchedOrder = results.details[0]?.items.find(orderItem =>
-          orderItem.productId === warehouseItem.productId &&
-          orderItem.skuId === warehouseItem.skuId
-        );
-        const orderQty = matchedOrder?.quantity || 0;
-        const warehouseQty = warehouseItem.quantity ?? 0;
-        const diff = orderQty - warehouseQty;
-
-        return {
-          ...warehouseItem,
-          diff,
-          orderQty,
-          warehouseQty,
-        };
+    if (newOrder) {
+      // Tính tổng số lượng đã xuất cho từng sản phẩm
+      const exportedQuantities = {};
+      newOrder.items.forEach(item => {
+        item.detaiItems?.forEach(detail => {
+          const key = `${detail.productId}_${detail.skuId}`;
+          exportedQuantities[key] = (exportedQuantities[key] || 0) + detail.quantity;
+        });
       });
-      const newFilteredWarehouseList = filteredWarehouseList.filter(f => f.diff !== 0)
-      setFilterWareHouse(newFilteredWarehouseList)
+  
+      // Tạo danh sách sản phẩm cần xuất
+      const newFilteredWarehouseList = result.details[0]?.items
+        .map(orderItem => {
+          const key = `${orderItem.productId}_${orderItem.skuId}`;
+          const exportedQty = exportedQuantities[key] || 0;
+          const remainingQty = orderItem.quantity - exportedQty;
+          
+          return {
+            ...orderItem,
+            diff: remainingQty,
+            orderQty: orderItem.quantity,
+            warehouseQty: exportedQty
+          };
+        })
+        .filter(item => item.diff > 0); // Chỉ hiển thị sản phẩm còn cần xuất
+  
+      setFilterWareHouse(newFilteredWarehouseList || []);
     }
-  },[])
+  }, [newOrder, result]);
 
   useEffect(() => {
     (async () => {
@@ -290,46 +288,68 @@ const ActionXuatKho = ({ data }) => {
   }
   let sttCounter = !newOrder ? '' : Math.max(...(newOrder?.items.map(i => i.stt || 0) || [0])) + 1;
   const onHandleChecked = (e, record) => {
-    if(newOrder) {
-      if(e.target.checked) {
-        const results = newOrder?.items.reduce((maxObj, current) => {
-          if (
-            current.stt > (maxObj?.stt ?? -Infinity) || 
-            (current.stt === maxObj?.stt)
-          ) {
-            return current; // Ưu tiên object sau nếu stt bằng nhau
-          }
-          return maxObj;
-        }, null);
-        const order = result?.details[0]?.items.find(o => o?.productId === record?.productId);
-        const diff = order?.quantity - record?.quantity;
-        const newItems = {
-          ...results?.detaiItems[0],
-          quantity: newQuantity || diff
+    if (newOrder) {
+      if (e.target.checked) {
+        // Tính tổng số lượng đã xuất từ tất cả các lần trước
+        const totalExported = newOrder.items.reduce((total, item) => {
+          const itemQty = item.detaiItems?.reduce((sum, detail) => {
+            if (detail.productId === record.productId && detail.skuId === record.skuId) {
+              return sum + detail.quantity;
+            }
+            return sum;
+          }, 0);
+          return total + itemQty;
+        }, 0);
+  
+        const orderItem = result.details[0]?.items.find(
+          o => o?.productId === record?.productId && o?.skuId === record?.skuId
+        );
+        
+        // Số lượng còn lại có thể xuất
+        const remainingQty = orderItem.quantity - totalExported;
+        
+        // Chỉ cho phép xuất số lượng <= số lượng còn lại
+        const exportQty = Math.min(newQuantity || remainingQty, remainingQty);
+        
+        if (exportQty <= 0) {
+          InAppEvent.normalInfo("Sản phẩm đã được xuất đủ số lượng");
+          return;
         }
+  
+        const newItem = {
+          ...record,
+          quantity: exportQty
+        };
+  
         const params = {
-          ...results,
-          detaiItems: Array(newItems),
+          detaiItems: [newItem],
           stt: sttCounter
-        }
-        setNewOrder(pre => ({ ...pre, items: pre.items.concat(params) }))
+        };
+  
+        setNewOrder(prev => ({
+          ...prev,
+          items: [...prev.items, params]
+        }));
       } else {
-        setNewOrder(pre => ({ ...pre, items: pre.items.slice(0, -1) }))
+        setNewOrder(prev => ({
+          ...prev,
+          items: prev.items.slice(0, -1)
+        }));
       }
     } else {
-      if(e.target.checked) {
-        const newCheckItem = results.details[0]?.items.find(f => f?.productId === record?.productId);
-        console.log('newCheckItem', results);
-        const itemPush = {
-          ...newCheckItem,
-          quantity: newQuantity || newCheckItem.quantity
-        }
+      if (e.target.checked) {
+        const newCheckItem = {
+          ...results.details[0]?.items.find(
+            f => f?.productId === record?.productId && f?.skuId === record?.skuId
+          ),
+          quantity: newQuantity || 1 // Mặc định 1 nếu không nhập
+        };
+        
         setResults(prev => {
           const updatedDetails = [...prev.details];
-          const updatedItems = [...(updatedDetails[0].items || []), itemPush];
           updatedDetails[0] = {
             ...updatedDetails[0],
-            items: updatedItems
+            items: [newCheckItem] // Tạo mới thay vì thêm vào
           };
           return {
             ...prev,
@@ -338,41 +358,49 @@ const ActionXuatKho = ({ data }) => {
         });
       }
     }
-  }
+  };
 
   const createOrdernotFound = async (value) => {
     const now = new Date();
     const formatted = now.toISOString().replace('T', ' ').substring(0, 19);
-    const newDetail = results?.details[0].items?.map(v => {
-      const newItem = {
-        name: v?.name,
-        productId: v?.productId,
-        skuId: v?.skuId,
-        skuInfo: v?.skuInfo,
-        price: v.price,
-        quantity: v?.quantity,
-        total: v?.total,
-        createdAt: v?.createdAt,
-        updatedAt: v?.updatedAt,
-        status: v.status,
-        warehouseId: v?.warehouseId
-      };
-      return newItem
-    })
-
+    
+    // Chỉ lấy những sản phẩm đã được chọn (checked)
+    const selectedItems = results.details[0]?.items.filter(item => 
+      item.quantity !== undefined && item.quantity > 0
+    );
+  
+    const newDetail = selectedItems.map(v => ({
+      name: v?.name,
+      productId: v?.productId,
+      skuId: v?.skuId,
+      skuInfo: v?.skuInfo,
+      price: v.price,
+      quantity: v?.quantity,
+      total: v?.total,
+      createdAt: v?.createdAt,
+      updatedAt: v?.updatedAt,
+      status: v.status,
+      warehouseId: v?.warehouseId
+    }));
+  
     const params = {
       orderId: results?.id,
       note: value?.note,
       status: value?.name,
-      details: [{ createdAt: formatted, updatedAt: formatted, items: newDetail, }]
-    }
+      details: [{
+        createdAt: formatted,
+        updatedAt: formatted,
+        items: newDetail,
+      }]
+    };
+  
     await RequestUtils.Post('/warehouse-export/created', params).then(data => {
       if (data?.errorCode === 200) {
         InAppEvent.emit(HASH_MODAL_CLOSE);
         InAppEvent.normalSuccess("Xuất kho thành công");
       }
-    })
-  }
+    });
+  };
   const onHandleSearchSp = useCallback(
     debounce((value) => {
       if (value) {
