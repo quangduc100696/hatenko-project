@@ -1,4 +1,4 @@
-import { Checkbox, Col, Form, Image, Input, InputNumber, Row, Select, Table, Tag } from 'antd';
+import { Button, Checkbox, Col, Form, Image, Input, InputNumber, Row, Select, Table, Tag } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import CustomButton from 'components/CustomButton';
 import FormInput from 'components/form/FormInput';
@@ -12,6 +12,8 @@ import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
 import { formatterInputNumber, parserInputNumber } from 'utils/tools';
 import { getStatusWareHouseExport } from 'configs/constant';
+import ModaleStyles from 'pages/lead/style';
+import FormSelect from 'components/form/FormSelect';
 
 const thStyle = {
   padding: "8px 12px",
@@ -26,16 +28,16 @@ const tdStyle = {
 
 const ActionXuatKho = ({ data }) => {
   const { orderWarhouse, result } = data;
+  const [form] = Form.useForm();
   const [listProduct, setListProduct] = useState([]);
-  const [listSp, setListSp] = useState([]);
   const [productDetails, setProductDetails] = useState([]);
   const [newOrder, setNewOrder] = useState(orderWarhouse);
   const [results, setResults] = useState(result);
-  const [filterSp, setFilterSp] = useState([]);
-  const [textSearch, setTextSearch] = useState('');
   const [listStatus, setListStatus] = useState([]);
   const [productQuantities, setProductQuantities] = useState({});
   const [filterWareHouse, setFilterWareHouse] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [recordDetail, setRecordDetail] = useState({});
 
   // Tính tổng số lượng đã xuất
   const totalQuantity = newOrder?.items?.reduce((total, item) => {
@@ -97,6 +99,12 @@ const ActionXuatKho = ({ data }) => {
     })();
   }, []);
 
+  useEffect(() => {
+    (() => {
+      form.setFieldsValue({status: recordDetail.status})
+    })()
+  },[recordDetail])
+
   // Hàm xử lý thay đổi số lượng
   const handleQuantityChange = (productId, skuId, value) => {
     setProductQuantities(prev => ({
@@ -109,14 +117,25 @@ const ActionXuatKho = ({ data }) => {
     Table.EXPAND_COLUMN,
     {
       title: 'Số lần xuất kho',
-      width: 150,
       render: (record) => <div>Lần {record?.stt}</div>,
     },
     {
       title: 'Trạng thái Confirm',
-      width: 150,
       render: (record) => (
         <Tag color="orange">{getStatusWareHouseExport(record.status)}</Tag>
+      ),
+    },
+    {
+      title: 'Hành động',
+      render: (record) => (
+        <div >
+          <Button color="danger" onClick={() => {
+            setIsOpen(true);
+            setRecordDetail(record)
+          }} variant="dashed"  size='small'>
+            Cập nhật
+          </Button>
+        </div>
       ),
     },
   ];
@@ -153,8 +172,7 @@ const ActionXuatKho = ({ data }) => {
         const orderItem = result?.details[0]?.items.find(
           o => o?.productId === record?.productId && o?.skuId === record?.skuId
         );
-        const quantityKey = `${record.productId}_${record.skuId}`;
-        
+        const quantityKey = `${record.productId}_${record.skuId}`;  
         // Sửa ở đây: lấy số lượng từ orderItem nếu chưa có newOrder
         const defaultValue = !newOrder ? (orderItem?.quantity || 1) : (record.diff || 1);
         
@@ -267,7 +285,6 @@ const ActionXuatKho = ({ data }) => {
   const createOrdernotFound = async (value) => {
     const now = new Date();
     const formatted = now.toISOString().replace('T', ' ').substring(0, 19);
-
     const selectedItems = results.details[0]?.items
       .filter(item => item.isSelected && item.quantity > 0)
       .map(item => {
@@ -302,8 +319,6 @@ const ActionXuatKho = ({ data }) => {
       }]
     };
 
-    console.log('Dữ liệu gửi lên server:', JSON.stringify(params, null, 2));
-
     try {
       const response = await RequestUtils.Post('/warehouse-export/created', params);
       if (response?.errorCode === 200) {
@@ -328,7 +343,6 @@ const ActionXuatKho = ({ data }) => {
         ...param,
         items: param.items.map(({ stt, ...rest }) => rest)
       };
-
       try {
         const response = await RequestUtils.Post('/warehouse-export/updated', cleanedData);
         if (response?.errorCode === 200) {
@@ -341,6 +355,31 @@ const ActionXuatKho = ({ data }) => {
       }
     }
   };
+
+  /* update trang thai xuat kho */
+  const onHandleSubmitStatus = async (value) => {    
+    try {
+      const newOrderStt = newOrder.items.map(f => {
+        return {
+          ...f,
+          status: f.stt === recordDetail?.stt ? value?.status : f.stt
+        }
+      })
+      const params = {
+        ...newOrder,
+        items: newOrderStt
+      }
+      const response = await RequestUtils.Post('/warehouse-export/updated', params);
+      if (response?.errorCode === 200) {
+        InAppEvent.emit(HASH_MODAL_CLOSE);
+        InAppEvent.normalSuccess("Cập nhật trạng thái xuất kho thành công");
+      }
+    } catch (error) {
+      console.error('Lỗi cập nhật trạng thái ', error);
+      InAppEvent.normalError("Lỗi cập nhật trạng thái");
+    }
+    
+  }
 
   return (
     <div>
@@ -462,6 +501,36 @@ const ActionXuatKho = ({ data }) => {
           <CustomButton title="Xuất đơn" htmlType="submit" />
         </div>
       </Form>
+      {/* Cập nhật status xuất kho */}
+      <ModaleStyles title={
+        <div style={{ color: '#fff' }}>
+          Cập nhật trạng Xuất kho
+        </div>
+      } open={isOpen} footer={false} onCancel={() => setIsOpen(false)}>
+        <div style={{ padding: 15 }}>
+          <Form
+            name="basic"
+            layout='vertical'
+            form={form}
+            onFinish={onHandleSubmitStatus}
+          >
+            <FormSelect
+              required={true}
+              label="Chọn trạng thái"
+              name="status"
+              placeholder="Chọn trạng thái"
+              resourceData={listStatus || []}
+              valueProp="id"
+              titleProp="name"
+            />
+            <Form.Item style={{ display: 'flex', justifyContent: 'end', marginTop: 10 }}>
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
+        </div>
+      </ModaleStyles>
     </div>
   );
 };
