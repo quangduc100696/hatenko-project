@@ -156,7 +156,7 @@ const ListKho = () => {
   const onCreateLead = () => InAppEvent.emit(HASH_MODAL, {
     hash: '#draw/warehouse.edit',
     title: 'Tạo mới kho',
-    data: {}
+    data: {listProvince},
   });
 
   const onHandleEdit = (record) => {
