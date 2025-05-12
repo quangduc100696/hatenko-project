@@ -7,7 +7,7 @@ import { InAppEvent } from 'utils/FuseUtils';
 import { f5List } from 'utils/dataUtils';
 import { HASH_MODAL_CLOSE } from 'configs';
 
-const UserAccount = ({closeModal}) => {
+const UserAccount = ({data, closeModal}) => {
   const [record, setRecord] = useState({});
   const [listProFile, setListProFile] = useState([]);
   useEffect(() => {
@@ -18,35 +18,50 @@ const UserAccount = ({closeModal}) => {
   },[])
 
   const onSubmit = async (dataCreate) => {
-    if(!validateRegex.phone.test(dataCreate.phone)) {
-      return InAppEvent.normalInfo('Vui lòng nhập đúng số điện thoại định dạng')
-    } else if(!validateRegex.email.test(dataCreate.email)) {
-      return InAppEvent.normalInfo('Vui lòng nhập đúng Email định dạng')
+    if(!/^\+?[0-9]{9,15}$/.test(dataCreate.phone || data?.phone)) {
+      InAppEvent.normalInfo('Vui lòng nhập đúng số điện thoại định dạng');
+      return;
     }
-    const decodeRoleUser = dataCreate?.userProfiles.map(item => {
-      const decodeUserProfiles = JSON.parse(item);
-      return decodeUserProfiles
-    })
+    if(!validateRegex.email.test(dataCreate.email || data?.email)) {
+      InAppEvent.normalInfo('Vui lòng nhập đúng Email định dạng');
+      return;
+    }
+    const filtered = listProFile.filter(role => dataCreate?.userProfiles.includes(role.id));
     const params = {
-			ssoId: dataCreate?.ssoId,
+			ssoId: dataCreate?.ssoId || data?.ssoId ,
 			password: dataCreate?.password,
-			layout: dataCreate?.layout,
+			layout: dataCreate?.layout || data?.layout,
 			fullName: dataCreate?.fullName,
-			phone: dataCreate?.phone,
-			email: dataCreate?.email,
-			status: dataCreate?.status,
-      userProfiles: decodeRoleUser
+			phone: dataCreate?.phone || data?.fullName,
+			email: dataCreate?.email || data?.email,
+			status: dataCreate?.status || data?.status,
+      userProfiles: filtered || data?.userProfiles
 		}
-    const data = await RequestUtils.Post('/user/create', params);
-    if(data.errorCode === 200) {
-      f5List('user/list');
-      InAppEvent.emit(HASH_MODAL_CLOSE);
-      return InAppEvent.normalSuccess('Tạo tài khoản thành công');
+    if(data) {
+      const datas = await RequestUtils.Post(`/user/update?id=${data?.id}`, params);
+      if(datas.errorCode === 200) {
+        f5List('user/list');
+        InAppEvent.emit(HASH_MODAL_CLOSE);
+        InAppEvent.normalSuccess('Cập tài khoản thành công');
+        return
+      } else {
+        InAppEvent.normalError('Cập tài khoản thất bại');
+        return
+      }
     } else {
-      return InAppEvent.normalError('Tạo tài khoản thất bại');
+      const datas = await RequestUtils.Post('/user/create', params);
+      if(datas.errorCode === 200) {
+        f5List('user/list');
+        InAppEvent.emit(HASH_MODAL_CLOSE);
+        InAppEvent.normalSuccess('Tạo tài khoản thành công');
+        return
+      } else {
+        InAppEvent.normalError('Tạo tài khoản thất bại');
+        return
+      }
     }
   }
-
+  
   return (
     <div>
       <RestEditModal
@@ -55,8 +70,17 @@ const UserAccount = ({closeModal}) => {
         onSubmit={onSubmit}
         record={record}
         closeModal={closeModal}
+        formatDefaultValues={() => ({
+          ssoId: data?.ssoId,
+          layout: data?.layout,
+          fullName: data?.fullName,
+          phone: data?.phone,
+          email: data?.email,
+          status: data?.status,
+          userProfiles: data?.userProfiles.map(f => f.id)
+        })}
       >
-        <ProductForm listProFile={listProFile}/>
+        <ProductForm listProFile={listProFile} data={data}/>
       </RestEditModal>
     </div>
   )

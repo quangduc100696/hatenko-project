@@ -8,20 +8,13 @@ import { dateFormatOnSubmit, f5List } from 'utils/dataUtils';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import useGetMe from 'hooks/useGetMe';
-import { Button, Col, Form, Row } from 'antd';
-import ModaleStyles from 'pages/lead/style';
-import { useForm } from 'antd/es/form/Form';
-import FormInput from 'components/form/FormInput';
-import RequestUtils from 'utils/RequestUtils';
-import { cloneDeep } from 'lodash';
+import { Button } from 'antd';
 
 const ListUser = () => {
 
   const { user: profile } = useGetMe();
   const [title] = useState("Danh sách tài khoản");
   const [isOpen, setIsOpen] = useState(false);
-  const [detailWareHouse, setDetailWareHouse] = useState({});
-  const [form] = useForm();
 
   const CUSTOM_ACTION = [
     {
@@ -76,20 +69,18 @@ const ListUser = () => {
         )
       }
     },
-    // {
-    //   title: "Thao tác",
-    //   width: 120,
-    //   fixed: 'right',
-    //   render: (record) => (
-    //     <div>
-    //       <Button color="primary" variant="dashed" size='small' onClick={() => {
-    //         setIsOpen(true)
-    //       }}>
-    //         Update
-    //       </Button>
-    //     </div>
-    //   )
-    // }
+    {
+      title: "Thao tác",
+      width: 120,
+      fixed: 'right',
+      render: (record) => (
+        <div>
+          <Button color="primary" variant="dashed" size='small' onClick={() => onHandleUpdateUser(record)}>
+            Update
+          </Button>
+        </div>
+      )
+    }
   ];
 
   const onData = useCallback((values) => {
@@ -106,6 +97,13 @@ const ListUser = () => {
     let title = 'Tạo tài khoản';
     let hash = '#draw/userAccount.edit';
     let data = {}
+    InAppEvent.emit(HASH_MODAL, { hash, title, data });
+  }
+
+  const onHandleUpdateUser = (datas) => {
+    let title = 'Sửa tài khoản';
+    let hash = '#draw/userAccount.edit';
+    let data = datas;
     InAppEvent.emit(HASH_MODAL, { hash, title, data });
   }
 

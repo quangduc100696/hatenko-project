@@ -1,19 +1,12 @@
-import { Button, Checkbox, Col, Form, Image, Input, InputNumber, Row, Select, Table, Tag } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Checkbox, Col, Form, InputNumber, Row, Select, Table, Tag } from 'antd';
 import CustomButton from 'components/CustomButton';
 import FormInput from 'components/form/FormInput';
 import FormSelectAPI from 'components/form/FormSelectAPI';
-import { GATEWAY, HASH_MODAL_CLOSE } from 'configs';
-import { ContainerSerchSp } from 'containers/Lead/styles';
-import { debounce } from 'lodash';
-import React, { useCallback, useEffect, useState } from 'react'
+import { HASH_MODAL_CLOSE } from 'configs';
+import React, { useEffect, useState } from 'react'
 import { dateFormatOnSubmit, formatMoney } from 'utils/dataUtils';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
-import { formatterInputNumber, parserInputNumber } from 'utils/tools';
-import { getStatusWareHouseExport } from 'configs/constant';
-import ModaleStyles from 'pages/lead/style';
-import FormSelect from 'components/form/FormSelect';
 
 const thStyle = {
   padding: "8px 12px",
@@ -28,7 +21,6 @@ const tdStyle = {
 
 const ActionXuatKho = ({ data }) => {
   const { orderWarhouse, result } = data;
-  const [form] = Form.useForm();
   const [listProduct, setListProduct] = useState([]);
   const [productDetails, setProductDetails] = useState([]);
   const [newOrder, setNewOrder] = useState(orderWarhouse);
@@ -36,12 +28,9 @@ const ActionXuatKho = ({ data }) => {
   const [listStatus, setListStatus] = useState([]);
   const [productQuantities, setProductQuantities] = useState({});
   const [filterWareHouse, setFilterWareHouse] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
-  const [recordDetail, setRecordDetail] = useState({});
   const [listWareHouse, setListWareHouse] = useState([])
   const [ProductIdWareHouse, setProductIdWareHouse] = useState({});
-  console.log('ProductIdWareHouse', ProductIdWareHouse);
-  
+
   // Tính tổng số lượng đã xuất
   const totalQuantity = newOrder?.items?.reduce((total, item) => {
     const itemQuantity = item.detaiItems?.reduce((sum, detail) => sum + detail.quantity, 0);
@@ -104,12 +93,6 @@ const ActionXuatKho = ({ data }) => {
     })();
   }, []);
 
-  useEffect(() => {
-    (() => {
-      form.setFieldsValue({ status: recordDetail.status })
-    })()
-  }, [recordDetail])
-
   // Hàm xử lý thay đổi số lượng
   const handleQuantityChange = (productId, skuId, value) => {
     setProductQuantities(prev => ({
@@ -126,22 +109,21 @@ const ActionXuatKho = ({ data }) => {
     },
     {
       title: 'Trạng thái Confirm',
-      render: (record) => (
-        <Tag color="orange">{getStatusWareHouseExport(record.status)}</Tag>
-      ),
-    },
-    {
-      title: 'Hành động',
-      render: (record) => (
-        <div >
-          <Button color="danger" onClick={() => {
-            setIsOpen(true);
-            setRecordDetail(record)
-          }} variant="dashed" size='small'>
-            Cập nhật
-          </Button>
-        </div>
-      ),
+      render: (record) => {
+        // <Tag color="orange">{getStatusWareHouseExport(record.status)}</Tag>
+        const nameDetail = listStatus.find(f => f.id === record.status);  
+        return (
+          <>
+            <Select style={{maxWidth: 160}} value={nameDetail?.name} onChange={(id) => onHandleSubmitStatus(id, record)}>
+              {listStatus.map(item => (
+                <Select.Option value={item.id}>
+                  {item.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </>
+        )
+      },
     },
   ];
 
@@ -390,12 +372,12 @@ const ActionXuatKho = ({ data }) => {
   };
 
   /* update trang thai xuat kho */
-  const onHandleSubmitStatus = async (value) => {
+  const onHandleSubmitStatus = async (id, record) => {
     try {
       const newOrderStt = newOrder.items.map(f => {
         return {
           ...f,
-          status: f.stt === recordDetail?.stt ? value?.status : f.stt
+          status: f.stt === record?.stt ? id : f.status
         }
       })
       const params = {
@@ -411,7 +393,6 @@ const ActionXuatKho = ({ data }) => {
       console.error('Lỗi cập nhật trạng thái ', error);
       InAppEvent.normalError("Lỗi cập nhật trạng thái");
     }
-
   }
 
   return (
@@ -534,36 +515,6 @@ const ActionXuatKho = ({ data }) => {
           <CustomButton title="Xuất đơn" htmlType="submit" />
         </div>
       </Form>
-      {/* Cập nhật status xuất kho */}
-      <ModaleStyles title={
-        <div style={{ color: '#fff' }}>
-          Cập nhật trạng Xuất kho
-        </div>
-      } open={isOpen} footer={false} onCancel={() => setIsOpen(false)}>
-        <div style={{ padding: 15 }}>
-          <Form
-            name="basic"
-            layout='vertical'
-            form={form}
-            onFinish={onHandleSubmitStatus}
-          >
-            <FormSelect
-              required={true}
-              label="Chọn trạng thái"
-              name="status"
-              placeholder="Chọn trạng thái"
-              resourceData={listStatus || []}
-              valueProp="id"
-              titleProp="name"
-            />
-            <Form.Item style={{ display: 'flex', justifyContent: 'end', marginTop: 10 }}>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-            </Form.Item>
-          </Form>
-        </div>
-      </ModaleStyles>
     </div>
   );
 };

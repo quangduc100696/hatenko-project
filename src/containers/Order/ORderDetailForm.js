@@ -785,7 +785,7 @@ const OrderDtailForm = ({ data, title }) => {
         mergedItems.push({
           productId: item?.id,
           skuInfo: JSON.stringify(skuDetails),
-          name: item?.productName,
+          name: item?.name,
           skuId: item?.skuId,
           quantity: item?.quantity,
           price: item?.price,

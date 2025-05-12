@@ -454,14 +454,13 @@ const FormBase = ({ setDetailSp, detailCohoi, setDetailCohoi, detailSp, setTotal
     }
     const newItem = (() => {
       const mergedItems = [];
-
       newSp(listSp)?.forEach(item => {
         const skuDetails = item?.skus?.map(sku => sku?.skuDetail).flat();
         const newTonkho = listProduct.flatMap(f => f.warehouses || []).find(v => v.skuId === item?.skuId);
         mergedItems.push({
           productId: item?.id,
           skuInfo: JSON.stringify(skuDetails),
-          name: item?.productName,
+          name: item?.name,
           skuId: item?.skuId,
           quantity: item?.quantity,
           price: item?.price,

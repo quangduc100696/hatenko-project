@@ -4,9 +4,8 @@ import FormHidden from 'components/form/FormHidden'
 import FormInput from 'components/form/FormInput'
 import React from 'react'
 
-const ProductForm = ({listProFile}) => {
-    console.log('listProFile', listProFile);
-    
+const ProductForm = ({data, listProFile}) => {
+
     return (
         <div>
             <Row gutter={16} style={{ marginTop: 20 }}>
@@ -52,19 +51,29 @@ const ProductForm = ({listProFile}) => {
                     />
                 </Col>
                 <Col md={12} xs={12}>
-                    <FormInput
+                    {/* <FormInput
                         required
                         label="Trạng thái"
                         name="status"
                         placeholder={"Trạng thái"}
-                    />
+                    /> */}
+                    <Form.Item label="Trạng thái" name="status">
+                        <Select placeholder="Trạng thái">
+                            <Select.Option value={1}>
+                                Hoạt động
+                            </Select.Option>
+                            <Select.Option value={2}>
+                                Ngừng hoạt động
+                            </Select.Option>
+                        </Select>
+                    </Form.Item>
                 </Col>
                 <Col md={12} xs={24}>
                     <Form.Item label={"Role user"} name="userProfiles">
                         <Select mode="multiple" placeholder="Chọn Role">
                             {listProFile?.map((item, i) => {
                                 return (
-                                    <Select.Option key={i} value={JSON.stringify(item)}>
+                                    <Select.Option key={i} value={item.id}>
                                         {item.type}
                                     </Select.Option>
                                 )

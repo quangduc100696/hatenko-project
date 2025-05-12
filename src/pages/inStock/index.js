@@ -151,18 +151,35 @@ const ListInStocK = () => {
       }
     },
     {
-      title: "Chi phí",
-      ataIndex: 'fee',
-      width: 200,
+      title: "Sku",
+      width: 350,
       ellipsis: true,
       render: (item) => {
+        const skuDetail = item.product.skus.find(f => f.id === item.skuId);
+
         return (
           <div>
-            {formatMoney(item?.fee)}
+            <p style={{ marginRight: "10px" }}>
+              <strong>{skuDetail?.skuDetail[0]?.name}:</strong> {skuDetail?.skuDetail[0]?.value}
+            </p>
+            {skuDetail?.skuDetail?.length > 1 && <span> ...</span>}
           </div>
         )
       }
     },
+    // {
+    //   title: "Chi phí",
+    //   ataIndex: 'fee',
+    //   width: 200,
+    //   ellipsis: true,
+    //   render: (item) => {
+    //     return (
+    //       <div>
+    //         {formatMoney(item?.fee)}
+    //       </div>
+    //     )
+    //   }
+    // },
     // {
     //   title: "Thao tác",
     //   width: 190,
