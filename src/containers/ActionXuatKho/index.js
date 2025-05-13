@@ -1,4 +1,4 @@
-import { Checkbox, Col, Form, InputNumber, Row, Select, Table, Tag } from 'antd';
+import { Button, Checkbox, Col, Form, InputNumber, Row, Select, Table, Tag } from 'antd';
 import CustomButton from 'components/CustomButton';
 import FormInput from 'components/form/FormInput';
 import FormSelectAPI from 'components/form/FormSelectAPI';
@@ -29,7 +29,7 @@ const ActionXuatKho = ({ data }) => {
   const [productQuantities, setProductQuantities] = useState({});
   const [filterWareHouse, setFilterWareHouse] = useState([]);
   const [listWareHouse, setListWareHouse] = useState([])
-  const [ProductIdWareHouse, setProductIdWareHouse] = useState({});
+  const [ProductIdWareHouse, setProductIdWareHouse] = useState(null);
 
   // Tính tổng số lượng đã xuất
   const totalQuantity = newOrder?.items?.reduce((total, item) => {
@@ -40,7 +40,7 @@ const ActionXuatKho = ({ data }) => {
   useEffect(() => {
     if (newOrder) {
       const exportedQuantities = {};
-      newOrder.items.forEach(item => {
+      newOrder?.items?.forEach(item => {
         item.detaiItems?.forEach(detail => {
           const key = `${detail.productId}_${detail.skuId}`;
           exportedQuantities[key] = (exportedQuantities[key] || 0) + detail.quantity;
@@ -111,10 +111,10 @@ const ActionXuatKho = ({ data }) => {
       title: 'Trạng thái Confirm',
       render: (record) => {
         // <Tag color="orange">{getStatusWareHouseExport(record.status)}</Tag>
-        const nameDetail = listStatus.find(f => f.id === record.status);  
+        const nameDetail = listStatus.find(f => f.id === record.status);
         return (
           <>
-            <Select style={{maxWidth: 160}} value={nameDetail?.name} onChange={(id) => onHandleSubmitStatus(id, record)}>
+            <Select placeholder="Vui lòng chọn trạng thái" style={{ maxWidth: 160 }} value={nameDetail?.name} onChange={(id) => onHandleSubmitStatus(id, record)}>
               {listStatus.map(item => (
                 <Select.Option value={item.id}>
                   {item.name}
@@ -124,6 +124,12 @@ const ActionXuatKho = ({ data }) => {
           </>
         )
       },
+    },
+    {
+      title: 'Action',
+      render: (record) => <div onClick={() => onHandleRemove(record)}>
+        <CustomButton title="Xoá đơn xuất kho" htmlType="submit" />
+      </div>,
     },
   ];
 
@@ -179,22 +185,22 @@ const ActionXuatKho = ({ data }) => {
         );
       },
     },
-    {
-      title: 'Xuất theo kho',
-      render: (record) => <div>
-        <Select placeholder="Chọn kho xuất" onChange={(id) => {
-          onHandleSelectWareHouse(record.productId, record.skuId, id);
-        }}>
-          {listWareHouse?.map((item, i) => {
-            return (
-              <Select.Option key={i} value={item.id}>
-                {item.name}
-              </Select.Option>
-            )
-          })}
-        </Select>
-      </div>,
-    },
+    // {
+    //   title: 'Xuất theo kho',
+    //   render: (record) => <div>
+    //     <Select placeholder="Chọn kho xuất" onChange={(id) => {
+    //       onHandleSelectWareHouse(record.productId, record.skuId, id);
+    //     }}>
+    //       {listWareHouse?.map((item, i) => {
+    //         return (
+    //           <Select.Option key={i} value={item.id}>
+    //             {item.name}
+    //           </Select.Option>
+    //         )
+    //       })}
+    //     </Select>
+    //   </div>,
+    // },
     {
       title: 'Hành động',
       render: (record) => (
@@ -207,12 +213,19 @@ const ActionXuatKho = ({ data }) => {
     },
   ];
 
+  const onHandleRemove = (record) => {
+    const data = newOrder.items.filter(f => {
+      if (f.stt === record.stt && f.statusConfirm === 0) {
+        return false;
+      }
+      return true; // giữ lại các phần tử khác
+    });
+    setNewOrder(pre => ({...pre, items: data}))
+  }
+
   /* Lấy id của kho theo đơn */
-  const onHandleSelectWareHouse = (productId, skuId, id) => {
-    setProductIdWareHouse(prev => ({
-      ...prev,
-      [`${productId}_${skuId}`]: id
-    }));
+  const onHandleSelectWareHouse = (id) => {
+    setProductIdWareHouse(id)
   }
 
   const onHandleChecked = (e, record) => {
@@ -237,7 +250,7 @@ const ActionXuatKho = ({ data }) => {
 
         const remainingQty = orderItem.quantity - totalExported;
         const exportQty = Math.min(productQuantities[quantityKey] || remainingQty, remainingQty);
-        const newWarehouseDeliveryId = Math.min(ProductIdWareHouse[quantityKey]);
+        // const newWarehouseDeliveryId = Math.min(ProductIdWareHouse[quantityKey]);
         if (exportQty <= 0) {
           InAppEvent.normalInfo("Sản phẩm đã được xuất đủ số lượng");
           return;
@@ -246,10 +259,11 @@ const ActionXuatKho = ({ data }) => {
         const newItem = {
           ...record,
           quantity: exportQty,
-          warehouseDeliveryId: newWarehouseDeliveryId
         };
         const params = {
           detaiItems: [newItem],
+          warehouseDeliveryId: ProductIdWareHouse,
+          statusConfirm: 0,
           stt: Math.max(...(newOrder?.items.map(i => i.stt || 0) || [0])) + 1
         };
 
@@ -300,8 +314,6 @@ const ActionXuatKho = ({ data }) => {
       .filter(item => item.isSelected && item.quantity > 0)
       .map(item => {
         const product = productDetails.find(p => p.id === item.productId);
-        const quantityKey = `${item.productId}_${item.skuId}`;
-        const newWarehouseDeliveryId = Math.min(ProductIdWareHouse[quantityKey]);
         return {
           name: product?.name || item?.name,
           productId: item.productId,
@@ -314,7 +326,6 @@ const ActionXuatKho = ({ data }) => {
           warehouseId: item.warehouseId,
           createdAt: formatted,
           updatedAt: formatted,
-          warehouseDeliveryId: newWarehouseDeliveryId
         };
       });
 
@@ -357,7 +368,6 @@ const ActionXuatKho = ({ data }) => {
         ...param,
         items: param.items.map(({ stt, ...rest }) => rest)
       };
-
       try {
         const response = await RequestUtils.Post('/warehouse-export/updated', cleanedData);
         if (response?.errorCode === 200) {
@@ -386,7 +396,6 @@ const ActionXuatKho = ({ data }) => {
       }
       const response = await RequestUtils.Post('/warehouse-export/updated', params);
       if (response?.errorCode === 200) {
-        InAppEvent.emit(HASH_MODAL_CLOSE);
         InAppEvent.normalSuccess("Cập nhật trạng thái xuất kho thành công");
       }
     } catch (error) {
@@ -457,12 +466,24 @@ const ActionXuatKho = ({ data }) => {
             pagination={false}
           />
         )}
-
         <br />
         <br />
         <p><strong>Thông tin cần xuất</strong></p>
         <div className="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
-
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'end', marginBottom: 20 }}>
+            <Select style={{ width: '20%' }}
+              placeholder="Chọn kho xuất" onChange={onHandleSelectWareHouse}>
+              {listWareHouse?.map((item, i) => {
+                return (
+                  <Select.Option key={i} value={item.id}>
+                    {item.name}
+                  </Select.Option>
+                )
+              })}
+            </Select>
+          </div>
+        </div>
         {!newOrder ? (
           <Table
             columns={colums2}
