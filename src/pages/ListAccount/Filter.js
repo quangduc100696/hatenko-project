@@ -15,7 +15,7 @@ const Filter = () => {
                 <Col xl={6} lg={6} md={6} xs={24}>
                     <FormInput
                         name={'Tên tài khoản '}
-                        placeholder="ssoId"
+                        placeholder="Tên tài khoản"
                     />
                 </Col>
             </Row>

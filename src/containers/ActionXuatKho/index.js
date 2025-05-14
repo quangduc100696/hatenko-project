@@ -340,10 +340,10 @@ const ActionXuatKho = ({ data }) => {
       details: [{
         createdAt: formatted,
         updatedAt: formatted,
-        items: selectedItems
-      }]
+        items: selectedItems,
+      }],
+      warehouseDeliveryId: ProductIdWareHouse,
     };
-
     try {
       const response = await RequestUtils.Post('/warehouse-export/created', params);
       if (response?.errorCode === 200) {
