@@ -3,7 +3,7 @@ import CustomButton from 'components/CustomButton';
 import FormInput from 'components/form/FormInput';
 import FormSelectAPI from 'components/form/FormSelectAPI';
 import { HASH_MODAL_CLOSE } from 'configs';
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { dateFormatOnSubmit, formatMoney } from 'utils/dataUtils';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
@@ -30,6 +30,8 @@ const ActionXuatKho = ({ data }) => {
   const [filterWareHouse, setFilterWareHouse] = useState([]);
   const [listWareHouse, setListWareHouse] = useState([])
   const [ProductIdWareHouse, setProductIdWareHouse] = useState(null);
+  const sttRef = useRef(null);
+  const resultsRef = useRef([]);
 
   // Tính tổng số lượng đã xuất
   const totalQuantity = newOrder?.items?.reduce((total, item) => {
@@ -185,22 +187,6 @@ const ActionXuatKho = ({ data }) => {
         );
       },
     },
-    // {
-    //   title: 'Xuất theo kho',
-    //   render: (record) => <div>
-    //     <Select placeholder="Chọn kho xuất" onChange={(id) => {
-    //       onHandleSelectWareHouse(record.productId, record.skuId, id);
-    //     }}>
-    //       {listWareHouse?.map((item, i) => {
-    //         return (
-    //           <Select.Option key={i} value={item.id}>
-    //             {item.name}
-    //           </Select.Option>
-    //         )
-    //       })}
-    //     </Select>
-    //   </div>,
-    // },
     {
       title: 'Hành động',
       render: (record) => (
@@ -220,7 +206,8 @@ const ActionXuatKho = ({ data }) => {
       }
       return true; // giữ lại các phần tử khác
     });
-    setNewOrder(pre => ({...pre, items: data}))
+    setNewOrder(pre => ({ ...pre, items: data }))
+    resultsRef.current = [];
   }
 
   /* Lấy id của kho theo đơn */
@@ -232,7 +219,6 @@ const ActionXuatKho = ({ data }) => {
     const { checked } = e.target;
     const { productId, skuId } = record;
     const quantityKey = `${productId}_${skuId}`;
-
     if (newOrder) {
       if (checked) {
         const totalExported = newOrder.items.reduce((total, item) => {
@@ -255,27 +241,37 @@ const ActionXuatKho = ({ data }) => {
           InAppEvent.normalInfo("Sản phẩm đã được xuất đủ số lượng");
           return;
         }
-
+        if (sttRef.current === null) {
+          sttRef.current = Math.max(...(newOrder?.items.map(i => i.stt || 0) || [0])) + 1;
+        }
         const newItem = {
           ...record,
           quantity: exportQty,
         };
+        resultsRef.current = resultsRef.current.filter(
+          i => !(i.productId === record.productId && i.skuId === record.skuId)
+        );
+
+        // Thêm mới
+        resultsRef.current.push(newItem);
         const params = {
-          detaiItems: [newItem],
+          detaiItems: resultsRef?.current,
           warehouseDeliveryId: ProductIdWareHouse,
           statusConfirm: 0,
-          stt: Math.max(...(newOrder?.items.map(i => i.stt || 0) || [0])) + 1
+          stt: sttRef.current
         };
-
-        setNewOrder(prev => ({
-          ...prev,
-          items: [...prev.items, params]
-        }));
+        setNewOrder(prev => {
+          const filteredItems = prev.items.filter(item => item.stt !== params.stt);
+          return {
+            ...prev,
+            items: [...filteredItems, params]
+          };
+        });
       } else {
-        setNewOrder(prev => ({
-          ...prev,
-          items: prev.items.slice(0, -1)
-        }));
+        // setNewOrder(prev => ({
+        //   ...prev,
+        //   items: prev.items.slice(0, -1)
+        // }));
       }
     } else {
       setResults(prev => {
@@ -306,6 +302,7 @@ const ActionXuatKho = ({ data }) => {
       });
     }
   };
+console.log('resultsRef', resultsRef);
 
   const createOrdernotFound = async (value) => {
     const now = new Date();
