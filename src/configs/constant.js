@@ -152,5 +152,20 @@ export const getStatusWareHouse = (option) => {
   }
 }
 
+export const getTypeGroup = (option) => {
+  switch (option) {
+    case 1:
+      return 'Sale';
+    case 2:
+      return 'Chăm sóc khách hàng';
+    case 3:
+      return 'MarkeTing';
+    case 4:
+      return 'Kho';
+    default:
+      return 'N/A';
+  }
+}
+
 
 

@@ -77,7 +77,7 @@ const UserAccount = ({data, closeModal}) => {
           phone: data?.phone,
           email: data?.email,
           status: data?.status,
-          userProfiles: data?.userProfiles.map(f => f.id)
+          userProfiles: data?.userProfiles?.map(f => f.id)
         })}
       >
         <ProductForm listProFile={listProFile} data={data}/>

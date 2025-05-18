@@ -6,7 +6,9 @@ import {
   RiseOutlined, PullRequestOutlined, UngroupOutlined, DollarCircleFilled,
   OrderedListOutlined, DeploymentUnitOutlined,
   FileAddOutlined,
-  ScheduleOutlined
+  ScheduleOutlined,
+  AppstoreOutlined,
+  AuditOutlined
 } from '@ant-design/icons';
 
 import { ConfigFIcon, CustomerFIcon, DashboardFIcon, IncomeFIcon, ReportFIcon, ReservationFIcon } from 'icons/FontIcons';
@@ -43,9 +45,20 @@ function SideBar() {
 		// getItem(<Link to="/sale/list-data/tong-lead">Lead</Link>, 'tong_lead', <FolderOpenOutlined />),
     getItem('Lead', 'tong_lead', <FolderOpenOutlined /> , [
 		  getItem(<Link to="/lead">Lead mới</Link>, 'newLead', <FileAddOutlined />),
-      !shouldHideLeadLinks && getItem(<Link to="/customer-service/lead">Chưa chăm sóc</Link>, "lead_not_taken_child", <ScheduleOutlined />),
-      !shouldHideLeadLinks && getItem(<Link to="/customer-lead/lead">Đã chăm sóc</Link>, "lead_taken_child", <ScheduleOutlined />),
+      // !shouldHideLeadLinks && getItem(<Link to="/customer-service/lead">Chưa chăm sóc</Link>, "lead_not_taken_child", <ScheduleOutlined />),
 		].filter(Boolean)),
+    !shouldHideLeadLinks && getItem('Chưa chăm sóc', 'chua_cham_soc', <FolderOpenOutlined /> , [
+     getItem(<Link to="/customer-service/lead">Lead Chưa chăm sóc</Link>, "lead_chua_cham_doc", <ScheduleOutlined />),
+     getItem(<Link to="/customer-service/co-hoi">Cơ hội chưa chăm sóc</Link>, "co_hoi_chua_cham_soc", <AppstoreOutlined />),
+     getItem(<Link to="/customer-service/hoan-thanh">Đơn hàng hoàn thành</Link>, "don_hang_hoan_thanh", <AuditOutlined />),
+     getItem(<Link to="/customer-service/su-co">Đơn hàng sự cố</Link>, "don_hang_su_co", <ScheduleOutlined />),
+		].filter(Boolean)),
+    !shouldHideLeadLinks && getItem('Đã chăm sóc', 'da_cham_soc', <FolderOpenOutlined /> , [
+      getItem(<Link to="/customer-lead/lead">Lead Đã chăm sóc</Link>, "lead_da_cham_soc", <ScheduleOutlined />),
+      getItem(<Link to="/customer-service/co-hoi-cham-soc">Cơ hội đã chăm sóc</Link>, "co_hoi_da_cham_soc", <AppstoreOutlined />),
+      getItem(<Link to="/customer-service/hoan-thanh">Đơn hàng đã chăm sóc</Link>, "don_hang_da_hoan_thanh", <AuditOutlined />),
+     ].filter(Boolean)),
+
 		getItem(<Link to="/sale/co-hoi"> Cơ hội </Link>, 'co_hoi', <IncomeFIcon />),
 		getItem(<Link to="/sale/order"> Đơn hàng</Link>, 'list_order', <UnorderedListOutlined />),
 		getItem('Kế toán', 'need_solve', <DollarCircleFilled /> , [
@@ -72,7 +85,11 @@ function SideBar() {
 		getItem(<Link to="/sale-kpi/list"> Kpi</Link>, 'Kpi', <RiseOutlined />),
 		getItem(<Link to="/data/bot-collection">Bot dữ liệu</Link>, 'bot_data', <PullRequestOutlined />),
 		getItem(<Link to="/product"> Sản phẩm</Link>, 'product_list', <UngroupOutlined />),
-    getItem(<Link to="/user/list"> Tài khoản</Link>, 'user', <ConfigFIcon />),
+    getItem('Tài khoản', 'tai_khoan', <ReportFIcon />, [
+      getItem(<Link to="/user/list"> Tài khoản cá nhân</Link>, 'user', <ConfigFIcon />),
+      getItem(<Link to="/user/group"> Tài khoản Team</Link>, 'user_group', <ConfigFIcon />),
+      getItem(<Link to="/user/list-system"> Tài khoản hệ thống</Link>, 'user_system', <ConfigFIcon />),
+		]),
   ]
 
   return (
