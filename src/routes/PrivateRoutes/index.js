@@ -19,6 +19,7 @@ import { ListAcountGroupConfig } from './ListUserGroupConfig';
 import { CohoiNotTakeConfig } from './CohoiNotTakeConfig';
 import { DuyetTienConfig } from './DuyetTienConfig';
 import { ListUserSystemConfig } from './ListUserSysTemConfig';
+import { NewfeedConfig } from './NewFeedConfig';
 
 
 const OrderPage = React.lazy(() => import('pages/order'));
@@ -47,7 +48,8 @@ const routeConfigs = [
     ListAcountGroupConfig,
     CohoiNotTakeConfig,
     DuyetTienConfig,
-    ListUserSystemConfig
+    ListUserSystemConfig,
+    NewfeedConfig
 ];
 
 const routes = [
