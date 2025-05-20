@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
@@ -6,14 +6,16 @@ import LeadFilter from './LeadFilter';
 import useGetList from "hooks/useGetList";
 import { Button, Tag } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit } from 'utils/dataUtils';
-import { getColorStatusLead, getSource, getStatusLead, getStatusService } from 'configs/constant';
+import { getColorStatusLead, getSource, getStatusLead } from 'configs/constant';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import { cloneDeep } from 'lodash';
+import RequestUtils from 'utils/RequestUtils';
 
 const LeadNotTakePage = () => {
 
   const [title] = useState("Danh sách Lead");
+  const [listService, setListService] = useState([])
 
   const onEdit = (item) => {
     let title = 'Tạo lead chăm sóc# ' + item.id;
@@ -21,6 +23,13 @@ const LeadNotTakePage = () => {
     let data = cloneDeep(item);
     InAppEvent.emit(HASH_MODAL, { hash, title, data });
   }
+
+  useEffect(() => {
+    (async() => {
+      const {data} = await RequestUtils.Get('/service/list');
+      setListService(data);
+    })()
+  },[])
 
   const CUSTOM_ACTION = [
     {
@@ -34,9 +43,10 @@ const LeadNotTakePage = () => {
       width: 200,
       ellipsis: true,
       render: (item) => {
+        const nameService = listService.find(f => f.id === item?.serviceId)
         return (
           <div>
-             <Tag color="orange">{getStatusService(item?.serviceId)}</Tag>
+             <Tag color="orange">{nameService?.name || 'N/A'}</Tag>
           </div>
         )
       }

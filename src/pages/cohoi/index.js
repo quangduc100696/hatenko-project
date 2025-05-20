@@ -117,22 +117,22 @@ const CohoiPage = () => {
         )
       }
     },
-    {
-      title: "Sản phẩm",
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {item?.details?.map(item => (
-              <div>
-                {item?.productName}
-              </div>
-            ))}
-          </div>
-        )
-      }
-    },
+    // {
+    //   title: "Sản phẩm",
+    //   width: 200,
+    //   ellipsis: true,
+    //   render: (item) => {
+    //     return (
+    //       <div>
+    //         {item?.details?.map(item => (
+    //           <div>
+    //             {item?.productName}
+    //           </div>
+    //         ))}
+    //       </div>
+    //     )
+    //   }
+    // },
     {
       title: "Ngày tạo",
       width: 200,

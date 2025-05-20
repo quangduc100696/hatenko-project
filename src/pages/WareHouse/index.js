@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import RestList from "components/RestLayout/RestList";
 import useGetList from "hooks/useGetList";
 import { Helmet } from "react-helmet";
@@ -11,7 +11,7 @@ import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/d
 import ProductAttrService from 'services/ProductAttrService';
 import { cloneDeep } from 'lodash';
 import SkuView, { PriceView } from 'containers/Product/SkuView';
-import { getStatusWareHouse } from 'configs/constant';
+import RequestUtils from 'utils/RequestUtils';
 
 
 const thStyle = {
@@ -26,31 +26,12 @@ const tdStyle = {
 };
 
 const Listwarehouse = () => {
+  const [listStatus, setListStatus] = useState([])
 
   const onEdit = (item) => {
     let title = 'Xuất kho không theo đơn # ';
     let hash = '#draw/warehouseAction.edit';
     let data = cloneDeep(item);
-    // for (const property of item.listProperties) {
-    //   let attr = listProperties.find(i => i.attributedId === property.attributedId);
-    //   if (attr) {
-    //     attr.attributedValueId.push(property.attributedValueId);
-    //   } else {
-    //     attr = { attributedId: property.attributedId, attributedValueId: [property.attributedValueId] }
-    //     listProperties.push(attr);
-    //   }
-    // }
-    // for (const iSkus of item.skus) {
-    //   let item = { id: iSkus?.id, name: iSkus.name, listPriceRange: iSkus.listPriceRange }
-    //   let details = [];
-    //   for (const detail of iSkus.skuDetail) {
-    //     details.push({ id: detail?.id, attributedId: detail.attributedId, attributedValueId: detail.attributedValueId });
-    //   }
-    //   item.sku = details;
-    //   skus.push(item);
-    // }
-    // data.listProperties = listProperties;
-    // data.skus = skus;
     InAppEvent.emit(HASH_MODAL, { hash, title, data });
   }
 
@@ -59,6 +40,13 @@ const Listwarehouse = () => {
     title: 'Tạo mới sản phẩm',
     data: {}
   });
+
+  useEffect(() => {
+    (async() => {
+      const { data } = await RequestUtils.Get('/warehouse-export/fetch-status');
+      setListStatus(data)
+    })()
+  },[])
 
   const [title] = useState("Danh sách sản phẩm");
   const CUSTOM_ACTION = [
@@ -151,6 +139,7 @@ const Listwarehouse = () => {
                       </thead>
                       <tbody>
                         {record?.items?.map((item) => {
+                          const nameWarehouseStatus = listStatus.find(f => f.id === item.status)
                           return (
                             item.detaiItems.map((v, i) => {
                               return (
@@ -159,7 +148,7 @@ const Listwarehouse = () => {
                                     {v.name || 'N/A'}
                                   </td>
                                   <td style={tdStyle}>
-                                    {getStatusWareHouse(v.status)}
+                                    {nameWarehouseStatus?.name}
                                   </td>
                                   <td style={tdStyle}>
                                     {formatMoney(v.price)}

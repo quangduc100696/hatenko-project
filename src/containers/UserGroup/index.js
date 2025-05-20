@@ -30,7 +30,7 @@ const UserAccount = ({ data, closeModal }) => {
     const paramsUpdate = {
       id: data?.datas?.id,
       name: dataCreate?.name || data?.datas?.name,
-      memberNumber: Number(dataCreate?.memberNumber) || data?.datas?.memberNumber,
+      memberNumber: data?.datas?.memberNumber,
       memberList: data?.datas?.memberList,
       leaderName: dataCreate?.leaderName || data?.datas?.leaderName,
       leaderId: dataCreate?.leaderId || data?.datas?.leaderId,

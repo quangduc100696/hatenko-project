@@ -68,7 +68,7 @@ const ProductForm = ({ data, listProFile }) => {
                         </Select>
                     </Form.Item>
                 </Col>
-                <Col md={12} xs={24}>
+                <Col md={24} xs={24}>
                     <Form.Item label={"Thành viên"} name="listMember" rules={[{ required: true, message: 'Vui lòng chọn Thành viên'}]}>
                         <Select mode="multiple" placeholder="Thành viên">
                             {data?.map((item, i) => {
@@ -81,14 +81,14 @@ const ProductForm = ({ data, listProFile }) => {
                         </Select>
                     </Form.Item>
                 </Col>
-                <Col md={12} xs={12}>
+                {/* <Col md={12} xs={12}>
                     <FormInput
                         required={false}
                         label="Số lượng thành viên"
                         name="memberNumber"
                         placeholder={"Số lượng thành viên"}
                     />
-                </Col>
+                </Col> */}
 
                 <Col md={24} xs={24}>
                     <div style={{ display: 'flex', marginBottom: 20, justifyContent: 'end' }}>

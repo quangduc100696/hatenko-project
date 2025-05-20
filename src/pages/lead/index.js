@@ -7,7 +7,7 @@ import LeadFilter, { statusData } from './LeadFilter';
 import useGetList from "hooks/useGetList";
 import { Button, Form, Select, Tag, Tooltip } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit, f5List } from 'utils/dataUtils';
-import { getColorStatusLead, getSource, getStatusLead, getStatusService, STATUS_LEAD } from 'configs/constant';
+import { getColorStatusLead, getSource, getStatusLead, STATUS_LEAD } from 'configs/constant';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
@@ -27,6 +27,7 @@ const LeadPage = () => {
   const [listSale, setListSale] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [detailRecord, setDetailRecord] = useState({});
+  const [listService, setListService] = useState([])
 
   const newRoleUser = profile?.userProfiles?.map(item => item?.type);
   const hasAdminRole = newRoleUser.some(role => role === roleUserAdmin);
@@ -35,13 +36,11 @@ const LeadPage = () => {
   const shouldHideLeadLinks = (hasSaleRole || hasUserRole) && !hasAdminRole;
 
   useEffect(() => {
-    (async () => {
-      const { data } = await RequestUtils.Get('/user/list-sale');
-      if (data) {
-        setListSale(data);
-      }
+    (async() => {
+      const {data} = await RequestUtils.Get('/service/list');
+      setListService(data);
     })()
-  }, [])
+  },[])
 
   useEffect(() => {
     form.setFieldsValue({ saleId: detailRecord?.saleId })
@@ -79,9 +78,10 @@ const LeadPage = () => {
       width: 200,
       ellipsis: true,
       render: (item) => {
+        const nameService = listService.find(f => f.id === item?.serviceId)
         return (
           <div>
-            <Tag color="orange">{getStatusService(item?.serviceId)}</Tag>
+            <Tag color="orange">{nameService?.name || 'N/A'} </Tag>
           </div>
         )
       }

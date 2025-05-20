@@ -3,7 +3,7 @@ import CustomButton from 'components/CustomButton';
 import FormInput from 'components/form/FormInput';
 import FormSelectAPI from 'components/form/FormSelectAPI';
 import { HASH_MODAL_CLOSE } from 'configs';
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { dateFormatOnSubmit, formatMoney } from 'utils/dataUtils';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
@@ -112,7 +112,6 @@ const ActionXuatKho = ({ data }) => {
     {
       title: 'Trạng thái Confirm',
       render: (record) => {
-        // <Tag color="orange">{getStatusWareHouseExport(record.status)}</Tag>
         const nameDetail = listStatus.find(f => f.id === record.status);
         return (
           <>

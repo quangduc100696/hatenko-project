@@ -29,7 +29,7 @@ const ListUserGroup = () => {
 
   const CUSTOM_ACTION = [
     {
-      title: "Tên",
+      title: "Tên Team",
       ataIndex: 'name',
       width: 200,
       ellipsis: true,
@@ -96,7 +96,7 @@ const ListUserGroup = () => {
       }
     },
     {
-      title: "Loại tài khoản",
+      title: "Phòng ban",
       ataIndex: 'address',
       width: 200,
       ellipsis: true,

@@ -6,7 +6,7 @@ import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
 import { Button, Tag } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
-import { getColorStatusLead, getSource, getStatusLead, getStatusService } from 'configs/constant';
+import { getColorStatusLead, getSource, getStatusLead } from 'configs/constant';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import { cloneDeep } from 'lodash';

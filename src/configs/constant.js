@@ -111,46 +111,33 @@ export const getColorStatusLead = (option) => {
   }
 }
 
-export const getStatusService = (option) => {
-  switch (option) {
-    case SERVICE_ID.PRINTGO:
-      return 'Printgo';
-    case SERVICE_ID.PAKGO:
-      return 'Pakgo';
-    case SERVICE_ID.GIFGO:
-      return 'Gifgo';
-    default:
-      return 'N/A';
-  }
-}
+// export const getStatusWareHouseExport = (option) => {
+//   switch (option) {
+//     case 1:
+//       return 'Tạo mới';
+//     case 2:
+//       return 'Phê duyệt';
+//     case 3:
+//       return 'Hoàn thành';
+//     default:
+//       return 'N/A';
+//   }
+// }
 
-export const getStatusWareHouseExport = (option) => {
-  switch (option) {
-    case 1:
-      return 'Tạo mới';
-    case 2:
-      return 'Phê duyệt';
-    case 3:
-      return 'Hoàn thành';
-    default:
-      return 'N/A';
-  }
-}
-
-export const getStatusWareHouse = (option) => {
-  switch (option) {
-    case 0:
-      return 'Chưa nhập';
-    case 1:
-      return 'Duyệt';
-    case 3:
-      return 'Duyệt';
-    case 4:
-      return 'Hoàn thành';
-    default:
-      return 'N/A';
-  }
-}
+// export const getStatusWareHouse = (option) => {
+//   switch (option) {
+//     case 0:
+//       return 'Chưa nhập';
+//     case 1:
+//       return 'Duyệt';
+//     case 3:
+//       return 'Duyệt';
+//     case 4:
+//       return 'Hoàn thành';
+//     default:
+//       return 'N/A';
+//   }
+// }
 
 export const getTypeGroup = (option) => {
   switch (option) {

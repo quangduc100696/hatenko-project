@@ -64,13 +64,13 @@ const Order = () => {
       width: 150,
       ellipsis: true
     },
-    {
-      title: "Sản Phẩm",
-      dataIndex: 'details',
-      width: 150,
-      ellipsis: true,
-      render: (details) => <ProductInOder details={details} action="name" />
-    },
+    // {
+    //   title: "Sản Phẩm",
+    //   dataIndex: 'details',
+    //   width: 150,
+    //   ellipsis: true,
+    //   render: (details) => <ProductInOder details={details} action="name" />
+    // },
     {
       title: "Đơn giá",
       dataIndex: 'subtotal',
@@ -112,13 +112,13 @@ const Order = () => {
       ellipsis: true,
       render: (createdAt) => formatTime(createdAt)
     },
-    {
-      title: "Trạng thái",
-      dataIndex: 'details',
-      width: 150,
-      ellipsis: true,
-      render: (details) => <ProductInOder details={details} action="status" />
-    },
+    // {
+    //   title: "Trạng thái",
+    //   dataIndex: 'details',
+    //   width: 150,
+    //   ellipsis: true,
+    //   render: (details) => <ProductInOder details={details} action="status" />
+    // },
     {
       title: "",
       width: 150,

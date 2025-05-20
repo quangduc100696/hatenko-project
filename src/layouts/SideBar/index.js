@@ -86,8 +86,8 @@ function SideBar() {
 		getItem(<Link to="/data/bot-collection">Bot dữ liệu</Link>, 'bot_data', <PullRequestOutlined />),
 		getItem(<Link to="/product"> Sản phẩm</Link>, 'product_list', <UngroupOutlined />),
     getItem('Tài khoản', 'tai_khoan', <ReportFIcon />, [
-      getItem(<Link to="/user/list"> Tài khoản cá nhân</Link>, 'user', <ConfigFIcon />),
-      getItem(<Link to="/user/group"> Tài khoản Team</Link>, 'user_group', <ConfigFIcon />),
+      // getItem(<Link to="/user/list"> Tài khoản cá nhân</Link>, 'user', <ConfigFIcon />),
+      getItem(<Link to="/user/group">Team</Link>, 'user_group', <ConfigFIcon />),
       getItem(<Link to="/user/list-system"> Tài khoản hệ thống</Link>, 'user_system', <ConfigFIcon />),
 		]),
   ]

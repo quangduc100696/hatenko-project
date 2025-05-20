@@ -20,6 +20,6 @@ export const LayoutWrapper = styled.div`
         border-radius: 15px;
         background: #50beb3;
         padding: 5px 0;
-        margin: 22px 0;
+        margin-top: 22px;
     }
 `
