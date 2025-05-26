@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table } from 'antd';
-import { dateFormatOnSubmit, formatMoney } from 'utils/dataUtils';
+import { dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
 
 const log = (value) => console.log('[container.product.index] ', value);
 const DuyetTienPage = ({ closeModal, title, data }) => {
@@ -11,12 +11,12 @@ const DuyetTienPage = ({ closeModal, title, data }) => {
         },
         {
             title: "Thời gian",
-            ataIndex: 'customerMobilePhone',
+            ataIndex: 'confirmTime',
             ellipsis: true,
             render: (item) => {
                 return (
                     <div>
-                        {dateFormatOnSubmit(item.confirmTime)}
+                        {formatTime(item.confirmTime)}
                     </div>
                 )
             }

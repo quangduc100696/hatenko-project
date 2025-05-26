@@ -39,7 +39,7 @@ function SideBar() {
   const shouldHideLeadLinks = (hasSaleRole || hasUserRole) && !hasAdminRole;
 
   const items = [
-    getItem(<Link to="/">{t('sideBar.dashboard')}</Link>, 'home', <DashboardFIcon />),
+    getItem(<Link to="/sale/report-common">{t('sideBar.dashboard')}</Link>, 'home', <DashboardFIcon />),
     getItem(<Link to="/sale/dashboard">Tình trạng đơn</Link>, 'dashboard', <ControlOutlined />),
 		getItem(<Link to="/project/list">Dự án</Link>, 'project_list', <PieChartOutlined />),
 		// getItem(<Link to="/sale/list-data/tong-lead">Lead</Link>, 'tong_lead', <FolderOpenOutlined />),

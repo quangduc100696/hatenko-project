@@ -74,11 +74,11 @@ const UserAccount = ({ data, closeModal }) => {
         closeModal={closeModal}
         formatDefaultValues={() => ({
           name: data?.datas?.name,
-          leaderName: data?.datas.leaderName,
-          leaderId: data?.datas.leaderId,
-          type: data?.datas.type,
-          status: data?.datas.status,
-          memberNumber: data?.datas.memberNumber,
+          leaderName: data?.datas?.leaderName,
+          leaderId: data?.datas?.leaderId,
+          type: data?.datas?.type,
+          status: data?.datas?.status,
+          memberNumber: data?.datas?.memberNumber,
           listMember: data?.datas?.listMember
         })}
       >

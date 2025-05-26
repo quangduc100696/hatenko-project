@@ -37,7 +37,8 @@ const UserAccount = ({data, closeModal}) => {
 			status: dataCreate?.status || data?.status,
       userProfiles: filtered || data?.userProfiles
 		}
-    if(data) {
+
+    if(Object.keys(data)?.length > 0) {
       const datas = await RequestUtils.Post(`/user/update?id=${data?.id}`, params);
       if(datas.errorCode === 200) {
         f5List('user/list');
@@ -61,7 +62,7 @@ const UserAccount = ({data, closeModal}) => {
       }
     }
   }
-  
+
   return (
     <div>
       <RestEditModal

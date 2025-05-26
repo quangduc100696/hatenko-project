@@ -32,7 +32,7 @@ const NewFeed = () => {
     })()
   }, [])
   const grandTotal = activityGroup?.reduce((sum, item) => sum + Number(item.total), 0);
-  console.log(grandTotal);
+
   return (
     <div>
       <div style={{ width: '100%', background: '#fff', height: 'auto', padding: 10 }}>
@@ -65,7 +65,7 @@ const NewFeed = () => {
                               <p style={{ margin: 0, padding: 0, paddingLeft: 10 }}>{item.leader}</p>
                             </Col>
                             <Col span={10} style={{borderLeft: '1px solid #fff',paddingLeft: 12, paddingRight: 12}}>
-                              <Progress percent={((item.total / grandTotal) * 100).toFixed(2) + '%'} status="active"/>
+                              <Progress percent={((item.total / grandTotal) * 100).toFixed(2)} strokeColor="#ffc016"/>
                             </Col>
                             <Col span={8} style={{fontSize: 14, borderLeft: '1px solid #fff', paddingLeft: 15}}>
                               {formatToMillion(Number(item?.total))}

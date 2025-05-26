@@ -97,6 +97,18 @@ const ListUserSystem = () => {
         )
       }
     },
+    {
+      title: "Thao tác",
+      width: 120,
+      fixed: 'right',
+      render: (record) => (
+        <div>
+          <Button color="primary" variant="dashed" size='small' onClick={() => onHandleUpdateUser(record)}>
+            Update
+          </Button>
+        </div>
+      )
+    }
   ];
 
   const onData = useCallback((values) => {
@@ -110,16 +122,16 @@ const ListUserSystem = () => {
   }, []);
 
   const onCreateLead = () => {
-    let title = 'Tạo tài khoản Group';
-    let hash = '#draw/userGroup.edit';
-    let data = { listMember: listMember }
+    let title = 'Tạo tài khoản';
+    let hash = '#draw/userAccount.edit';
+    let data = {}
     InAppEvent.emit(HASH_MODAL, { hash, title, data });
   }
 
   const onHandleUpdateUser = (datas) => {
-    let title = 'Sửa tài khoản Group';
-    let hash = '#draw/userGroup.edit';
-    let data = { listMember: listMember, datas };
+    let title = 'Sửa tài khoản';
+    let hash = '#draw/userAccount.edit';
+    let data = datas;
     InAppEvent.emit(HASH_MODAL, { hash, title, data });
   }
 
@@ -136,7 +148,6 @@ const ListUserSystem = () => {
         onData={onData}
         initialFilter={{ limit: 10, page: 1, fullName: '', ssoId: '' }}
         filter={<LeadFilter />}
-        hasCreate={false}
         beforeSubmitFilter={beforeSubmitFilter}
         useGetAllQuery={useGetList}
         apiPath={'user/list'}

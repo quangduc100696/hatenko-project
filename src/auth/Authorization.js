@@ -23,7 +23,7 @@ const Authorization = (props) => {
 
     const redirectRoute = useCallback(() => {
         const { pathname, state } = location;
-        let redirectUrl = state?.redirectUrl ?? '/';
+        let redirectUrl = state?.redirectUrl ?? '/sale/report-common';
         if (!user?.id) {
             let strParams = window.location.search.substring(1)
             navigate(LOGIN_PATH, {
