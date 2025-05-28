@@ -77,16 +77,17 @@ export const dateFormatForm = (entity, propertes = [], format) => {
 
 export const dateFormatOnSubmit = (entity, propertes = [], format = "YYYY-MM-DD HH:mm:ss") => {
 	if(typeof(entity) !== 'object') {
-		return entity;
+		return dayjs(entity).format(format); // Trường hợp là timestamp đơn lẻ
 	}
 	for(let k of propertes) {
 		const value = entity[k];
 		if(value) {
-			entity[k] = dayjs(value).format(format).valueOf();
+			entity[k] = dayjs(value).format(format);
 		}
 	}
 	return entity;
 }
+
 
 export const formatTime = (text, fm = "DD-MM-YYYY") => text ? moment(new Date(text)).format(fm) : 'N/a';
 export const formatMoney = (x) => x ? x.toLocaleString('it-IT', {style : 'currency', currency : 'VND'}) : '0'.concat(' VND');

@@ -24,11 +24,9 @@ const tdStyle = {
 };
 
 const DuyetTienPage = () => {
-
   const [title] = useState("Danh sách duyệt tiền");
-
   const onEdit = async (item) => {
-    let title = 'Chi tiết ' + item.id;
+    let title = 'Thanh toán đơn hàng' + item.code;
     const datas = await RequestUtils.Get(`/pay/list-by-order-id?orderId=${item.id}`)
     let hash = '#draw/duyetTien.edit';
     let data = datas?.data;
@@ -37,7 +35,7 @@ const DuyetTienPage = () => {
 
   const CUSTOM_ACTION = [
     {
-      title: "Code",
+      title: "Mã đơn hàng",
       dataIndex: 'code',
       width: 200
     },
@@ -68,7 +66,7 @@ const DuyetTienPage = () => {
       }
     },
     {
-      title: "Tên người nhận",
+      title: "Khách hàng",
       ataIndex: 'customerReceiverName',
       width: 200,
       ellipsis: true,
@@ -81,7 +79,7 @@ const DuyetTienPage = () => {
       }
     },
     {
-      title: "Người tạo",
+      title: "Sale",
       ataIndex: 'userCreateUsername',
       width: 200,
       ellipsis: true,
@@ -107,13 +105,26 @@ const DuyetTienPage = () => {
       }
     },
     {
+      title: "Đã thanh toán",
+      ataIndex: 'paid',
+      width: 200,
+      ellipsis: true,
+      render: (item) => {
+        return (
+          <div>
+            {formatMoney(item?.paid)}
+          </div>
+        )
+      }
+    },
+    {
       title: "Thao tác",
       width: 120,
       fixed: 'right',
       render: (record) => (
         <div>
           <Button color="primary" variant="dashed" onClick={() => onEdit(record)} size='small'>
-            Chi tiết
+            Thanh toán
           </Button>
         </div>
       )
@@ -170,8 +181,8 @@ const DuyetTienPage = () => {
                   >
                     <thead>
                       <tr style={{ background: "#f0f0f0", textAlign: "left" }}>
-                        <th style={thStyle}>Code</th>
-                        <th style={thStyle}>Thời gian</th>
+                        <th style={thStyle}>Số lần</th>
+                        <th style={thStyle}>Thời gian thanh toán</th>
                         <th style={thStyle}>Nội dung</th>
                         <th style={thStyle}>Trạng thái</th>
                         <th style={thStyle}>Phương thức</th>
@@ -183,22 +194,22 @@ const DuyetTienPage = () => {
                         <tr key={i} style={{ borderBottom: "1px solid #ddd" }}>
                           {/* Chỉ hiển thị sku.code ở hàng đầu tiên của detail */}
                           <td style={tdStyle}>
-                            {item?.code}
+                            {i + 1}
                           </td>
                           <td style={tdStyle}>
                             {dateFormatOnSubmit(item?.confirmTime)}
                           </td>
                           <td style={tdStyle}>
-                            {dateFormatOnSubmit(item?.content)}
+                            {(item?.content)}
                           </td>
                           <td style={tdStyle}>
-                            {item?.isConfirm}
+                            {item?.isConfirm === 1 ? "Đã duyệt" : "Chưa duyệt"}
                           </td>
                           <td style={tdStyle}>
                             {item?.method}
                           </td>
                           <td style={tdStyle}>
-                            {formatMoney(item?.amount )|| "N/A"}
+                            {formatMoney(item?.amount) || "N/A"}
                           </td>
 
                         </tr>
