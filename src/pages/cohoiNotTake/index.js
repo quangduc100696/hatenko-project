@@ -5,7 +5,7 @@ import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
 import { Button, Tag } from 'antd';
-import { arrayEmpty, dateFormatOnSubmit, formatMoney } from 'utils/dataUtils';
+import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
 import { getColorStatusLead, getSource, getStatusLead } from 'configs/constant';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
@@ -66,6 +66,19 @@ const LeadNotTakePage = () => {
             }
         },
         {
+          title: "Ngày tạo cơ hội",
+          ataIndex: '',
+          width: 200,
+          ellipsis: true,
+          render: (item) => {
+            return (
+              <div>
+                {formatTime(item?.opportunityAt)}
+              </div>
+            )
+          }
+        },
+        {
             title: "Tên người nhận",
             ataIndex: 'customerReceiverName',
             width: 200,
@@ -85,9 +98,9 @@ const LeadNotTakePage = () => {
             ellipsis: true,
             render: (item) => {
                 return (
-                    <div>
-                        {item?.userCreateUsername}
-                    </div>
+                  <div>
+                    {item?.userCreateUsername}
+                  </div>
                 )
             }
         },
@@ -98,9 +111,9 @@ const LeadNotTakePage = () => {
             ellipsis: true,
             render: (item) => {
                 return (
-                    <div>
-                        {formatMoney(item?.total)}
-                    </div>
+                  <div>
+                    {formatMoney(item?.total)}
+                  </div>
                 )
             }
         },

@@ -6,11 +6,9 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import Filter from './Filter'
 import { Button, Image } from 'antd';
 import { InAppEvent } from "utils/FuseUtils";
-import { GATEWAY, HASH_MODAL } from 'configs';
+import { HASH_MODAL } from 'configs';
 import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
-import ProductAttrService from 'services/ProductAttrService';
 import { cloneDeep } from 'lodash';
-import SkuView, { PriceView } from 'containers/Product/SkuView';
 import RequestUtils from 'utils/RequestUtils';
 
 

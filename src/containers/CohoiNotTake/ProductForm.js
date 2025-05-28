@@ -34,7 +34,7 @@ const ProductForm = () => {
                     placeholder={"Nhập tên sản phẩm"}
                 />
             </Col> */}
-            <Col md={12} xs={24}>
+            <Col md={24} xs={24}>
                 <FormSelect
                     required
                     name="cause"
@@ -45,7 +45,7 @@ const ProductForm = () => {
                     titleProp="name"
                 />
             </Col>
-            <Col md={12} xs={24}>
+            {/* <Col md={12} xs={24}>
                 <FormInputNumber
                     required
                     name="type"
@@ -53,7 +53,7 @@ const ProductForm = () => {
                     min="0"
                     placeholder="Loại"
                 />
-            </Col>
+            </Col> */}
             <Col md={24} xs={24}>
                 <div style={{ display: 'flex', marginBottom: 20, justifyContent: 'end' }}>
                     <CustomButton

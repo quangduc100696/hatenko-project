@@ -1,6 +1,6 @@
 import React from 'react';
 
-const productRoute = [
+const ProductRoute = [
   {
     path: 'product.edit',
     Component: React.lazy(() => import('containers/Product')),
@@ -8,4 +8,4 @@ const productRoute = [
   }
 ];
 
-export default productRoute;
+export default ProductRoute;
