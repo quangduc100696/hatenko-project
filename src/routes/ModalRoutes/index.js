@@ -16,6 +16,7 @@ import OrderRouter from './UserAccountRouter.js';
 import UserGroupRouter from './UserGroupRouter.js';
 import CohoiNotTakeRouter from './CohoiNotTakeRouter.js';
 import DuyetTienRouter from './DuyetTienRouter.js';
+import ActionChamSocDonHangRouter from './ChamSocDonHangRouter.js';
 
 const modalRoutes = [
   ...ProductRoute,
@@ -31,7 +32,8 @@ const modalRoutes = [
   ...OrderRouter,
   ...UserGroupRouter,
   ...CohoiNotTakeRouter,
-  ...DuyetTienRouter
+  ...DuyetTienRouter,
+  ...ActionChamSocDonHangRouter
 ]
 const log = (key, val) => console.log('[routes.draw-routes] ' + key + ' ', val);
 const notFoundHash = { Component: () => <div /> };

@@ -4,6 +4,7 @@ import FormHidden from 'components/form/FormHidden';
 import FormInput from 'components/form/FormInput';
 import FormInputNumber from 'components/form/FormInputNumber';
 import FormSelect from 'components/form/FormSelect';
+import FormSelectAPI from 'components/form/FormSelectAPI';
 import FormTextArea from 'components/form/FormTextArea';
 import { GATEWAY, HASH_MODAL_CLOSE } from 'configs';
 import React, { useEffect, useState } from 'react'
@@ -256,14 +257,14 @@ const OrderDetaiWareHouselForm = ({ title, data }) => {
             />
           </Col>
           <Col md={12} xs={24}>
-            <FormSelect
+             <FormSelectAPI
               required
+              apiPath='shipping/fetch-status'
+              apiAddNewItem='shipping/created-status'
+              onData={(data) => data ?? []}
+              label="Trang thái"
               name="status"
-              label="Trạng thái"
               placeholder="Trạng thái"
-              resourceData={shipStatus || []}
-              valueProp="id"
-              titleProp="name"
             />
           </Col>
           <Col md={12} xs={24}>
