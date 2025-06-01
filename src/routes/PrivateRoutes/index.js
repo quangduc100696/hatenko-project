@@ -22,8 +22,9 @@ import { ListUserSystemConfig } from './ListUserSysTemConfig';
 import { NewfeedConfig } from './NewFeedConfig';
 import { CohoiTakeConfig } from './CohoiTakeConfig';
 import { CardOrderConfig } from './CardOrderConfig';
-import { OrderTakeConfig } from './CancellationsPageConfig';
+import { CancellationsConfig } from './CancellationsPageConfig';
 import { CongnoConfig } from './ConnoConfig';
+import { OrderTakeConfig } from './OrderTakeCareConfig';
 
 
 const OrderPage = React.lazy(() => import('pages/order'));
@@ -57,6 +58,7 @@ const routeConfigs = [
     CohoiTakeConfig,
     CardOrderConfig,
     OrderTakeConfig,
+    CancellationsConfig,
     CongnoConfig
 ];
 

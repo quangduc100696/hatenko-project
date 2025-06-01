@@ -88,9 +88,10 @@ const ListUserGroup = () => {
       width: 200,
       ellipsis: true,
       render: (item) => {
+        const nameUser = listMember.find(f => f.id === item?.memberNumber)
         return (
           <div>
-            {item?.memberNumber || 'N/A'}
+            {nameUser?.name || 'N/A'}
           </div>
         )
       }

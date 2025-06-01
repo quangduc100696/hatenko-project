@@ -245,29 +245,23 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { Tag, Form, Row, Col, Button, Table, InputNumber, Input, Image, Select } from "antd";
 import { FormContextCustom } from "components/context/FormContextCustom";
-import { PhoneOutlined, MailOutlined, UserAddOutlined, FacebookOutlined, AimOutlined, FundOutlined, SearchOutlined } from '@ant-design/icons';
-import { CloseCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { PhoneOutlined, MailOutlined, UserAddOutlined, FacebookOutlined, AimOutlined, SearchOutlined } from '@ant-design/icons';
 import FormInputNumber from "components/form/FormInputNumber";
 import FormSelect from "components/form/FormSelect";
 import { DISCOUNT_UNIT_CONST } from "configs/localData";
-import ProductSumary from "containers/Product/ProductSumary";
-import { useGetAllProductQuery } from "hooks/useData";
+
 import { arrayEmpty, arrayNotEmpty, f5List, formatMoney, formatTime } from "utils/dataUtils";
 import CustomButton from 'components/CustomButton';
 import FormTextArea from "components/form/FormTextArea";
-import { ShowPriceStyles } from "../Order/styles";
 import { calPriceOff, formatterInputNumber, parserInputNumber } from "utils/tools";
-import FormHidden from "components/form/FormHidden";
 import { useMount } from "hooks/MyHooks";
 import { generateInForm } from "../Order/utils";
 import { cloneDeep, debounce } from "lodash";
-import FormAutoCompleteInfinite from "components/form/AutoCompleteInfinite/FormAutoCompleteInfinite";
 import RequestUtils from "utils/RequestUtils";
 import { InAppEvent } from "utils/FuseUtils";
 import { GATEWAY, HASH_MODAL_CLOSE } from "configs";
 import { ContainerSerchSp, ModaleCreateCohoiStyle } from "containers/Lead/styles";
 import FormInput from "components/form/FormInput";
-import ModaleStyles from "pages/lead/style";
 import FormDatePicker from "components/form/FormDatePicker";
 import { useOrderContext } from "./OrderContext";
 
@@ -354,13 +348,10 @@ const OrderDtailForm = ({ data, title }) => {
   const { listSp, customer, setListSp, setCustomer } = useOrderContext();
   const { record, updateRecord } = useContext(FormContextCustom);
   const [detailSp, setDetailSp] = useState([])
-  const [detailArr, setDetailArr] = useState([]);
   const [priceSp, setPriceSp] = useState(null);
   const [form] = Form.useForm();
   const [FormQuanlity] = Form.useForm();
-  // const [customer, setCustomer] = useState({});
   const [isOpen, setIsOpen] = useState(false);
-  // const [listSp, setListSp] = useState(data?.details || []);
   const [recordetail, setRecodetail] = useState({});
   const [onOpen, setOnOpen] = useState(false);
   const [listProduct, setListProduct] = useState([]);

@@ -5,8 +5,6 @@ import FormInput from 'components/form/FormInput'
 import React from 'react'
 
 const ProductForm = ({ data, listProFile }) => {
-    console.log('data', data);
-
     return (
         <div>
             <Row gutter={16} style={{ marginTop: 20 }}>
