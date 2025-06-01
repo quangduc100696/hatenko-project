@@ -1295,10 +1295,12 @@ const OrderDtailForm = ({ data, title }) => {
           </div>
         ) : (
           <div style={{ display: 'flex', justifyContent: 'end', marginBottom: 50 }}>
-            <Button onClick={() => {
-              setData(record)
-              setOnOpen(true);
-            }}>Thanh toán</Button>
+            { data?.paid === data?.total ? '' : (
+                <Button onClick={() => {
+                  setData(record)
+                  setOnOpen(true);
+                }}>Thanh toán</Button>
+            )}
           </div>
         )}
       </Form>

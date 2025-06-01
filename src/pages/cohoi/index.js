@@ -80,8 +80,8 @@ const CohoiPage = () => {
     const productIds = data?.details?.map((item) => item.productId).filter(Boolean);
     if (productIds?.length) {
       (async () => {
-          const productDetails = await RequestUtils.Get(`/product/find-list-id?id=${productIds.join(",")}`);
-          setProductDetails(productDetails?.data);
+        const productDetails = await RequestUtils.Get(`/product/find-list-id?id=${productIds.join(",")}`);
+        setProductDetails(productDetails?.data);
       })();
     }
   }, [data]);
@@ -217,13 +217,15 @@ const CohoiPage = () => {
       ellipsis: true,
       render: (record) => (
         <div style={{ display: 'flex', gap: 10 }}>
-          <Button color="primary" variant="dashed" onClick={() => {
-            setListSp(record?.details);
-            setData(record)
-            setOnOpen(true);
-          }} size='small'>
-            Thanh toán
-          </Button>
+          {record?.paid === record?.total ? '' : (
+            <Button color="primary" variant="dashed" onClick={() => {
+              setListSp(record?.details);
+              setData(record)
+              setOnOpen(true);
+            }} size='small'>
+              Thanh toán
+            </Button>
+          )}
           <Button color="primary" variant="dashed" onClick={() => onEdit(record)} size='small'>
             Chi tiết
           </Button>

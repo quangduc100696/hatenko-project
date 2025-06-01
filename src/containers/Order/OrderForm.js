@@ -1,15 +1,18 @@
-import { Form, Tag, Tabs, Row } from "antd";
-import { SnippetsOutlined } from '@ant-design/icons';
+import { Tabs } from "antd";
 import ORderDetailForm from "./ORderDetailForm";
 import OrderPayment from "./OrderPayment";
 import { OrderProvider } from "./OrderContext";
 
 const OrderForm = ({data, title}) => {
   const items = [
-    { key: '1', label: 'Chi tiết đơn hàng', children: <ORderDetailForm data={data} title={title}/>},
-    { key: '2', label: 'Thanh toán', children: <OrderPayment data={data} title={title}/> },
+    { key: '1', label: 'Chi tiết đơn hàng', children: <ORderDetailForm data={data} title={title}/> },
+    // Chỉ thêm tab "Thanh toán" nếu paid !== total
+    ...(data?.paid !== data?.total
+      ? [{ key: '2', label: 'Thanh toán', children: <OrderPayment data={data} title={title}/> }]
+      : []),
     { key: '3', label: 'Thông tin công ty', children: '' }
   ];
+
   return <>
     {/* <Row justify="center">
       <Form.Item 

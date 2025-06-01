@@ -15,6 +15,7 @@ const newDataCare = (dataCares, data) => {
 }
 
 const TakeLead = ({ data }) => {
+
   const [customer, setCustomer] = useState({});
  
   useEffect(() => {

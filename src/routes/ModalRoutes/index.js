@@ -6,7 +6,7 @@ import ProductRoute from './ProductRoute.js';
 import OrderRoute from './OrderRoute';
 import LeadRoute from './LeadRouter.js';
 import LeadNotTakeRouter from './LeadNotTakeRouter.js';
-import LeadTakeRouter from './LeadNotTakeRouter.js';
+import LeadTakeRouter from './LeadTakeRouter.js';
 import CohoiRouter from './CohoiRouter.js';
 import WareHoseRouter from './WareHouseRouter.js';
 import CutomerRetailRouter from './CustomerRetailRouter.js';

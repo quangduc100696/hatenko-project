@@ -13,7 +13,6 @@ const log = (value) => console.log('[container.product.index] ', value);
 const TakeNotLead = ({ closeModal, title, data }) => {
   const [record, setRecord] = useState({});
   const [customer, setCustomer] = useState({});
-
   useEffect(() => {
     (async () => {
       const customerData = await RequestUtils.Get(`/customer/find-by-phone?phone=${data?.customerMobile}&withOrder=withOrder`);

@@ -85,13 +85,13 @@ const DuyetTienPage = () => {
   }, [detailData])
 
   useEffect(() => {
-      (() => {
-        if (itemOrder?.length > 0) {
-          form.setFieldsValue({ monneyPrice: totalAmount });
-          form.setFieldsValue({ content: itemOrder[0]?.content })
-          form.setFieldsValue({ datePrice: itemOrder[0]?.confirmTime })
-        }
-      })()
+    (() => {
+      if (itemOrder?.length > 0) {
+        form.setFieldsValue({ monneyPrice: totalAmount });
+        form.setFieldsValue({ content: itemOrder[0]?.content })
+        form.setFieldsValue({ datePrice: itemOrder[0]?.confirmTime })
+      }
+    })()
   }, [itemOrder, form, totalAmount])
 
   const onEdit = async (item) => {
@@ -101,7 +101,7 @@ const DuyetTienPage = () => {
     let data = datas?.data;
     InAppEvent.emit(HASH_MODAL, { hash, title, data });
   }
-  
+
   const onHandleVat = (vat) => setVat(vat);
 
   const CUSTOM_ACTION = [
@@ -190,21 +190,25 @@ const DuyetTienPage = () => {
     },
     {
       title: "Thao tác",
-      width: 180,
+      width: 120,
       fixed: 'right',
-      render: (record) => (
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <Button color="primary" variant="dashed" onClick={() => {
-            setDetailData(record)
-            setOnOpen(true);
-          }} size='small'>
-            Thanh toán
-          </Button>
-          <Button color="primary" variant="dashed" onClick={() => onEdit(record)} size='small'>
+      render: (record) => {
+        return (
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {record?.paid === record?.total ? '' : (
+              <Button color="primary" variant="dashed" onClick={() => {
+                setDetailData(record)
+                setOnOpen(true);
+              }} size='small'>
+                Thanh toán
+              </Button>
+            )}
+            {/* <Button color="primary" variant="dashed" onClick={() => onEdit(record)} size='small'>
             Chi tiết
-          </Button>
-        </div>
-      )
+          </Button> */}
+          </div>
+        )
+      }
     }
   ];
 
@@ -222,78 +226,78 @@ const DuyetTienPage = () => {
   }, []);
 
   // thanh toán
-    const onHandleCreatePayment = async (value) => {
-      const newDetails = (detailData?.details || []).map((detail) => {
-        const matchingItems = detailData?.details
-          .filter(sp => sp.code === detail.code)
-          .flatMap(sp => sp.items || []);
-        const items = matchingItems.length > 0
-          ? matchingItems
-          : detailData?.details?.flatMap(sp => sp.items || []);
-  
-        return {
-          productName: detail?.productName || detail?.name || "N/A",
-          id: detail?.id || null,
-          items: items.map(item => ({
-            id: item?.id,
-            skuInfo: item?.skuInfo,
-            skuId: item?.skuId,
-            productId: item?.productId || null,
-            name: item?.productName || item?.name || null,
-            quantity: item?.quantity,
-            price: item?.price,
-            discount: JSON.stringify({ discountValue: item?.discountValue, discountUnit: item?.discountUnit })
-          }))
-        };
-      });
-      if (!detailData?.details?.length && detailData?.details?.length) {
-        newDetails.push({
-          productName: detailData?.details[0]?.productName || "N/A",
-          id: null,
-          items: detailData?.details?.flatMap(sp => sp.items || []).map(item => ({
-            id: item?.id,
-            skuInfo: item?.skuInfo,
-            skuId: item?.skuId,
-            productId: item?.productId || null,
-            productName: item?.productName || item?.name || null,
-            quantity: item?.quantity,
-            price: item?.price,
-            discountValue: item?.discountValue ? item?.discountValue : 0,
-            discountUnit: item?.discountUnit ? item?.discountUnit : 0
-          }))
-        });
-      }
-      const params = {
-        vat: vat || 0,
-        id: detailData?.id,
-        dataId: detailData?.id,
-        paymentInfo: {
-          amount: value?.monneyPrice,
-          method: value?.optionPrice,
-          status: value?.monneyPrice && value?.optionPrice ? true : false,
-          content: value?.noteMonney
-        },
-        customer: {
-          saleId: customer?.iCustomer?.saleId,
-          gender: customer?.iCustomer?.gender,
-          name: customer?.iCustomer?.name,
-          email: customer?.iCustomer?.email,
-          mobile: customer?.iCustomer?.mobile,
-          createdAt: customer?.iCustomer?.createdAt,
-          updatedAt: customer?.iCustomer?.updatedAt,
-        },
-        details: newDetails,
+  const onHandleCreatePayment = async (value) => {
+    const newDetails = (detailData?.details || []).map((detail) => {
+      const matchingItems = detailData?.details
+        .filter(sp => sp.code === detail.code)
+        .flatMap(sp => sp.items || []);
+      const items = matchingItems.length > 0
+        ? matchingItems
+        : detailData?.details?.flatMap(sp => sp.items || []);
+
+      return {
+        productName: detail?.productName || detail?.name || "N/A",
+        id: detail?.id || null,
+        items: items.map(item => ({
+          id: item?.id,
+          skuInfo: item?.skuInfo,
+          skuId: item?.skuId,
+          productId: item?.productId || null,
+          name: item?.productName || item?.name || null,
+          quantity: item?.quantity,
+          price: item?.price,
+          discount: JSON.stringify({ discountValue: item?.discountValue, discountUnit: item?.discountUnit })
+        }))
       };
-      const datas = await RequestUtils.Post('/customer-order/update-cohoi', params);
-      if (datas?.errorCode === 200) {
-        setOnOpen(false);
-        f5List('order/fetch');
-        InAppEvent.normalSuccess("Thanh toán thành công");
-      } else {
-        InAppEvent.normalError("Tạo đơn hàng thất bại");
-      }
+    });
+    if (!detailData?.details?.length && detailData?.details?.length) {
+      newDetails.push({
+        productName: detailData?.details[0]?.productName || "N/A",
+        id: null,
+        items: detailData?.details?.flatMap(sp => sp.items || []).map(item => ({
+          id: item?.id,
+          skuInfo: item?.skuInfo,
+          skuId: item?.skuId,
+          productId: item?.productId || null,
+          productName: item?.productName || item?.name || null,
+          quantity: item?.quantity,
+          price: item?.price,
+          discountValue: item?.discountValue ? item?.discountValue : 0,
+          discountUnit: item?.discountUnit ? item?.discountUnit : 0
+        }))
+      });
     }
-  
+    const params = {
+      vat: vat || 0,
+      id: detailData?.id,
+      dataId: detailData?.id,
+      paymentInfo: {
+        amount: value?.monneyPrice,
+        method: value?.optionPrice,
+        status: value?.monneyPrice && value?.optionPrice ? true : false,
+        content: value?.noteMonney
+      },
+      customer: {
+        saleId: customer?.iCustomer?.saleId,
+        gender: customer?.iCustomer?.gender,
+        name: customer?.iCustomer?.name,
+        email: customer?.iCustomer?.email,
+        mobile: customer?.iCustomer?.mobile,
+        createdAt: customer?.iCustomer?.createdAt,
+        updatedAt: customer?.iCustomer?.updatedAt,
+      },
+      details: newDetails,
+    };
+    const datas = await RequestUtils.Post('/customer-order/update-cohoi', params);
+    if (datas?.errorCode === 200) {
+      setOnOpen(false);
+      f5List('order/fetch');
+      InAppEvent.normalSuccess("Thanh toán thành công");
+    } else {
+      InAppEvent.normalError("Tạo đơn hàng thất bại");
+    }
+  }
+
   const onCreateLead = () => {
 
   }
