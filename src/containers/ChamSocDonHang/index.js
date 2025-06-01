@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import RestEditModal from 'components/RestLayout/RestEditModal';
-import { PhoneOutlined, MailOutlined, UserAddOutlined, FacebookOutlined, AimOutlined, FundOutlined } from '@ant-design/icons';
 import ProductForm from './ProductForm';
 import RequestUtils from 'utils/RequestUtils';
 import { InAppEvent } from 'utils/FuseUtils';
