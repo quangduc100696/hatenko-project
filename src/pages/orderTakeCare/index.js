@@ -26,7 +26,7 @@ const OrderTakeCarePage = () => {
   const [title] = useState("Danh sách Đơn hàng đã chăm sóc");
 
   const onEdit = (item) => {
-    let title = 'Chăm sóc đơn hàng# ' + item.id;
+    let title = 'Chăm sóc đơn hàng#';
     let hash = '#draw/chamsocdonhang.edit';
     let data = cloneDeep(item);
     InAppEvent.emit(HASH_MODAL, { hash, title, data });

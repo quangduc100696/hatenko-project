@@ -6,20 +6,19 @@ import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
 import { Button, Tag } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
-import { getColorStatusLead, getSource, getStatusLead } from 'configs/constant';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import { cloneDeep } from 'lodash';
 
 const thStyle = {
-    padding: "8px 12px",
-    borderBottom: "2px solid #ddd",
-    fontWeight: "bold",
+  padding: "8px 12px",
+  borderBottom: "2px solid #ddd",
+  fontWeight: "bold",
 };
 
 const tdStyle = {
-    padding: "8px 12px",
-    borderBottom: "1px solid #ddd",
+  padding: "8px 12px",
+  borderBottom: "1px solid #ddd",
 };
 
 const LeadNotTakePage = () => {
@@ -27,7 +26,7 @@ const LeadNotTakePage = () => {
     const [title] = useState("Danh sách Cơ hội chưa chăm sóc");
 
     const onEdit = (item) => {
-        let title = 'Chăm sóc cơ hội# ' + item.id;
+        let title = 'Chăm sóc cơ hội#'
         let hash = '#draw/cohoiNotTake.edit';
         let data = cloneDeep(item);
         InAppEvent.emit(HASH_MODAL, { hash, title, data });

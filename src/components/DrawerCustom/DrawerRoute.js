@@ -16,6 +16,10 @@ const DrawerMaxWidth = (title) => {
       return 1450;
     case 'Xuất kho #': 
       return 1450;
+    case 'Chăm sóc cơ hội#':
+      return 1450;
+    case 'Chăm sóc đơn hàng#': 
+      return 1450;
     default:
       return 750;
   }

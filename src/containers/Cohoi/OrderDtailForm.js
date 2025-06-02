@@ -550,7 +550,7 @@ const OrderDtailForm = ({ data }) => {
     <div style={{ marginTop: 15 }}>
       <Form onFinish={onHandleCreateOdder} layout="vertical" >
         <p><strong>Thông tin khách hàng</strong></p>
-        <div class="group-inan" style={{ background: '#f4f4f4', borderTop: '1px dashed red' }}></div>
+        <div className="group-inan" style={{ background: '#f4f4f4', borderTop: '1px dashed red' }}></div>
         <Row style={{ marginTop: 20 }}>
           <Col md={6} xs={6}>
             <p>
@@ -589,7 +589,7 @@ const OrderDtailForm = ({ data }) => {
         <p>
           <strong>Thông tin sản phẩm</strong>
         </p>
-        <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
+        <div className="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
         {/* <Button
           type="dashed"
           style={{ float: 'right', marginBottom: 20 }}
@@ -727,7 +727,7 @@ const OrderDtailForm = ({ data }) => {
           dataSource={newSp(listSp)}
           pagination={false}
         />
-        <div class="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
+        <div className="group-inan" style={{ background: '#f4f4f4', marginTop: 10, marginBottom: 20, borderTop: '1px dashed red' }}></div>
         <Row justify={'end'}>
           <Col md={24} xs={24}>
             <FormTextArea
