@@ -1,23 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
-import { dateFormatOnSubmit, f5List, formatTime } from 'utils/dataUtils';
+import { dateFormatOnSubmit } from 'utils/dataUtils';
 import { GATEWAY, HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import useGetMe from 'hooks/useGetMe';
 import { Button, Image } from 'antd';
-import { formatTimeStr } from 'antd/es/statistic/utils';
-import { getTypeGroup } from 'configs/constant';
-import RequestUtils from 'utils/RequestUtils';
 
 const ListUserSystem = () => {
 
-  const { user: profile } = useGetMe();
   const [title] = useState("Danh sách tài khoản hệ thống");
-  const [listMember, setListMember] = useState([])
 
   const CUSTOM_ACTION = [
     {
