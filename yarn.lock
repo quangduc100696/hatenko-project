@@ -5193,7 +5193,14 @@
     "es-errors" "^1.3.0"
     "is-data-view" "^1.0.1"
 
-"date-fns@^4.1.0", "date-fns@>= 2.x":
+"date-fns@^2.15.0", "date-fns@>= 2.x":
+  "integrity" "sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw=="
+  "resolved" "https://registry.npmjs.org/date-fns/-/date-fns-2.30.0.tgz"
+  "version" "2.30.0"
+  dependencies:
+    "@babel/runtime" "^7.21.0"
+
+"date-fns@^4.1.0":
   "integrity" "sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg=="
   "resolved" "https://registry.npmjs.org/date-fns/-/date-fns-4.1.0.tgz"
   "version" "4.1.0"
@@ -5547,7 +5554,7 @@
   "resolved" "https://registry.npmjs.org/emittery/-/emittery-0.8.1.tgz"
   "version" "0.8.1"
 
-"emoji-mart@^5.0.0", "emoji-mart@^5.2", "emoji-mart@^5.4.0":
+"emoji-mart@^3.0.0", "emoji-mart@^5.0.0", "emoji-mart@^5.2", "emoji-mart@^5.4.0":
   "integrity" "sha512-eJp3QRe79pjwa+duv+n7+5YsNhRcMl812EcFVwrnRvYKoNPoQb5qxU8DG6Bgwji0akHdp6D4Ln6tYLG58MFSow=="
   "resolved" "https://registry.npmjs.org/emoji-mart/-/emoji-mart-5.6.0.tgz"
   "version" "5.6.0"
@@ -6297,6 +6304,11 @@
   dependencies:
     "locate-path" "^6.0.0"
     "path-exists" "^4.0.0"
+
+"flast-chat@^1.0.8":
+  "integrity" "sha512-PbEYx6fjPjumTNGEwmqSyR8xVtsYPcP6NJe8N2EhQ8xxADxRnjiK9IN+KONRkLALIM8xonhja6hG4fItZmX/+w=="
+  "resolved" "https://registry.npmjs.org/flast-chat/-/flast-chat-1.0.8.tgz"
+  "version" "1.0.8"
 
 "flat-cache@^3.0.4":
   "integrity" "sha512-CYcENa+FtcUKLmhhqyctpclsq7QF38pKjZHsGNiSQF5r4FtoKDWabFDl3hzaEQMvT1LHEysw5twgLvpYYb4vbw=="
@@ -10127,7 +10139,7 @@
     "strip-ansi" "^6.0.1"
     "text-table" "^0.2.0"
 
-"react-dom@*", "react-dom@^16.8.0 || ^17.0.0", "react-dom@^16.8.5 || ^17.0.0 || ^18.0.0", "react-dom@^17.0.0 || ^18.0.0", "react-dom@^18.0.0 || ^19.1.0", "react-dom@^18.3.1", "react-dom@>= 16.8.0", "react-dom@>=16.0.0", "react-dom@>=16.11.0", "react-dom@>=16.8", "react-dom@>=16.8.4", "react-dom@>=16.9.0":
+"react-dom@*", "react-dom@^16.8.0 || ^17.0.0", "react-dom@^16.8.0 || ^17.0.0 || ^18.0.0", "react-dom@^16.8.5 || ^17.0.0 || ^18.0.0", "react-dom@^17.0.0 || ^18.0.0", "react-dom@^18.0.0 || ^19.1.0", "react-dom@^18.3.1", "react-dom@>= 16.8.0", "react-dom@>=16.0.0", "react-dom@>=16.11.0", "react-dom@>=16.8", "react-dom@>=16.8.4", "react-dom@>=16.9.0":
   "integrity" "sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw=="
   "resolved" "https://registry.npmjs.org/react-dom/-/react-dom-18.3.1.tgz"
   "version" "18.3.1"

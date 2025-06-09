@@ -301,7 +301,6 @@ const ActionXuatKho = ({ data }) => {
       });
     }
   };
-console.log('resultsRef', resultsRef);
 
   const createOrdernotFound = async (value) => {
     const now = new Date();

@@ -119,7 +119,19 @@ const FormSelectAPI = ({
           type: checkStatus ? 1 : 0
         };
       }
+      if(props.keyCheck) {
+        props.setShouldRefetch(true);
+        dataPost = {
+          ...dataPost,
+          type: 1
+        };
+      }
       const {data, errorCode, message: msg } = await RequestUtils.Post("/" + apiAddNewItem, dataPost);
+      if(data) {
+        if(props.keyCheck) {
+          props.setShouldRefetch(false);
+        }
+      }
       if(errorCode !== SUCCESS_CODE) {
         message.error(msg);
       } else {
