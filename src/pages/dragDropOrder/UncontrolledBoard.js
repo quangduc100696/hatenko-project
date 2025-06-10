@@ -9,6 +9,7 @@ import { formatMoney, formatTime } from 'utils/dataUtils';
 // import { FlastAi } from 'flast-chat';
 import ModaleStyles from 'pages/lead/style';
 import FormSelectAPI from 'components/form/FormSelectAPI';
+import { InAppEvent } from 'utils/FuseUtils';
 
 const convertData = (data) => {
   return {
@@ -103,64 +104,65 @@ const UncontrolledBoard = () => {
           allowRemoveCard
           onLaneRemove={console.log}
           onCardRemove={console.log}
-          allowAddCard={{ on: "top" }}
           renderCard={(card, { dragging }) => {
             const isHovered = hoveredCardId === card.id;
             const date = formatTime(card.createDate);
             return (
-              <div
-                style={{
-                  position: 'relative',
-                  width: '250px',
-                  padding: 12,
-                  background: dragging ? '#f0f8ff' : 'white',
-                  borderRadius: 8,
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                  marginBottom: 8
-                }}
-                onMouseEnter={() => setHoveredCardId(card.id)}
-                onMouseLeave={() => setHoveredCardId(null)}
-              >
-                <h4>{card.title}</h4>
-                <p style={{ fontSize: 12, color: '#333', margin: 0, padding: 0 }}>
-                  Khách hàng: <strong>{card.customerName}</strong>
-                </p>
-                <p style={{ fontSize: 12, color: '#333', margin: 0, padding: 0 }}>
-                  Tổng: <strong>{formatMoney(card.total)}</strong>
-                </p>
-                <p style={{ fontSize: 12, color: '#666', margin: 0, padding: 0 }}>
-                  Ngày tạo: {date}
-                </p>
-                <p style={{ fontSize: 12, color: '#666', margin: 0, padding: 0 }}>
-                  Trạng thái: {card?.status}
-                </p>
-                {/* Khung hover hiển thị */}
-                {isHovered && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: '97%',
-                      marginLeft: 12,
-                      width: 200,
-                      background: '#fffbe6',
-                      border: '1px solid #ffe58f',
-                      borderRadius: 8,
-                      padding: 8,
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                      zIndex: 9999
-                    }}
-                  >
-                    <p style={{ fontSize: 12, margin: 0, paddingBottom: 5 }}>📌 Ghi chú thêm</p>
-                    <p style={{ fontSize: 12, color: '#333', margin: 0, padding: 0 }}>
-                      Tổng: <strong>{formatMoney(card.total)}</strong>
-                    </p>
-                    <p style={{ fontSize: 12, color: '#666', margin: 0, padding: 0 }}>
-                      Ngày tạo: {date}
-                    </p>
-                    <p style={{ fontSize: 12, margin: 0 }}>{card?.note || "Không có ghi chú"}</p>
-                  </div>
-                )}
+              <div>
+                <div
+                  style={{
+                    position: 'relative',
+                    width: '250px',
+                    padding: 12,
+                    background: dragging ? '#f0f8ff' : 'white',
+                    borderRadius: 8,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    marginBottom: 8
+                  }}
+                  onMouseEnter={() => setHoveredCardId(card.id)}
+                  onMouseLeave={() => setHoveredCardId(null)}
+                >
+                  <h4>{card.title}</h4>
+                  <p style={{ fontSize: 12, color: '#333', margin: 0, padding: 0 }}>
+                    Khách hàng: <strong>{card.customerName}</strong>
+                  </p>
+                  <p style={{ fontSize: 12, color: '#333', margin: 0, padding: 0 }}>
+                    Tổng: <strong>{formatMoney(card.total)}</strong>
+                  </p>
+                  <p style={{ fontSize: 12, color: '#666', margin: 0, padding: 0 }}>
+                    Ngày tạo: {date}
+                  </p>
+                  <p style={{ fontSize: 12, color: '#666', margin: 0, padding: 0 }}>
+                    Trạng thái: {card?.status}
+                  </p>
+                  {/* Khung hover hiển thị */}
+                  {isHovered && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: '97%',
+                        marginLeft: 12,
+                        width: 200,
+                        background: '#fffbe6',
+                        border: '1px solid #ffe58f',
+                        borderRadius: 8,
+                        padding: 8,
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                        zIndex: 9999
+                      }}
+                    >
+                      <p style={{ fontSize: 12, margin: 0, paddingBottom: 5 }}>📌 Ghi chú thêm</p>
+                      <p style={{ fontSize: 12, color: '#333', margin: 0, padding: 0 }}>
+                        Tổng: <strong>{formatMoney(card.total)}</strong>
+                      </p>
+                      <p style={{ fontSize: 12, color: '#666', margin: 0, padding: 0 }}>
+                        Ngày tạo: {date}
+                      </p>
+                      <p style={{ fontSize: 12, margin: 0 }}>{card?.note || "Không có ghi chú"}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           }}
@@ -169,6 +171,22 @@ const UncontrolledBoard = () => {
             ...draftCard
           })}
           onCardNew={console.log}
+          onCardDragEnd={async (card, source, destination, column) => {
+            // Nếu card được chuyển sang một cột khác
+            if (source?.status !== column?.toColumnId) {
+              const orderId = source.id;
+              const statusId = column.toColumnId;
+              const findOrder = newOrder?.columns?.find(f => f.id === statusId);
+              try {
+                const data = await RequestUtils.Post(`/customer-order/update-status-order?orderId=${orderId}&statusId=${statusId}`, '');
+                if (data.errorCode === 200) {
+                  return InAppEvent.normalSuccess(`Chuyển đơn hàng ${source?.title} sang trạng thái ${findOrder?.title} thành công!`);
+                }
+              } catch (error) {
+                console.log(error);
+              }
+            }
+          }}
         />
       </div>
       <ModaleStyles title={
