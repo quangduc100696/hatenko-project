@@ -6305,10 +6305,10 @@
     "locate-path" "^6.0.0"
     "path-exists" "^4.0.0"
 
-"flast-chat@^1.0.8":
-  "integrity" "sha512-PbEYx6fjPjumTNGEwmqSyR8xVtsYPcP6NJe8N2EhQ8xxADxRnjiK9IN+KONRkLALIM8xonhja6hG4fItZmX/+w=="
-  "resolved" "https://registry.npmjs.org/flast-chat/-/flast-chat-1.0.8.tgz"
-  "version" "1.0.8"
+"flast-chat@^1.0.11":
+  "integrity" "sha512-gRhP02fTCv8EnjoM5ZhFoNfxibqrQRcoTv2Uzoei1tirQQaYj0iCyRCxS8F+YlvNaBOVXwD+ruzgMZziiFFb8Q=="
+  "resolved" "https://registry.npmjs.org/flast-chat/-/flast-chat-1.0.11.tgz"
+  "version" "1.0.11"
 
 "flat-cache@^3.0.4":
   "integrity" "sha512-CYcENa+FtcUKLmhhqyctpclsq7QF38pKjZHsGNiSQF5r4FtoKDWabFDl3hzaEQMvT1LHEysw5twgLvpYYb4vbw=="

@@ -1,7 +1,7 @@
 import React from 'react'
 import Board from "@asseinfo/react-kanban";
 import '@asseinfo/react-kanban/dist/styles.css'
-import { Button } from 'antd';
+import { Button, Col, Form, Input, Row, Tag } from 'antd';
 import { useEffect } from 'react';
 import RequestUtils from 'utils/RequestUtils';
 import { useState } from 'react';
@@ -10,6 +10,7 @@ import { formatMoney, formatTime } from 'utils/dataUtils';
 import ModaleStyles from 'pages/lead/style';
 import FormSelectAPI from 'components/form/FormSelectAPI';
 import { InAppEvent } from 'utils/FuseUtils';
+import { ContainerStyles } from './style';
 
 const convertData = (data) => {
   return {
@@ -34,7 +35,10 @@ const UncontrolledBoard = () => {
   const [open, setOpen] = useState(false);
   const [shouldRefetch, setShouldRefetch] = useState(false);
   const [hoveredCardId, setHoveredCardId] = useState(null);
-
+  const [dataOrder, setDataOrder] = useState([]);
+  const [openDetail, setOpenDetail] = useState(false);
+  const [refect, setRefect] = useState(false);
+  const [detailDataOrder, setDetailDataOrder] = useState({});
 
   // useEffect(() => {
   //   try {
@@ -83,29 +87,50 @@ const UncontrolledBoard = () => {
         }
         return newData;
       })
-      const newColumn = { columns: newItem }
-      setNewOrder(newColumn)
+      const newColumn = { columns: newItem };
+      setNewOrder(newColumn);
+      setDataOrder(order?.data.embedded);
     })()
-  }, [shouldRefetch])
+  }, [shouldRefetch, refect])
 
   const converted = convertData(newOrder);
 
   return (
-    <div>
+    <ContainerStyles>
       <div style={{ display: 'flex', justifyContent: 'end', marginBottom: 20 }}>
-        <Button onClick={() => setOpen(true)}>Tạo trạng thái đơn</Button>
+        <Button onClick={() => setOpen(true)} type="primary">Tạo trạng thái đơn</Button>
       </div>
       <div style={{ border: '1px solid #0088cd', borderRadius: 10 }}>
         <Board
           key={JSON.stringify(converted)}    // mỗi lần data mới, React unmount/remount
           initialBoard={converted}
+          renderColumnHeader={(column) => {
+            const totalCols = converted.columns.length;
+            const idx = converted.columns.findIndex(c => c.id === column.id);
+            const hue = (idx * 360 / totalCols) % 360;
+            // Tăng saturation lên 80%, lightness xuống 50%
+            const bg = `hsl(${hue}, 80%, 50%)`;
+            return (
+              <div
+                style={{
+                  padding: '5px',
+                  backgroundColor: bg,
+                  marginBottom: 15,
+                  borderRadius: 50,
+                }}
+              >
+                <div style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: '#fff' }}>
+                  {column.title}
+                </div>
+              </div>
+            )
+          }}
           allowRemoveLane
           allowRenameColumn={false}
           allowRemoveCard
           onLaneRemove={console.log}
           onCardRemove={console.log}
           renderCard={(card, { dragging }) => {
-            const isHovered = hoveredCardId === card.id;
             const date = formatTime(card.createDate);
             return (
               <div>
@@ -121,6 +146,11 @@ const UncontrolledBoard = () => {
                   }}
                   onMouseEnter={() => setHoveredCardId(card.id)}
                   onMouseLeave={() => setHoveredCardId(null)}
+                  onClick={() => {
+                    const findItem = dataOrder.find(f => f.id === card.id);
+                    setOpenDetail(true);
+                    setDetailDataOrder(findItem)
+                  }}
                 >
                   <h4>{card.title}</h4>
                   <p style={{ fontSize: 12, color: '#333', margin: 0, padding: 0 }}>
@@ -132,36 +162,10 @@ const UncontrolledBoard = () => {
                   <p style={{ fontSize: 12, color: '#666', margin: 0, padding: 0 }}>
                     Ngày tạo: {date}
                   </p>
-                  <p style={{ fontSize: 12, color: '#666', margin: 0, padding: 0 }}>
+                  {/* <p style={{ fontSize: 12, color: '#666', margin: 0, padding: 0 }}>
                     Trạng thái: {card?.status}
-                  </p>
+                  </p> */}
                   {/* Khung hover hiển thị */}
-                  {isHovered && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: '97%',
-                        marginLeft: 12,
-                        width: 200,
-                        background: '#fffbe6',
-                        border: '1px solid #ffe58f',
-                        borderRadius: 8,
-                        padding: 8,
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                        zIndex: 9999
-                      }}
-                    >
-                      <p style={{ fontSize: 12, margin: 0, paddingBottom: 5 }}>📌 Ghi chú thêm</p>
-                      <p style={{ fontSize: 12, color: '#333', margin: 0, padding: 0 }}>
-                        Tổng: <strong>{formatMoney(card.total)}</strong>
-                      </p>
-                      <p style={{ fontSize: 12, color: '#666', margin: 0, padding: 0 }}>
-                        Ngày tạo: {date}
-                      </p>
-                      <p style={{ fontSize: 12, margin: 0 }}>{card?.note || "Không có ghi chú"}</p>
-                    </div>
-                  )}
                 </div>
               </div>
             );
@@ -173,19 +177,21 @@ const UncontrolledBoard = () => {
           onCardNew={console.log}
           onCardDragEnd={async (card, source, destination, column) => {
             // Nếu card được chuyển sang một cột khác
-            if (source?.status !== column?.toColumnId) {
-              const orderId = source.id;
-              const statusId = column.toColumnId;
-              const findOrder = newOrder?.columns?.find(f => f.id === statusId);
-              try {
-                const data = await RequestUtils.Post(`/customer-order/update-status-order?orderId=${orderId}&statusId=${statusId}`, '');
-                if (data.errorCode === 200) {
-                  return InAppEvent.normalSuccess(`Chuyển đơn hàng ${source?.title} sang trạng thái ${findOrder?.title} thành công!`);
-                }
-              } catch (error) {
-                console.log(error);
+
+            const orderId = source.id;
+            const statusId = column.toColumnId;
+            const findOrder = newOrder?.columns?.find(f => f.id === statusId);
+            try {
+              setRefect(true)
+              const data = await RequestUtils.Post(`/customer-order/update-status-order?orderId=${orderId}&statusId=${statusId}`, '');
+              if (data.errorCode === 200) {
+                setRefect(false)
+                return InAppEvent.normalSuccess(`Chuyển đơn hàng ${source?.title} sang trạng thái ${findOrder?.title} thành công!`);
               }
+            } catch (error) {
+              console.log(error);
             }
+
           }}
         />
       </div>
@@ -209,7 +215,75 @@ const UncontrolledBoard = () => {
           />
         </div>
       </ModaleStyles>
-    </div>
+
+      <ModaleStyles title={
+        <div style={{ color: '#fff' }}>
+          Chi tiết đơn hàng {detailDataOrder?.code}
+        </div>
+      } open={openDetail} footer={false} onCancel={() => {
+        setDetailDataOrder({});
+        setOpenDetail(false)
+      }}>
+        <div style={{ padding: 15 }}>
+          {detailDataOrder?.details?.map(item => {
+            const newDetailStatus = newOrder?.columns.find(f => f.id === detailDataOrder?.status);
+            return (
+              <Row>
+                <Col md={12} sm={24}>
+                  <p>Mã đơn: <span>{item?.code}</span></p>
+                </Col>
+                <Col md={12} sm={24}>
+                  <p><span> <Tag color="#f50">Trạng thái: {newDetailStatus?.title}</Tag></span></p>
+                </Col>
+                <Col md={12} sm={24}>
+                  <p>Ngày tạo: <span>{item?.createdAt}</span></p>
+                </Col>
+                <Col md={12} sm={24}>
+                  <p>Tiền: <span>{formatMoney(item?.total)}</span></p>
+                </Col>
+              </Row>
+            )
+          })}
+          <hr />
+          <p style={{ fontSize: 14, fontWeight: 700 }}>Danh sách đơn:</p>
+          <p>
+            Tên sản phẩm:{" "}
+            {(detailDataOrder?.details ?? []).map(detail =>
+              (detail?.items ?? []).map(item =>
+                `${item?.name}, Số lượng ${item?.quantity}`
+              )
+            )
+              .flat()
+              .join("; ")}
+          </p>
+          <hr />
+          <p style={{ fontSize: 14, fontWeight: 700 }}>Thông tin thanh toán</p>
+          <Row>
+            <Col md={12} sm={24}>
+              <p>Tên KH: <span>{detailDataOrder?.customerReceiverName}</span></p>
+            </Col>
+            <Col md={12} sm={24}>
+              <p>SĐT: <span>{detailDataOrder?.customerMobilePhone}</span></p>
+            </Col>
+            <Col md={12} sm={24}>
+              <p>Email: <span>{detailDataOrder?.customerEmail}</span></p>
+            </Col>
+            <Col md={12} sm={24}>
+              <p>Địa chỉ: <span>{detailDataOrder?.customerAddress || 'N/A'}</span></p>
+            </Col>
+             <Col md={12} sm={24}>
+              <p>Ghi chú: <span>{detailDataOrder?.customerNote || 'N/A'}</span></p>
+            </Col>
+             <Col md={12} sm={24}>
+              <p>Tổng tiền: <span>{formatMoney(detailDataOrder?.total)}</span></p>
+            </Col>
+             <Col md={12} sm={24}>
+              <p>Đã thanh toán: <span>{formatMoney(detailDataOrder?.paid)}</span></p>
+            </Col>
+          </Row>
+        </div>
+      </ModaleStyles>
+    </ContainerStyles>
   )
 }
 
