@@ -30,6 +30,8 @@ export const ACTIVE_TYPES = [
   }
 ];
 
+export const CAR_WORK_TYPE = 1;
+export const CAR_NOT_WORK_TYPE = 2;
 export const IMAGE_TYPES = ['png', 'jpg', 'jpeg', 'gif', 'tif', 'tiff'];
 
 export const CHANNEL_SOURCE = [
@@ -52,8 +54,8 @@ export const CHANNEL_STATUS = [
 ];
 
 export const DISCOUNT_UNIT_CONST = [
-  { text: 'Tiền mặt', value: 'money'},
-  { text: 'Phần trăm', value: 'percent'}
+  { text: 'Tiền mặt', value: 'money' },
+  { text: 'Phần trăm', value: 'percent' }
 ]
 export const DISCOUNT_MAP_KEYS = mapKeys(DISCOUNT_UNIT_CONST, 'value');
 

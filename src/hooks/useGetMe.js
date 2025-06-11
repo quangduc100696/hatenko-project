@@ -3,9 +3,13 @@ import MyContext from 'DataContext';
 
 function useGetMe() {
     const { user, setMyData } = useContext(MyContext)
+    const ruleManagers = ["ROLE_ADMIN", "ROLE_MANAGER"];
     return {
         user,
-        setMe: (me) => setMyData(pre => ({...pre, user: me})),
+        isUser: () => (user?.userProfiles ?? []).map(i => i.type).includes("ROLE_USER"),
+        isLeader: () => (user?.userProfiles ?? []).map(i => i.type).includes("ROLE_LEADER"),
+        isManager: () => (user?.userProfiles ?? []).some((r) => ruleManagers.includes(r.type)),
+        setMe: (me) => setMyData(pre => ({ ...pre, user: me })),
     };
 }
 

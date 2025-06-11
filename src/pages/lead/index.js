@@ -20,7 +20,7 @@ const roleUserSale = "ROLE_SALE";
 const roleUserAdmin = "ROLE_ADMIN";
 const roleUser = "ROLE_USER"
 const LeadPage = () => {
-
+  debugger
   const { user: profile } = useGetMe();
   const [form] = Form.useForm();
   const [title] = useState("Danh sách Lead");
@@ -36,11 +36,11 @@ const LeadPage = () => {
   const shouldHideLeadLinks = (hasSaleRole || hasUserRole) && !hasAdminRole;
 
   useEffect(() => {
-    (async() => {
-      const {data} = await RequestUtils.Get('/service/list');
+    (async () => {
+      const { data } = await RequestUtils.Get('/service/list');
       setListService(data);
     })()
-  },[])
+  }, [])
 
   useEffect(() => {
     form.setFieldsValue({ saleId: detailRecord?.saleId })
@@ -215,15 +215,15 @@ const LeadPage = () => {
             >
               {record?.saleId ? 'Chuyển sale' : 'Tạo sale'}
             </Button> */}
-             <Tooltip style={{cursor: 'pointer'}} title={record?.saleId ? 'Chuyển sale' : 'Tạo sale'}>
+            <Tooltip style={{ cursor: 'pointer' }} title={record?.saleId ? 'Chuyển sale' : 'Tạo sale'}>
               <EditTwoTone style={{ color: '#1677ff', fontSize: 20 }} onClick={() => {
                 setIsOpen(true);
                 setDetailRecord(record)
-              }}/>
-             </Tooltip>
-             <Tooltip style={{cursor: 'pointer'}} title={'Detail'}>
-              <SelectOutlined style={{ color: '#1677ff', fontSize: 20 }} onClick={() => onEdit(record, 'detail')}/>
-             </Tooltip>
+              }} />
+            </Tooltip>
+            <Tooltip style={{ cursor: 'pointer' }} title={'Detail'}>
+              <SelectOutlined style={{ color: '#1677ff', fontSize: 20 }} onClick={() => onEdit(record, 'detail')} />
+            </Tooltip>
           </div>
         </div>
       )

@@ -26,13 +26,19 @@ import { CancellationsConfig } from './CancellationsPageConfig';
 import { CongnoConfig } from './ConnoConfig';
 import { OrderTakeConfig } from './OrderTakeCareConfig';
 import { DragDropConfig } from './DragDropOrderConfig';
-
+import { OvertimeConfig } from './OvertimeConfig';
+import { NghiphepConfig } from './NghiphepConfig';
+import { UserConfig } from './UserConfig';
+import { BookingCarConfig } from './BookingCarConfig';
+import { BookingHotelConfig } from './BookingHotelConfig';
+import { BookingFlightConfig } from './BookingFlightConfig';
+import { SchedulerConfig } from './SchedulerConfig';
 
 const OrderPage = React.lazy(() => import('pages/order'));
 const SaleConfig = {
-    auth    : authRoles.admin,
-    routes  : [
-        { path     : '/sale/order', element: <OrderPage /> }
+    auth: authRoles.admin,
+    routes: [
+        { path: '/sale/order', element: <OrderPage /> }
     ]
 };
 
@@ -61,12 +67,19 @@ const routeConfigs = [
     OrderTakeConfig,
     CancellationsConfig,
     CongnoConfig,
-    DragDropConfig
+    DragDropConfig,
+    OvertimeConfig,
+    NghiphepConfig,
+    UserConfig,
+    BookingCarConfig,
+    BookingHotelConfig,
+    BookingFlightConfig,
+    SchedulerConfig
 ];
 
 const routes = [
     ...FuseUtils.generateRoutesFromConfigs(routeConfigs, null),
-    { element: () => <Navigate to="/error-404"/> }
+    { element: () => <Navigate to="/error-404" /> }
 ];
 
 export default routes;
