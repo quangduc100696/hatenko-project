@@ -20,12 +20,12 @@ import {
 
 const User = () => {
 
-  const { isLeader, isManager } = useGetMe();
-  const showPreviewOnly = isLeader() || isManager();
+  const { isLeader } = useGetMe();
+  const showPreviewOnly = isLeader();
 
   const textBtn = useCallback((item) => {
     let text = "Xem đơn";
-    if (isLeader() || isManager()) {
+    if (isLeader()) {
       if (item.status === NGHI_PHEP_STATUS_WAITING) {
         text = "N.Check";
       } else if (item.status === NGHI_PHEP_STATUS_CONFIRM) {
@@ -37,7 +37,7 @@ const User = () => {
       }
     }
     return text;
-  }, [isLeader, isManager]);
+  }, [isLeader]);
 
   const onEdit = (item) => {
     let title = 'Sửa đơn xin nghỉ phép # ' + item.id;

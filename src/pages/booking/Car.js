@@ -26,8 +26,8 @@ import { DownloadOutlined } from '@ant-design/icons';
 const { Paragraph, Text } = Typography;
 const Car = () => {
 
-  const { isLeader, isManager } = useGetMe();
-  const showPreviewOnly = isLeader() || isManager();
+  const { isLeader } = useGetMe();
+  const showPreviewOnly = isLeader();
 
   useEffect(() => {
     CarService.fetch();
@@ -35,9 +35,8 @@ const Car = () => {
   }, [])
 
   const textBtn = useCallback((item) => {
-    console.log(item)
     let text = "Xem đơn";
-    if (isLeader() || isManager()) {
+    if (isLeader()) {
       const reEditStatus = item?.overTimeReality?.status ?? -1;
       const status = item.status;
       if (status === APP_FOLLOW_STATUS_WAITING || reEditStatus === APP_FOLLOW_STATUS_WAITING) {
@@ -51,7 +50,7 @@ const Car = () => {
       }
     }
     return text;
-  }, [isLeader, isManager]);
+  }, [isLeader]);
 
   const onEdit = (item) => {
     let title = 'Sửa đăng ký xe # ' + item.id;

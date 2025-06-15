@@ -17,6 +17,9 @@ import UserGroupRouter from './UserGroupRouter.js';
 import CohoiNotTakeRouter from './CohoiNotTakeRouter.js';
 import DuyetTienRouter from './DuyetTienRouter.js';
 import ActionChamSocDonHangRouter from './ChamSocDonHangRouter.js';
+import NghiPhepRouter from './NghiPhepRouter.js';
+import OvertimeRouter from './OvertimeRouter.js';
+import BookingRouter from './BookingRouter.js';
 
 const modalRoutes = [
   ...ProductRoute,
@@ -33,13 +36,16 @@ const modalRoutes = [
   ...UserGroupRouter,
   ...CohoiNotTakeRouter,
   ...DuyetTienRouter,
-  ...ActionChamSocDonHangRouter
+  ...ActionChamSocDonHangRouter,
+  ...NghiPhepRouter,
+  ...OvertimeRouter,
+  ...BookingRouter
 ]
 const log = (key, val) => console.log('[routes.draw-routes] ' + key + ' ', val);
 const notFoundHash = { Component: () => <div /> };
 
 const getModalRoute = (urlHash) => {
-  if(!urlHash) {
+  if (!urlHash) {
     return notFoundHash;
   }
   const iHash = urlHash.replaceAll('/', '.')
@@ -48,7 +54,7 @@ const getModalRoute = (urlHash) => {
   if (!modalRoute) {
     return notFoundHash;
   }
-  if(modalRoute['Component']) {
+  if (modalRoute['Component']) {
     delete modalRoute.routes;
     return modalRoute;
   }
@@ -58,17 +64,17 @@ const getModalRoute = (urlHash) => {
 
 function ModalRoutes() {
 
-  const [ params, setParams ] = useState({ open: false });
-  const handleEventDraw = useCallback( ({ hash, data, title }) => {
-    log('#hash', {hash, data});
-    setParams({open: true, hash, data, title});
+  const [params, setParams] = useState({ open: false });
+  const handleEventDraw = useCallback(({ hash, data, title }) => {
+    log('#hash', { hash, data });
+    setParams({ open: true, hash, data, title });
   }, []);
 
-  const handleCloseDraw = useCallback( () => {
-    setParams({open: false});
+  const handleCloseDraw = useCallback(() => {
+    setParams({ open: false });
   }, []);
 
-  useEffect( () => {
+  useEffect(() => {
     InAppEvent.addEventListener(HASH_MODAL, handleEventDraw);
     InAppEvent.addEventListener(HASH_MODAL_CLOSE, handleCloseDraw);
     return () => {
@@ -77,8 +83,8 @@ function ModalRoutes() {
     };
   }, [handleEventDraw, handleCloseDraw]);
 
-  const closeModal =useCallback(() => {
-    setParams({open: false})
+  const closeModal = useCallback(() => {
+    setParams({ open: false })
   }, []);
 
   const ModalRoute = useMemo(

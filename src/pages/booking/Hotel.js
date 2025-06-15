@@ -26,8 +26,8 @@ import { DownloadOutlined } from '@ant-design/icons';
 const { Paragraph, Text } = Typography;
 const Hotel = () => {
 
-  const { isLeader, isManager } = useGetMe();
-  const showPreviewOnly = isLeader() || isManager();
+  const { isLeader } = useGetMe();
+  const showPreviewOnly = isLeader() || isLeader();
 
   useEffect(() => {
     HotelService.fetch();
@@ -36,7 +36,7 @@ const Hotel = () => {
 
   const textBtn = useCallback((item) => {
     let text = "Xem thêm";
-    if (isLeader() || isManager()) {
+    if (isLeader() || isLeader()) {
       const status = item.status;
       if (status === APP_FOLLOW_STATUS_WAITING) {
         text = "N.Check";
@@ -49,7 +49,7 @@ const Hotel = () => {
       }
     }
     return text;
-  }, [isLeader, isManager]);
+  }, [isLeader, isLeader]);
 
   const onEdit = (item) => {
     let title = 'Sửa đăng ký nhà nghỉ , khách sạn # ' + item.id;

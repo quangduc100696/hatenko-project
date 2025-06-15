@@ -15,6 +15,11 @@ import {
   WomanOutlined
 } from '@ant-design/icons';
 
+export const REGISTER_WORK_TYPE = [
+  { value: 1, text: 'Công tác có phí', color: 'green' },
+  { value: 2, text: 'Công tác không phí', color: 'red' }
+];
+
 export const ACTIVE_TYPES = [
   {
     value: '2',
@@ -33,6 +38,20 @@ export const ACTIVE_TYPES = [
 export const CAR_WORK_TYPE = 1;
 export const CAR_NOT_WORK_TYPE = 2;
 export const IMAGE_TYPES = ['png', 'jpg', 'jpeg', 'gif', 'tif', 'tiff'];
+
+export const HOTEL_ROOM_PAY_TYPE_COMPANY = 1;
+export const HOTEL_ROOM_PAY_TYPE_PERSIONAL = 2;
+export const HOTEL_ROOM_PAY_TYPE = [
+  { value: HOTEL_ROOM_PAY_TYPE_COMPANY, text: 'Công ty trả/company pay', color: 'green' },
+  { value: HOTEL_ROOM_PAY_TYPE_PERSIONAL, text: 'Cá nhân tạm ứng/person pay', color: 'red' }
+];
+
+export const FLIGHT_WAY_TYPE_DEPARTURE = 1;
+export const FLIGHT_WAY_TYPE_ARRIVAL = 2;
+export const FLIGHT_WAY_TYPE = [
+  { value: FLIGHT_WAY_TYPE_DEPARTURE, text: 'Chiều đi / Departure', color: 'green' },
+  { value: FLIGHT_WAY_TYPE_ARRIVAL, text: 'Chiều về / Arrival', color: 'red' }
+];
 
 export const CHANNEL_SOURCE = [
   { 'id': 11, 'name': 'Web' },

@@ -81,7 +81,7 @@ const FormSelect = ({
       label={t(label)}
       name={name}
       rules={[
-        { required, message: t(messageRequire)},
+        { required, message: t(messageRequire) },
         ...rules
       ]}
       initialValue={initialValue}
@@ -99,7 +99,7 @@ const FormSelect = ({
             key={String(index)}
             value={formatValue(valueProp ? get(data, valueProp) : data, data)}
           >
-            { formatText(titleProp ? get(data, titleProp) : data, data)}
+            {formatText(titleProp ? get(data, titleProp) : data, data)}
           </Option>
         ))}
         {enableWaypoint && optionWaypoint}

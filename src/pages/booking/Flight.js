@@ -24,12 +24,12 @@ import { DownloadOutlined } from '@ant-design/icons';
 
 const { Paragraph, Text } = Typography;
 const Flight = () => {
-  const { isLeader, isManager } = useGetMe();
-  const showPreviewOnly = isLeader() || isManager();
+  const { isLeader } = useGetMe();
+  const showPreviewOnly = isLeader() || isLeader();
 
   const textBtn = useCallback((item) => {
     let text = "Xem thêm";
-    if (isLeader() || isManager()) {
+    if (isLeader() || isLeader()) {
       const status = item.status;
       if (status === APP_FOLLOW_STATUS_WAITING) {
         text = "N.Check";
@@ -42,7 +42,7 @@ const Flight = () => {
       }
     }
     return text;
-  }, [isLeader, isManager]);
+  }, [isLeader, isLeader]);
 
   const onEdit = (item) => {
     let title = 'Sửa đăng ký vé máy bay # ' + item.id;

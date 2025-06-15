@@ -3,6 +3,7 @@ export const QUERY_PARAMS_PROPERTY = {
   filters: 'filters',
   extraFilters: 'extraFilters'
 }
+export const SUCCESS_API_CODE = 200;
 export const MAX_FILE_SIZE_MB = 3;
 export const VAT_PERCENT = 8;
 export const HASH_MODAL = "#modal";

@@ -12,15 +12,15 @@ const RestEditModal = ({
   onSubmit
 }) => {
 
-  const [ form ] = Form.useForm();
+  const [form] = Form.useForm();
 
-  useEffect (() => {
+  useEffect(() => {
     form.setFieldsValue(formatDefaultValues(record));
     /* eslint-disable-next-line */
   }, [form, record]);
 
   const onFinish = useCallback((values) => {
-    const datas = isMergeRecordOnSubmit ? {...record, ...values} : values;
+    const datas = isMergeRecordOnSubmit ? { ...record, ...values } : values;
     onSubmit(formatOnSubmit(datas));
     /* eslint-disable-next-line */
   }, [record, onSubmit]);
@@ -28,7 +28,7 @@ const RestEditModal = ({
   return (
     <Form form={form} layout="vertical" onFinish={onFinish}>
       <FormContextCustom.Provider value={{ form, record, updateRecord }}>
-        { children }
+        {children}
       </FormContextCustom.Provider>
     </Form>
   );

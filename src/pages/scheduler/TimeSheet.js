@@ -340,7 +340,7 @@ const TimeSheet = ({
 
 const Footer = ({ onSubmit, record }) => {
 
-  const { user, isUser, isLeader, isManager } = useGetMe();
+  const { user, isUser, isLeader, isLeader } = useGetMe();
   const [loading, setLoading] = useState(false);
 
   const isShowSend = record?.status === APP_FOLLOW_STATUS_WAITING
@@ -373,7 +373,7 @@ const Footer = ({ onSubmit, record }) => {
     )
   }
 
-  if (isManager() && record?.status === APP_FOLLOW_STATUS_CONFIRM) {
+  if (isLeader() && record?.status === APP_FOLLOW_STATUS_CONFIRM) {
     return (
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <CustomButton

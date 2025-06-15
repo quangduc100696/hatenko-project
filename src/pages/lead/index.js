@@ -20,7 +20,7 @@ const roleUserSale = "ROLE_SALE";
 const roleUserAdmin = "ROLE_ADMIN";
 const roleUser = "ROLE_USER"
 const LeadPage = () => {
-  debugger
+
   const { user: profile } = useGetMe();
   const [form] = Form.useForm();
   const [title] = useState("Danh sách Lead");

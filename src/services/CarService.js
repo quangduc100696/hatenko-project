@@ -4,21 +4,22 @@ import RequestUtils from 'utils/RequestUtils';
 
 const CarService = {
   allData: {},
-  empty () {
+  empty() {
     this.allData = {};
   },
-  getAllDiemTra () {
+  getAllDiemTra() {
     return this.allData["Điểm trả"] ?? [];
   },
-  getAllDiemDon () {
+  getAllDiemDon() {
     return this.allData["Điểm đến"] ?? [];
   },
   async fetch() {
-    if(arrayNotEmpty(this.allData)) {
+    if (arrayNotEmpty(this.allData)) {
       return this.allData;
     }
     const { data, errorCode } = await RequestUtils.Get("/tickes-bus/fetch-address");
-    if(errorCode !== SUCCESS_CODE) {
+
+    if (errorCode !== SUCCESS_CODE) {
       return [];
     }
     this.allData = data;

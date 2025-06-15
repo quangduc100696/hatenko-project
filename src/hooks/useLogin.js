@@ -5,11 +5,12 @@ import jwtService from 'utils/jwtService';
 /* const log = (key, val) => console.log('[hooks.useLogin] ' + key, val); */
 function useLogin() {
 
-  const [ loading, setLoading ] = useState(false);
+  const [loading, setLoading] = useState(false);
   const login = (payload) => {
     setLoading(true);
-    RequestUtils.Post('/auth/sign-in', payload).then(({data, success}) => {
-      if(success) {
+    RequestUtils.Post('/auth/sign-in', payload).then(({ data, success }) => {
+      debugger
+      if (success) {
         jwtService.setSession(data);
       }
       setLoading(false);

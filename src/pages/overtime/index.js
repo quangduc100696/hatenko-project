@@ -22,12 +22,12 @@ import { OTContent } from './styles';
 const { Paragraph, Text } = Typography;
 
 const OvertimePage = () => {
-  const { isLeader, isManager } = useGetMe();
-  const showPreviewOnly = isLeader() || isManager();
+  const { isLeader } = useGetMe();
+  const showPreviewOnly = isLeader() || isLeader();
 
   const textBtn = useCallback((item) => {
     let text = "Xem đơn";
-    if (isLeader() || isManager()) {
+    if (isLeader() || isLeader()) {
       const reEditStatus = item?.overTimeReality?.status ?? -1;
       const status = item.status;
       if (status === NGHI_PHEP_STATUS_WAITING || reEditStatus === NGHI_PHEP_STATUS_WAITING) {
@@ -41,7 +41,7 @@ const OvertimePage = () => {
       }
     }
     return text;
-  }, [isLeader, isManager]);
+  }, [isLeader, isLeader]);
 
   const onEdit = (item) => {
     let title = 'Sửa đơn làm thêm giờ # ' + item.id;

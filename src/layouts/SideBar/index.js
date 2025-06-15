@@ -95,13 +95,16 @@ function SideBar() {
       getItem(<Link to="/user/group">Team</Link>, 'user_group', <ConfigFIcon />),
       getItem(<Link to="/user/list-system"> Tài khoản hệ thống</Link>, 'user_system', <ConfigFIcon />),
     ]),
-    getItem(<Link to="/user">Danh sách tài khoản</Link>, 'danh-sach-tai-khoan', <DashboardFIcon />),
-    getItem(<Link to="/nghiphep">Xin nghỉ phép</Link>, 'xin-nghi-phep', <DashboardFIcon />),
-    getItem(<Link to="/overtime">Overtime</Link>, 'overtime', <DashboardFIcon />),
-    getItem(<Link to="/booking/Car">Booking car</Link>, '/car/booking', <DashboardFIcon />),
-    getItem(<Link to="/booking/Hotel">Booking hotel</Link>, '/car/booking', <DashboardFIcon />),
-    getItem(<Link to="/booking/Flight">Booking flight</Link>, '/flight/booking', <DashboardFIcon />),
-    getItem(<Link to="/scheduler">Scheduler</Link>, 'scheduler', <DashboardFIcon />),
+    getItem('Quản lý nhân sự', 'quan_ly_nhan_su', <ReportFIcon />, [
+      getItem(<Link to="/user">Danh sách tài khoản</Link>, 'danh-sach-tai-khoan', <DashboardFIcon />),
+      getItem(<Link to="/nghiphep">Xin nghỉ phép</Link>, 'xin-nghi-phep', <DashboardFIcon />),
+      getItem(<Link to="/overtime">Overtime</Link>, 'overtime', <DashboardFIcon />),
+      getItem(<Link to="/booking/Car">Booking car</Link>, 'bookingcar', <DashboardFIcon />),
+      getItem(<Link to="/booking/Hotel">Booking hotel</Link>, 'bookinghotel', <DashboardFIcon />),
+      getItem(<Link to="/booking/Flight">Booking flight</Link>, 'bookingflight', <DashboardFIcon />),
+      getItem(<Link to="/scheduler">Scheduler</Link>, 'scheduler', <DashboardFIcon />),
+    ]),
+
   ]
 
   return (

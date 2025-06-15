@@ -8,7 +8,7 @@ function useGetMe() {
         user,
         isUser: () => (user?.userProfiles ?? []).map(i => i.type).includes("ROLE_USER"),
         isLeader: () => (user?.userProfiles ?? []).map(i => i.type).includes("ROLE_LEADER"),
-        isManager: () => (user?.userProfiles ?? []).some((r) => ruleManagers.includes(r.type)),
+        isLeader: () => (user?.userProfiles ?? []).some((r) => ruleManagers.includes(r.type)),
         setMe: (me) => setMyData(pre => ({ ...pre, user: me })),
     };
 }

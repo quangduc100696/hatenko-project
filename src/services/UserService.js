@@ -6,23 +6,23 @@ const UserService = {
   allData: [],
   cacheItems: {},
   timeSheet: {
-    Woff: { 
+    Woff: {
       ot: 0, am: 0, pm: 0
     },
-    businessTrip: { 
+    businessTrip: {
       ot: 0, am: 0, pm: 0
     },
-    Working: { 
+    Working: {
       ot: 0, am: 0, pm: 0
     },
-    holiday: { 
+    holiday: {
       ot: 0, am: 0, pm: 0
     },
     annualLeave: {
       ot: 0, am: 0, pm: 0
     }
   },
-  empty () {
+  empty() {
     this.cacheItems = {};
   },
   fetchNameById(id) {
@@ -30,8 +30,8 @@ const UserService = {
   },
   fetchIdBySSoId(ssoId) {
     let userId = 0;
-    for(let id in this.cacheItems) {
-      if(this.cacheItems[id]?.ssoId === ssoId) {
+    for (let id in this.cacheItems) {
+      if (this.cacheItems[id]?.ssoId === ssoId) {
         userId = id;
         break;
       }
@@ -39,62 +39,63 @@ const UserService = {
     return userId;
   },
   fetchSSoById(id) {
-    if(!id) {
+    if (!id) {
       return '';
     }
     return this.cacheItems[id]?.ssoId ?? '';
   },
   async fetchId(id) {
-    if(!id) {
+    if (!id) {
       return {};
     }
-    if(this.cacheItems[id]) {
+    if (this.cacheItems[id]) {
       return this.cacheItems[id];
     }
     const { data, errorCode } = await RequestUtils.Get("/user/find-id", { id });
-    if(errorCode !== SUCCESS_CODE) {
+    if (errorCode !== SUCCESS_CODE) {
       return [];
     }
     this.cacheItems[id] = data;
     return this.cacheItems[id];
   },
-	async loadByIds(ids = []) {
-		if(!ids || arrayEmpty(ids)) {
-			return [];
-		}
-		let idNeedFetch = [], idResult = [];
-		for (let id of ids) {
-			if(!this.cacheItems[id]) {
+  async loadByIds(ids = []) {
+    if (!ids || arrayEmpty(ids)) {
+      return [];
+    }
+
+    let idNeedFetch = [], idResult = [];
+    for (let id of ids) {
+      if (!this.cacheItems[id]) {
         idNeedFetch.push(id);
       } else {
         idResult.push(id);
       }
-		}
+    }
     let datas = [];
-    if(arrayEmpty(idNeedFetch)) {
+    if (arrayEmpty(idNeedFetch)) {
       for (let id of idResult) {
         datas.push(this.cacheItems[id]);
       }
       return datas;
     }
-    const { data: embedded, errorCode } = await RequestUtils.Get("/user/list", { ids: idNeedFetch });
-    if(errorCode !== SUCCESS_CODE) {
+    const { data: embedded, errorCode } = await RequestUtils.Get("/user/list-htk", { ids: idNeedFetch });
+    if (errorCode !== SUCCESS_CODE) {
       return [];
     }
-		for (let item of embedded) {
+    for (let item of embedded) {
       this.cacheItems[item.id] = item;
     }
     for (let id of ids) {
       datas.push(this.cacheItems[id]);
     }
     return datas;
-	},
+  },
   async loadAll() {
-    const { data: embedded, errorCode } = await RequestUtils.Get("/user/list");
-    if(errorCode !== SUCCESS_CODE) {
+    const { data: embedded, errorCode } = await RequestUtils.Get("/user/list-htk");
+    if (errorCode !== SUCCESS_CODE) {
       return [];
     }
-		for (let item of embedded) {
+    for (let item of embedded) {
       this.cacheItems[item.id] = item;
     }
     return embedded;
@@ -104,7 +105,7 @@ const UserService = {
   },
   timeSheetSetOt(action, minute) {
     let actions = ["Woff", "businessTrip", "Working", "holiday"]
-    if(actions.includes(action)) {
+    if (actions.includes(action)) {
       this.timeSheet[action]["ot"] += minute;
     }
   },
@@ -133,16 +134,16 @@ const UserService = {
   },
   timeSheetClear() {
     this.timeSheet = {
-      Woff: { 
+      Woff: {
         ot: 0, am: 0, pm: 0
       },
-      businessTrip: { 
+      businessTrip: {
         ot: 0, am: 0, pm: 0
       },
-      Working: { 
+      Working: {
         ot: 0, am: 0, pm: 0
       },
-      holiday: { 
+      holiday: {
         ot: 0, am: 0, pm: 0
       },
       annualLeave: {
