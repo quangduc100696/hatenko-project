@@ -88,7 +88,7 @@ const User = () => {
         initialFilter={{ limit: 10, page: 1 }}
         filter={<UserFilter />}
         useGetAllQuery={useGetList}
-        apiPath={'user/fetch-user-department'}
+        apiPath={'user-group/fetch-user-department'}
         customClickCreate={onCreateUser}
         columns={CUSTOM_ACTION}
       />

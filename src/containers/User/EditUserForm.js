@@ -1,13 +1,13 @@
 import { Row, Col } from 'antd';
 import FormInput from 'components/form/FormInput';
 import FormHidden from 'components/form/FormHidden';
-import BtnSubmit from 'components/common/BtnSubmit';
 import FormSelectUser from 'components/form/FormSelectUser';
 import FormSelect from 'components/form/FormSelect';
+import BtnSubmit from 'components/CustomButton/BtnSubmit';
 
 const EditUserForm = () => {
   return (
-    <Row gutter={16} style={{marginTop: 20}}>
+    <Row gutter={16} style={{ marginTop: 20 }}>
       <FormHidden name={'id'} />
       <Col md={12} xs={24}>
         <FormInput
@@ -66,7 +66,7 @@ const EditUserForm = () => {
       <Col md={12} xs={24}>
         <FormSelect
           required
-          resourceData={[{id: 0, name: 'Disable'}, {id: 1, name: 'Actice'}]}
+          resourceData={[{ id: 0, name: 'Disable' }, { id: 1, name: 'Actice' }]}
           valueProp='id'
           titleProp='name'
           name={'status'}
@@ -77,7 +77,7 @@ const EditUserForm = () => {
       <Col md={24} xs={24}>
         <FormSelectUser
           formatText={(text) => String(text).replace("ROLE_", "")}
-          api='/user/fetch-role'
+          api='/user/list-role'
           name={'rules'}
           label="Phân Quyền"
           valueProp="type"

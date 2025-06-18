@@ -20,6 +20,7 @@ import ActionChamSocDonHangRouter from './ChamSocDonHangRouter.js';
 import NghiPhepRouter from './NghiPhepRouter.js';
 import OvertimeRouter from './OvertimeRouter.js';
 import BookingRouter from './BookingRouter.js';
+import UserRouter from './UserRouter.js';
 
 const modalRoutes = [
   ...ProductRoute,
@@ -39,7 +40,8 @@ const modalRoutes = [
   ...ActionChamSocDonHangRouter,
   ...NghiPhepRouter,
   ...OvertimeRouter,
-  ...BookingRouter
+  ...BookingRouter,
+  ...UserRouter
 ]
 const log = (key, val) => console.log('[routes.draw-routes] ' + key + ' ', val);
 const notFoundHash = { Component: () => <div /> };
