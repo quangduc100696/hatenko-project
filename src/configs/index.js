@@ -1,7 +1,7 @@
 
 export const SUCCESS_CODE = 200;
 const GATE_EVN = {
-  Loc: 'http://42.112.26.126:9766',
+  Loc: 'https://hatenko.flast.vn',
   Pro: 'https://open.api.flast.vn',
   bao_gia: `https://flash-solution-eight.vercel.app/bao-gia-don-hang-i`
 };
