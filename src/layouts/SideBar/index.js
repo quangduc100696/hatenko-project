@@ -96,7 +96,7 @@ function SideBar() {
       getItem(<Link to="/user/list-system"> Tài khoản hệ thống</Link>, 'user_system', <ConfigFIcon />),
     ]),
     getItem('Quản lý nhân sự', 'quan_ly_nhan_su', <ReportFIcon />, [
-      getItem(<Link to="/user">Danh sách tài khoản</Link>, 'danh-sach-tai-khoan', <DashboardFIcon />),
+      // getItem(<Link to="/user">Danh sách tài khoản</Link>, 'danh-sach-tai-khoan', <DashboardFIcon />),
       getItem(<Link to="/nghiphep">Xin nghỉ phép</Link>, 'xin-nghi-phep', <DashboardFIcon />),
       getItem(<Link to="/overtime">Overtime</Link>, 'overtime', <DashboardFIcon />),
       getItem(<Link to="/booking/Car">Booking car</Link>, 'bookingcar', <DashboardFIcon />),
