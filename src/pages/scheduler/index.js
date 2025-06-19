@@ -39,7 +39,7 @@ const menus = (items, onClick) => {
 }
 
 const Scheduner = () => {
-  const { user, isLeader, isLeader } = useGetMe();
+  const { user, isLeader } = useGetMe();
   const [form] = Form.useForm();
   const [isTimeSheet, showTimeSheet] = useState(false);
   const [record, setRecord] = useState({ userId: user.id, month, year });
@@ -76,11 +76,12 @@ const Scheduner = () => {
 
   useEffect(() => {
     let rd = 0;
+    // if (isLeader()) {
+    //   rd = (data || []).filter(i => i.status === APP_FOLLOW_STATUS_WAITING) ?? [];
+    // }
     if (isLeader()) {
-      rd = (data || []).filter(i => i.status === APP_FOLLOW_STATUS_WAITING) ?? [];
-    }
-    if (isLeader()) {
-      rd = (data || []).filter(i => i.status === APP_FOLLOW_STATUS_CONFIRM) ?? [];
+      if (Array.isArray(data))
+        rd = (data || []).filter(i => i.status === APP_FOLLOW_STATUS_CONFIRM) ?? [];
     }
     setItems(rd);
     /* eslint-disable-next-line */

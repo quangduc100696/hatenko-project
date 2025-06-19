@@ -340,7 +340,7 @@ const TimeSheet = ({
 
 const Footer = ({ onSubmit, record }) => {
 
-  const { user, isUser, isLeader, isLeader } = useGetMe();
+  const { user, isUser, isLeader } = useGetMe();
   const [loading, setLoading] = useState(false);
 
   const isShowSend = record?.status === APP_FOLLOW_STATUS_WAITING

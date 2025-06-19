@@ -1,7 +1,7 @@
 import React from 'react';
 import { authRoles } from 'auth';
 
-const SchedulerPage = React.lazy(() => import('pages/booking/Flight'));
+const SchedulerPage = React.lazy(() => import('pages/scheduler'));
 export const SchedulerConfig = {
     auth: authRoles.user,
     routes: [

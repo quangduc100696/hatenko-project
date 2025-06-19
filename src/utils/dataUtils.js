@@ -26,6 +26,11 @@ export const dataAsObj = (ret) => {
     return errorCode === 200 ? data : {};
 }
 
+export const dataObj = (ret) => {
+    const { errorCode, data } = ret;
+    return errorCode === 200 ? data : {};
+}
+
 export const arrayNotEmpty = (data) => Array.isArray(data) && data.length > 0;
 export const arrayEmpty = (data) => !arrayNotEmpty(data);
 

@@ -3,25 +3,24 @@ import RequestUtils from "utils/RequestUtils";
 import MyContext from 'DataContext';
 import { useUpdateEffect } from "hooks/MyHooks";
 
-function useGetRestApi({ 
-    queryParams: filter, 
+function useGetRestApi({
+    queryParams: filter,
     onData = (values) => values
 }) {
-
     const { f5List } = useContext(MyContext)
-    const [ loading, setLoading ] = useState(false);
-    const [ data, setData ] = useState({});
-    const fetchResource = useCallback( async(values) => {
-        if(loading) {
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState({});
+    const fetchResource = useCallback(async (values) => {
+        if (loading) {
             return Promise.reject("===== fetch api on loading .!");
         }
         const { resource, ...params } = values;
-        if(!resource) {
+        if (!resource) {
             return Promise.reject("Call api without apiPath .!");
         }
         setLoading(true);
-        RequestUtils.Get(`/${resource}`, params ).then(async({data, success}) => {
-            if(success) {
+        RequestUtils.Get(`/${resource}`, params).then(async ({ data, success }) => {
+            if (success) {
                 Promise.resolve(onData(data)).then(setData);
             }
             setLoading(false);
