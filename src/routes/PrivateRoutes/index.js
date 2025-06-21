@@ -26,6 +26,8 @@ import { CancellationsConfig } from './CancellationsPageConfig';
 import { CongnoConfig } from './ConnoConfig';
 import { OrderTakeConfig } from './OrderTakeCareConfig';
 import { DragDropConfig } from './DragDropOrderConfig';
+import { CauhinhAiConfig } from './CauhinhConfig';
+import { LoaiLienHeConfig } from './LoaiLienHeConfig';
 
 
 const OrderPage = React.lazy(() => import('pages/order'));
@@ -61,7 +63,9 @@ const routeConfigs = [
     OrderTakeConfig,
     CancellationsConfig,
     CongnoConfig,
-    DragDropConfig
+    DragDropConfig,
+    CauhinhAiConfig,
+    LoaiLienHeConfig
 ];
 
 const routes = [

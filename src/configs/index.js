@@ -1,9 +1,10 @@
 
 export const SUCCESS_CODE = 200;
-const GATE_EVN = {
+export const GATE_EVN = {
   Loc: 'http://103.153.69.109:9765',
   Pro: 'https://open.api.flast.vn',
-  bao_gia: `https://flash-solution-eight.vercel.app/bao-gia-don-hang-i`
+  bao_gia: `https://flash-solution-eight.vercel.app/bao-gia-don-hang-i`,
+  configAi: 'https://service.aicuatui.vn'
 };
 export const GATEWAY = GATE_EVN['Pro'];
 export const CHANGE_STORE = 'CHANGE_STORE';

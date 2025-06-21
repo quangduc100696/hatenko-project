@@ -1,4 +1,4 @@
-import { GATEWAY } from 'configs';
+import { GATE_EVN, GATEWAY } from 'configs';
 import axios from 'axios';
 
 class RequestUtils {
@@ -18,7 +18,8 @@ class RequestUtils {
     }
 
     static httpRequest( input, service, method = 'GET', params = '') {
-        const _uri = GATEWAY + service;
+       const urlDomainApi = ['/context-type/fetch', '/enterprice/fetch?limit=10', '/enterprice/create', '/context-type/create', '/context-type/update', '/context/fetch']
+        const _uri = urlDomainApi.includes(service) ? GATE_EVN.configAi + service : GATEWAY + service;
         let getOrPost;
         if (method === 'GET') {
             getOrPost = axios.get(_uri + this.encodeQueryData(input));

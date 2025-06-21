@@ -8,7 +8,9 @@ import {
   FileAddOutlined,
   ScheduleOutlined,
   AppstoreOutlined,
-  AuditOutlined
+  AuditOutlined,
+  OpenAIOutlined,
+  AimOutlined
 } from '@ant-design/icons';
 
 import { ConfigFIcon, CustomerFIcon, DashboardFIcon, IncomeFIcon, ReportFIcon, ReservationFIcon } from 'icons/FontIcons';
@@ -66,9 +68,14 @@ function SideBar() {
 			getItem(<Link to="/sale/cancellations">D/S đơn hủy</Link>, 'care-order', <ReservationFIcon />)
 		]),
     getItem(<Link to="/sale/drag-drop-order">Quy trình đơn hàng</Link>, 'quy_trinh_don_hang', <DashboardFIcon />),
-		getItem('Kế toán', 'need_solve', <DollarCircleFilled /> , [
+    // getItem(<Link to="/cau-hinh-ai">Cấu hình Ai</Link>, 'cau_hinh_ai', <OpenAIOutlined />),
+    getItem('Kế toán', 'need_solve', <DollarCircleFilled /> , [
 			getItem(<Link to="/ke-toan/confirm">Duyệt tiền</Link>, 'list_order_update', <UnorderedListOutlined />),
 			getItem(<Link to="/ke-toan/cong-no">Công nợ</Link>, 'can_giai_quyet', <ReservationFIcon />)
+		]),
+		getItem('Nhập liệu Ai', 'nhap_lieu_ai', <AimOutlined /> , [
+			getItem(<Link to="/cau-hinh-ai">Cấu hình Ai</Link>, 'cau_hinh_ai', <OpenAIOutlined />),
+      getItem(<Link to="/loai-lien-he">Loại liên hệ</Link>, 'loai_lien_he', <ContainerOutlined />),
 		]),
 		getItem('Khách hàng', 'client', <CustomerFIcon /> , [
 			getItem(<Link to="/sale/m-customer">Khách lẻ</Link>, 'customer', <GroupOutlined />),
