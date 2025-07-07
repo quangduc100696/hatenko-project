@@ -62,12 +62,16 @@ export const VAT_UNIT_CONST = [
   { text: '10%', value: 10 },
   { text: 'K.Vat', value: 0 }
 ]
-export const PAYMENT_STATUS_CONST = {
-  unpaid: { text: 'bookings.unpaid', value: 'UNPAID', color: 'red' },
-  paid: { text: 'bookings.paid', value: 'PAID', color: 'green' },
-  partial: { text: 'bookings.partial', value: 'PARTIAL', color: 'orange' },
-};
-export const PAYMENT_STATUS_MAP_KEYS = mapKeys(PAYMENT_STATUS_CONST, 'value');
+
+export const PAYMENT_TYPE_CONST = [
+  { label: 'Tiền mặt', value: 6 }, 
+  { label: 'Chuyển khoản MBbank', value: 1 },
+	{ label: 'Chuyển khoản TPbank', value: 7 }, 
+  { label: 'COD Viettel', value: 2 },
+	{ label: 'Ví Momo', value: 3 }, 
+  { label: 'Ví Vnpay', value: 4 },
+	{ label: 'Ncc thu hộ', value: 5 }
+];
 
 export const GENDERS = [
   {
