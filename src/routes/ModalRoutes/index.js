@@ -2,12 +2,40 @@ import { HASH_MODAL, HASH_MODAL_CLOSE } from 'configs';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { InAppEvent } from 'utils/FuseUtils';
 import DrawerCustom from 'components/DrawerCustom';
-import ProductRoute from './ProductRoute';
+import ProductRoute from './ProductRoute.js';
 import OrderRoute from './OrderRoute';
+import LeadRoute from './LeadRouter.js';
+import LeadNotTakeRouter from './LeadNotTakeRouter.js';
+import LeadTakeRouter from './LeadTakeRouter.js';
+import CohoiRouter from './CohoiRouter.js';
+import WareHoseRouter from './WareHouseRouter.js';
+import CutomerRetailRouter from './CustomerRetailRouter.js';
+import ActionXuatkhoRouter from './ActionXuatkhoRouter.js';
+import WareHoseActionRouter from './WareHouseActionRouter.js';
+import OrderRouter from './UserAccountRouter.js';
+import UserGroupRouter from './UserGroupRouter.js';
+import CohoiNotTakeRouter from './CohoiNotTakeRouter.js';
+import ActionChamSocDonHangRouter from './ChamSocDonHangRouter.js';
+import TranferRouter from './tranferRouter.js';
+import TypeContactRouter from './TypeContactRouter.js';
 
 const modalRoutes = [
   ...ProductRoute,
-  ...OrderRoute
+  ...OrderRoute,
+  ...LeadRoute,
+  ...LeadNotTakeRouter,
+  ...LeadTakeRouter,
+  ...CohoiRouter,
+  ...WareHoseRouter,
+  ...CutomerRetailRouter,
+  ...ActionXuatkhoRouter,
+  ...WareHoseActionRouter,
+  ...OrderRouter,
+  ...UserGroupRouter,
+  ...CohoiNotTakeRouter,
+  ...ActionChamSocDonHangRouter,
+  ...TranferRouter,
+  ...TypeContactRouter
 ]
 const log = (key, val) => console.log('[routes.draw-routes] ' + key + ' ', val);
 const notFoundHash = { Component: () => <div /> };
@@ -64,7 +92,7 @@ function ModalRoutes() {
     <DrawerCustom
       {...ModalRoute?.modalOptions}
       title={params?.title || ModalRoute?.modalOptions?.title}
-      open={params.open }
+      open={params.open}
       onClose={closeModal}
     >
       <ModalRoute.Component closeModal={closeModal} {...params} />

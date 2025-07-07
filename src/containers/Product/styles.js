@@ -70,3 +70,76 @@ export const SKUContent = styled.div`
     margin-bottom: 0px;
   }
 `
+
+export const FormListFile = styled.div`
+  .selectedImage {
+    position: relative;
+    max-height: 100%;
+    .overlay {
+      position: absolute;
+      inset: 0px 5px 0px 0px;
+      min-width: 100px;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      z-index: 2;
+      -webkit-box-align: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      justify-content: center;
+      border-radius: 4px;
+      cursor: not-allowed;
+      background: rgba(0, 0, 0, 0.3);
+      visibility: hidden;
+      .anticon-eye,
+      .anticon-delete {
+        color: #fff;
+        font-size: 24px;
+        margin: 2px;
+        cursor: pointer;
+      }
+    }
+  }
+  .upload-image-wrapper {
+    display: inline-flex;
+    flex-wrap: wrap;
+    -webkit-box-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    align-items: center;
+    .uploadImage {
+      margin: 5px;
+      position: relative;
+      &:hover .overlay {
+        visibility: visible;
+      }
+      img {
+        border: 1px solid #ffc016;
+        min-width: 100px;
+        width: 100px;
+        height: 100px;
+        border-radius: 4px;
+        object-fit: cover;
+      }
+      .lbSetDefault {
+        color: white;
+        background: rgb(85, 85, 81);
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        z-index: 2;
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 3px;
+        cursor: pointer;
+         &:hover {
+          background:#ffc016;
+        }
+      }
+      .active {
+        visibility: visible;
+        background: #ffc016;
+      }
+    }
+  }
+`

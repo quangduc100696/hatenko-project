@@ -15,6 +15,7 @@ const RestList = ({
   initialFilter,
   tabKey,
   resource,
+  hasCreate = true,
   tabProps = 'model',
   ...props
 }) => {
@@ -50,7 +51,7 @@ const RestList = ({
   };
 
   const onClearFilter = () => {
-    const initFilter = { resource, page: 1, limit: 10 };
+    const initFilter = {apiPath: queryParams.apiPath, resource, page: 1, limit: 10 };    
     setQueryParams(initFilter);
     navigate({ search: convertObjToSearchStr(initFilter) });
   };
@@ -71,9 +72,11 @@ const RestList = ({
         queryParams={queryParams}
         handleChangeQueryParams={handleChangeQueryParams}
         columns={columns}
+        hasCreate={hasCreate}
         data={data?.embedded || []}
         totalItems={data?.page?.totalElements ?? 0}
         loading={loading}
+        expandable={props.expandable} 
         setTableFilter={onSetTableFilter}
         {...props}
       />

@@ -10,6 +10,7 @@ export const validateRegex = {
   url: /(https?:\/\/[^\s]+)/g,
   accountNo: /^[\s./0-9]+$/iu,
   customerName: /\S+/,
+  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 };
 
 export const getPasswordRules = () => [

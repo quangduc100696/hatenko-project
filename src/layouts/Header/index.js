@@ -8,18 +8,20 @@ import HeaderWrapper from './styles';
 import CustomButton from 'components/CustomButton';
 import { BellFilled, PlusOutlined } from '@ant-design/icons';
 import UserInfo from './UserInfo';
-import { useLocation, useNavigate } from 'react-router';
 import { HASH_MODAL } from 'configs/constant';
+import useServiceId from 'hooks/useServiceId';
+import { InAppEvent } from 'utils/FuseUtils';
 
 const Header = () => {
 
   const { isCollapseSidebar, toggleCollapse } = useCollapseSidebar();
-  const navigate = useNavigate();
-  const { search } = useLocation();
+  const { serviceId, setServiceId } = useServiceId();
 
-  const onClickBooking = () => {
-    navigate({ search, hash: `${HASH_MODAL}/booking/create` })
-  }
+  const onClickBooking = () => InAppEvent.emit(HASH_MODAL, {
+    hash: '#draw/order.edit',
+    title: 'Tạo mới đơn hàng',
+    data: {}
+  });
 
   return (
     <HeaderWrapper className="header">
@@ -29,10 +31,10 @@ const Header = () => {
           onClick={toggleCollapse}
         />
         <div>
-          <ServiceSelect />
+          <ServiceSelect serviceId={serviceId} setServiceId={setServiceId}/>
         </div>
         <div className="div-search-customer">
-          <SearchInput />
+          <SearchInput serviceId={serviceId} setServiceId={setServiceId}/>
         </div>
       </div>
       <div className="rightHeader">

@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import RequestUtils from 'utils/RequestUtils';
-import { Form, Select, Spin, Divider, Input, Button, message } from 'antd';
+import { Form, Select, Spin, Divider, Input, Button, message, Checkbox } from 'antd';
 import { get } from 'lodash';
 import debounce from 'lodash/debounce';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,8 @@ import MyContext from 'DataContext';
 import { useUpdateEffect, useMount } from "hooks/MyHooks";
 import { PlusOutlined } from '@ant-design/icons';
 import { SUCCESS_CODE } from 'configs';
-import { arrayEmpty, f5List as reloadApi } from "utils/dataUtils"
+import { arrayEmpty } from "utils/dataUtils"
+import { InAppEvent } from 'utils/FuseUtils';
 const { Option } = Select;
 
 const FormSelectAPI = ({
@@ -35,13 +36,16 @@ const FormSelectAPI = ({
   createDefaultValues,
   onData = (values) => values,
   fnLoadData,
+  title = '',
+  checkSttWarehouse = false,
   ...props
 }) => {
-
   const { f5List } = useContext(MyContext);
   const [ localFilter, setLocalFilter ] = useState(filter || {});
   const [ loading, setLoading ] = useState(false);
+  const [ checkStatus, setCheckStatus ] = useState(false);
   const [ resourceData, setData ] = useState([]);
+  const [ value, setValue ] = useState('');
 
   useEffect(() => {
     setLocalFilter(filter);
@@ -58,7 +62,9 @@ const FormSelectAPI = ({
       return;
     }
     if(fnLoadData) {
-      Promise.resolve(fnLoadData(values)).then(onData).then(setData);
+      Promise.resolve(fnLoadData(values)).then(onData).then(data => {
+        setData(data)
+      });
       return;
     }
     setLoading(true);
@@ -66,7 +72,9 @@ const FormSelectAPI = ({
       if(errorCode !== 200) {
         return Promise.reject("Get not success from server .!");
       }
-      Promise.resolve(onData(data)).then(setData);
+      Promise.resolve(onData(data)).then(data => {
+        setData(data)
+      })
       setLoading(false);
     }).catch(e => {
       console.log('[form.FormSelectAPI] Error ', e);
@@ -81,7 +89,6 @@ const FormSelectAPI = ({
     }
     /* eslint-disable-next-line */
   }, [f5List, localFilter, apiPath]);
-
   const { t } = useTranslation();
   const optionLoading = useMemo(() => {
     return (
@@ -98,34 +105,61 @@ const FormSelectAPI = ({
     );
   }, []);
 
-  const inputRef = useRef(null);
   const addItem = useCallback(async () => {
     if(onCreateNewItem()) {
       /* Open Modal Create Data */
       return;
     }
-    const value = inputRef?.current?.input?.value ?? '';
+    // const value = inputRef?.current?.input?.value ?? '';
     if(value && apiAddNewItem) {
-      const dataPost = { [searchKey]: value, ...(createDefaultValues || {})}
-      const { errorCode, message: msg } = await RequestUtils.Post("/" + apiAddNewItem, dataPost);
+      let dataPost = { [searchKey]: value, ...(createDefaultValues || {})}
+      if(title === 'Xuất kho') {
+        dataPost = {
+          ...dataPost,
+          type: checkStatus ? 1 : 0
+        };
+      }
+      if(props.keyCheck) {
+        props.setShouldRefetch(true);
+        dataPost = {
+          ...dataPost,
+          type: 1
+        };
+      }
+      const {data, errorCode, message: msg } = await RequestUtils.Post("/" + apiAddNewItem, dataPost);
+      if(data) {
+        if(props.keyCheck) {
+          props.setShouldRefetch(false);
+        }
+      }
       if(errorCode !== SUCCESS_CODE) {
         message.error(msg);
       } else {
-        reloadApi(apiPath);
+        const newData = resourceData.concat(data);
+        setData(newData);
+        InAppEvent.normalInfo("Cập nhật thành công");
+        setValue('');
       }
     }
     /* eslint-disable-next-line */
-  }, [inputRef, createDefaultValues]);
-
+  }, [value, createDefaultValues, fnLoadData]);
   const onSearch = useCallback((value) => {
     fetchResource({...localFilter, [searchKey]: value});
     /* eslint-disable-next-line */
   }, [localFilter, searchKey]);
 
-  const handleChange = useCallback((value) => {
+  const handleValueInput = (e) => {
+    setValue(e.target.value);
+  }
+
+  const handleChange = useCallback(async(value) => {
     fetchResource(localFilter);
     /* eslint-disable-next-line */
   }, [localFilter]);
+
+  const onHandleCheck = (e) => {
+    setCheckStatus(e.target.checked);
+  }
 
   return (
     <Form.Item
@@ -146,15 +180,22 @@ const FormSelectAPI = ({
           <>
             { menu }
             <Divider style={{ margin: '8px 0'}} />
+            <div style={{display: 'flex', justifyContent: 'end', marginBottom: 10}}>
+              {title === 'Xuất kho' && (
+                <Checkbox onChange={onHandleCheck}>Confirm xuất kho</Checkbox>
+              )}
+            </div>
             <div  style={{ padding: "0 8px 4px", display: "flex", alignItems: "end"}} >
               { !isShowModalCreateNewItem && 
                 <Input
                   style={{width: '100%'}}
                   placeholder="Add new item"
-                  ref={inputRef}
+                  value={value}
+                  onChange={handleValueInput}
                   onKeyDown={(e) => e.stopPropagation()}
                 /> 
               }
+              
               <Button 
                 type="text" 
                 icon={<PlusOutlined />} 

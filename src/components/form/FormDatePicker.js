@@ -11,6 +11,7 @@ const FormDatePicker = ({
   initialValue,
   rules = [],
   placeholder,
+  disabled= false,
   format = FORMAT_DATE_INPUT,
   formItemProps,
   ...props
@@ -33,7 +34,9 @@ const FormDatePicker = ({
       {...formItemProps}
     >
       <DatePicker
+        style={{width: '100%'}}
         format={format}
+        disabled={disabled}
         {...(placeholder && {
           placeholder: t(placeholder),
         })}

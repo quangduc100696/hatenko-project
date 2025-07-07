@@ -13,7 +13,7 @@ const RestEditModal = ({
 }) => {
 
   const [ form ] = Form.useForm();
-  
+
   useEffect (() => {
     form.setFieldsValue(formatDefaultValues(record));
     /* eslint-disable-next-line */

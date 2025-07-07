@@ -62,7 +62,7 @@ const FormPropertiesValue = ({ name, filter }) => {
         titleProp='value'
         valueProp='id'
         createDefaultValues={{
-          attributedId: filter?.id
+          attributedId: filter?.attributedId || null
         }}
         filter={filter}
         fnLoadData={(f) => ProductAttrService.fetchValueByAttributedId(f.attributedId)}

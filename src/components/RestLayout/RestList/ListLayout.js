@@ -19,6 +19,7 @@ const ListLayout = ({
   setTableFilter,
   customClickCreate,
   customActions,
+  expandable,
   ...props
 }) => {
   
@@ -81,6 +82,7 @@ const ListLayout = ({
         pagination={false}
         rowKey={rowKey}
         scroll={{ x: xScroll || 1700 }}
+        expandable={expandable}
         onChange={onChangeTable}
         {...props}
       />

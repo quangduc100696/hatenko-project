@@ -30,7 +30,7 @@ function Login() {
           messageRequire="input.email.validateMsg.required"
           rules={[
             {
-              type: 'email',
+              type: 'text',
               message: t('input.email.validateMsg.invalid'),
             },
           ]}

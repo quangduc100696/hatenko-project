@@ -5,6 +5,7 @@ import DrawerRoute from './DrawerRoute';
 const DrawerCustom = ({ children, onClose, title, ...props }) => (
   <DrawerRoute 
     onClose={onClose} 
+    title={title}
     {...props}
   >
     <DrawerContent

@@ -10,11 +10,12 @@ import { cloneDeep } from 'lodash';
 
 const log = (value) => console.log('[container.product.index] ', value);
 const Product = ({ closeModal, data }) => {
-
   const [ record, setRecord ] = useState({});
+  const [ fileActive, setFileActive ] = useState('');
+  const [ sessionId, setSessionId ] = useState(null);
   useEffect(() => {
     (async () => {
-      let dRe = {}
+      let dRe = {}, skus = []
       if(arrayNotEmpty(data?.listProperties || [])) {
         let attrIds = data.listProperties.map(i => i.attributedId) ?? [];
         let attrValueIds = [];
@@ -26,33 +27,74 @@ const Product = ({ closeModal, data }) => {
         dRe.attrs = itemAttrs;
         dRe.attrValues = itemAttrValues;
       }
-      setRecord({ ...data, dRe });
+      if(data?.skus ) {
+        for(const iSkus of data?.skus) {
+          let item = {id: iSkus?.id, name: iSkus?.name, listPriceRange: iSkus?.listPriceRange }
+          let details = [];
+          for(const detail of iSkus?.sku) {
+            details.push([detail.attributedId, detail.attributedValueId]);
+          }
+          item.sku = details;
+          skus.push(item);
+        }
+      }
+      const newData = {
+        ...data,
+        skus: skus
+      }
+      const newItem = data ? newData : data;
+      setRecord({ ...newItem, dRe });
     })();
     return () => ProductAttrService.empty();
   }, [data]);
-  
-  const onSubmit = useCallback( async (data) => {
-    log(data);
-    let values = cloneDeep(data);
+  const onSubmit = useCallback( async (datas) => {
+    log(datas);
+    let values = cloneDeep(datas);
+    let skusAdd = [];
+    for(let arrsku of values.skus) {
+      const newSkus = data?.skus?.find(f => f?.id === arrsku?.id);
+      let newSku = newSkus?.sku ? [...newSkus.sku] : [];
+      for (let sku of arrsku.sku) {
+        let exists = newSku.some(
+          (item) => item.attributedId === sku[0] && item.attributedValueId === sku[1]
+        );
+        if (!exists) {
+          newSku.push({
+            id: null, // Giữ ID nếu có, còn không thì null
+            attributedId: sku[0],
+            attributedValueId: sku[1]
+          });
+        }
+      }
+      arrsku.id = arrsku.id || null;
+      arrsku.sku = newSku;
+      skusAdd.push(arrsku)
+    }  
+    const newListProperties = values?.listProperties.map(item => {
+      return {
+        attributedId: item?.attributedId, 
+        propertyValueId: item?.attributedValueId,
+      }
+    })
+    const newItem = {
+      ...values, 
+      listProperties: newListProperties,
+      sessionId: !sessionId ? 0 : sessionId,
+      skus: skusAdd
+    }
+    const newValue = {...newItem, image: fileActive || data?.image}
     let params = (values?.id ?? '') === '' ? {} : { id: values.id };
     if(arrayEmpty(values.skus)) {
       message.info("Can't create Product with empty skus .!");
       return;
-    }
-    for(let arrsku of values.skus) {
-      let newSku = []
-      for(let sku of arrsku.sku) {
-        newSku = newSku.concat({attributedId: sku[0], attributedValueId: sku[1]})
-      }
-      arrsku.sku = newSku;
-    }
-    const { errorCode } = await RequestUtils.Post("/product/save", values, params);
+    } 
+    const { errorCode } = await RequestUtils.Post("/product/save", newValue, params);
     const isSuccess = errorCode === 200;
     if(isSuccess) {
       f5List('product/fetch');
     }
     InAppEvent.normalInfo(isSuccess ? "Cập nhật thành công" : "Lỗi cập nhật, vui lòng thử lại sau");
-  }, []);
+  }, [data, fileActive, sessionId]);
 
   return <>
     <RestEditModal
@@ -62,7 +104,11 @@ const Product = ({ closeModal, data }) => {
       record={record}
       closeModal={closeModal}
     >
-      <ProductForm />
+      <ProductForm data={data} 
+        fileActive={fileActive} 
+        setFileActive={setFileActive}
+        setSessionId={setSessionId}
+      />
     </RestEditModal>
   </>
 }

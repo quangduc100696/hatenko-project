@@ -4,9 +4,9 @@ import useGetList from "hooks/useGetList";
 import { Helmet } from "react-helmet";
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import Filter from './Filter';
-import { Button } from 'antd';
+import { Button, Image } from 'antd';
 import { InAppEvent } from "utils/FuseUtils";
-import { HASH_MODAL } from 'configs';
+import { GATEWAY, HASH_MODAL } from 'configs';
 import { arrayEmpty, dateFormatOnSubmit, formatTime } from 'utils/dataUtils';
 import ProductAttrService from 'services/ProductAttrService';
 import { cloneDeep } from 'lodash';
@@ -19,20 +19,20 @@ const Index = () => {
     let hash = '#draw/product.edit';
     let data = cloneDeep(item);
     let skus = [], listProperties = [];
-    for(const property of item.listProperties) {
+    for (const property of item.listProperties) {
       let attr = listProperties.find(i => i.attributedId === property.attributedId);
-      if(attr) {
+      if (attr) {
         attr.attributedValueId.push(property.attributedValueId);
       } else {
-        attr = { attributedId: property.attributedId, attributedValueId: [property.attributedValueId]}
+        attr = { attributedId: property.attributedId, attributedValueId: [property.attributedValueId] }
         listProperties.push(attr);
       }
     }
-    for(const iSkus of item.skus) {
-      let item = { name: iSkus.name, listPriceRange: iSkus.listPriceRange }
+    for (const iSkus of item.skus) {
+      let item = { id: iSkus?.id, name: iSkus.name, listPriceRange: iSkus.listPriceRange }
       let details = [];
-      for(const detail of iSkus.skuDetail) {
-        details.push([detail.attributedId, detail.attributedValueId]);
+      for (const detail of iSkus.skuDetail) {
+        details.push({ id: detail?.id, attributedId: detail.attributedId, attributedValueId: detail.attributedValueId });
       }
       item.sku = details;
       skus.push(item);
@@ -48,56 +48,90 @@ const Index = () => {
     data: {}
   });
 
-	const [ title ] = useState("Danh sách sản phẩm");
-	const CUSTOM_ACTION = [
-		{
-      title:"Mã",
-      dataIndex:'code',
-      width:100
+  const [title] = useState("Danh sách sản phẩm");
+  const CUSTOM_ACTION = [
+    {
+      title: "Mã",
+      dataIndex: 'code',
+      width: 100
     },
-		{
-      title:"Sản phẩm",
-      dataIndex:'name',
-      width:200,
+    {
+      title: "Hình ảnh",
+      dataIndex: 'image',
+      width: 150,
+      ellipsis: true,
+      render: (image) => {
+        return (
+          <Image
+            width={70}
+            src={`${image ? `${GATEWAY}${image}` : '/img/image_not_found.png'}`}
+            alt='image'
+          />
+        )
+      }
+    },
+    {
+      title: "Sản phẩm",
+      dataIndex: 'name',
+      width: 200,
       ellipsis: true
     },
     {
-      title:"SKus",
-      dataIndex:'skus',
-      width:400,
+      title: "SKus",
+      dataIndex: 'skus',
+      width: 400,
       ellipsis: true,
-      render: (skus) => <SkuView skus={skus}/>
+      render: (skus) => <SkuView skus={skus} />
     },
     {
-      title:"Giá bán",
-      dataIndex:'skus',
-      width:250,
+      title: "Giá bán",
+      dataIndex: 'skus',
+      width: 250,
       ellipsis: true,
-      render: (skus) => <PriceView skus={skus}/>
+      render: (skus) => <PriceView skus={skus} />
     },
     {
-      title:"Created",
-      dataIndex:'createdTime',
-      width:120,
+      title: "Số lượng tổng",
+      width: 150,
       ellipsis: true,
-			render: (createdAt) => formatTime(createdAt)
+      render: (item) => {
+        const results = item?.warehouses.filter(w =>
+          item?.skus?.some(sku => sku?.id === w?.skuId)
+        );
+        return (
+          <div style={{ textAlign: 'center' }}>
+            {results.length > 0
+              ? results.map((r, idx) => (
+                <div key={idx}>{r?.quantity || 'Chưa cập nhật'}</div>
+              ))
+              : 'Chưa cập nhật'}
+          </div>
+        );
+      }
     },
-		{
-      title:"Status",
-      dataIndex:'status',
+    {
+      title: "Created",
+      dataIndex: 'createdTime',
+      width: 120,
       ellipsis: true,
-      width:120,
+      render: (createdAt) => formatTime(createdAt)
+    },
+    {
+      title: "Status",
+      dataIndex: 'status',
+      ellipsis: true,
+      width: 120,
       render: (status) => (status || 0) === 0 ? 'Ngưng' : 'Kích hoạt'
     },
-		{
-      title:"",
-      width:100,
-      fixed:'right',
+    {
+      title: "",
+      width: 100,
+      fixed: 'right',
       render: (record) => (
         <Button color="danger" variant="dashed" onClick={() => onEdit(record)} size='small'>Detail</Button>
       )
     }
-	];
+  ];
 
   const beforeSubmitFilter = useCallback((values) => {
     dateFormatOnSubmit(values, ['from', 'to']);
@@ -105,11 +139,11 @@ const Index = () => {
   }, []);
 
   const onData = useCallback((values) => {
-    if(arrayEmpty(values.embedded)) {
+    if (arrayEmpty(values.embedded)) {
       return values;
     }
     let attrsId = [], attrsValuesId = [];
-    for(let item of values.embedded) {
+    for (let item of values.embedded) {
       attrsId = item.listProperties.map(i => i.attributedId).filter(i => i && i > 0);
       attrsValuesId = item.listProperties.map(i => i.attributedValueId).filter(i => i && i > 0);
     }
@@ -118,27 +152,27 @@ const Index = () => {
     return values;
   }, []);
 
-	return (
-		<>
-			<Helmet>
-				<title>{title}</title>
-			</Helmet>
-			<CustomBreadcrumb
-				data={[ { title: 'Trang chủ' }, { title: title} ]}
-			/>
-			<RestList
-				xScroll={1200}
+  return (
+    <>
+      <Helmet>
+        <title>{title}</title>
+      </Helmet>
+      <CustomBreadcrumb
+        data={[{ title: 'Trang chủ' }, { title: title }]}
+      />
+      <RestList
+        xScroll={1200}
         onData={onData}
-				initialFilter={{ limit: 10, page: 1 }}
-				filter={<Filter />}
+        initialFilter={{ limit: 10, page: 1 }}
+        filter={<Filter />}
         beforeSubmitFilter={beforeSubmitFilter}
-				useGetAllQuery={ useGetList }
-				apiPath={'product/fetch'}
+        useGetAllQuery={useGetList}
+        apiPath={'product/fetch'}
         customClickCreate={onCreateProduct}
-				columns={CUSTOM_ACTION}
-			/>
-		</>
-	)
+        columns={CUSTOM_ACTION}
+      />
+    </>
+  )
 }
 
 export default Index;
