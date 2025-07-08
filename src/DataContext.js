@@ -27,15 +27,15 @@ export const DataProvider = ({ children }) => {
   })
   const value = {...state, dispatch};
   const handleEventChange = useCallback( ({ type, data }) => {
-      dispatch({type, data});
+    dispatch({type, data});
   }, [dispatch]);
 
   useEffect( () => {
-      /* InAppEvent.emit(CHANGE_STORE, { type: 'user', data: data }); */
-      InAppEvent.addEventListener(CHANGE_STORE, handleEventChange);
-      return () => {
-          InAppEvent.removeListener(CHANGE_STORE, handleEventChange);
-      };
+    /* InAppEvent.emit(CHANGE_STORE, { type: 'user', data: data }); */
+    InAppEvent.addEventListener(CHANGE_STORE, handleEventChange);
+    return () => {
+      InAppEvent.removeListener(CHANGE_STORE, handleEventChange);
+    };
   }, [handleEventChange]);
 
   return (
