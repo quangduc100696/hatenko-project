@@ -2,10 +2,21 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { HASH_POPUP, HASH_POPUP_CLOSE } from 'configs/constant';
 import { InAppEvent } from 'utils/FuseUtils';
 import { Modal } from 'antd';
-import { random } from 'lodash';
+import { NoFooter } from 'components/common/NoFooter';
+import styled from 'styled-components';
+import ChoiseSKU from './ChoiseSKU';
 
-const modalRoutes = [];
-const log = (key, val) => console.log('[routes.popup-routes] ' + key + ' ', val);
+const CustomModalWrapper = styled.div`
+  .custom-modal {
+    top: 50%;
+    max-height: 90vh;
+    overflow: auto;
+  }
+`;
+
+const modalRoutes = [
+  ...ChoiseSKU
+];
 
 const getPopupRoute = (currentModal) => {
   const routeNotFound = { Component: () => <div /> }
@@ -13,13 +24,8 @@ const getPopupRoute = (currentModal) => {
     return routeNotFound;
   }
   const modalRoute = modalRoutes.find(route => currentModal.includes(route.path));
-  if (modalRoute) {
-    if(modalRoute['Component']) {
-      delete modalRoute.routes;
-      return modalRoute;
-    }
-    const route = modalRoute.routes.find(route => currentModal.includes(route.path));
-    return route || routeNotFound;
+  if (modalRoute && modalRoute['Component']) {
+    return modalRoute;
   }
   return routeNotFound;
 };
@@ -27,10 +33,7 @@ const getPopupRoute = (currentModal) => {
 function MyPopup() {
 
   const [ params, setParams ] = useState({ open: false });
-  const [ triggerOnOk, setTrigger ] = useState();
-
   const handleEventDraw = useCallback( ({ hash, data, title }) => {
-    log('#hash', {hash, data});
     setParams({open: true, hash, data, title});
   }, []);
 
@@ -39,12 +42,12 @@ function MyPopup() {
   }, []);
 
   useEffect( () => {
-      InAppEvent.addEventListener(HASH_POPUP, handleEventDraw);
-      InAppEvent.addEventListener(HASH_POPUP_CLOSE, handleCloseDraw);
-      return () => {
-        InAppEvent.removeListener(HASH_POPUP, handleEventDraw);
-        InAppEvent.removeListener(HASH_POPUP_CLOSE, handleCloseDraw);
-      };
+    InAppEvent.addEventListener(HASH_POPUP, handleEventDraw);
+    InAppEvent.addEventListener(HASH_POPUP_CLOSE, handleCloseDraw);
+    return () => {
+      InAppEvent.removeListener(HASH_POPUP, handleEventDraw);
+      InAppEvent.removeListener(HASH_POPUP_CLOSE, handleCloseDraw);
+    };
   }, [handleEventDraw, handleCloseDraw]);
 
   const closePopup =useCallback(() => {
@@ -57,19 +60,22 @@ function MyPopup() {
   );
   
   return (
-    <Modal
-      {...PopupRoute?.modalOptions}
-      title={params?.title}
-      open={params.open}
-      onCancel={closePopup}
-      onOk={() => setTrigger(random())}
-    >
-      <PopupRoute.Component 
-        closeModal={closePopup} 
-        {...params} 
-        triggerOnOk={triggerOnOk} 
-      />
-    </Modal>
+    <CustomModalWrapper>
+      <Modal
+        {...PopupRoute?.modalOptions}
+        title={params?.title || ''}
+        open={params.open}
+        onCancel={closePopup}
+        footer={<NoFooter />}
+        wrapClassName="custom-modal"
+        width={PopupRoute?.modalOptions?.width || 800}
+      >
+        <PopupRoute.Component 
+          closeModal={closePopup} 
+          {...(params.data || {})}
+        />
+      </Modal>
+    </CustomModalWrapper>
   );
 }
 

@@ -79,7 +79,7 @@ function ModalRoutes() {
     };
   }, [handleEventDraw, handleCloseDraw]);
 
-  const closeModal =useCallback(() => {
+  const closeModal = useCallback(() => {
     setParams({open: false})
   }, []);
 
