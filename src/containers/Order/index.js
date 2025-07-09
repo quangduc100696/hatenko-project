@@ -192,7 +192,7 @@ const BanHangPage = (props) => {
     }
   ];
 
-  const [data, setData] = useState(dataSource);
+  const [ data, setData ] = useState(dataSource);
   const totalQuantity = data.reduce((sum, item) => sum + item.quantity, 0);
   const totalDiscount = data.reduce((sum, item) => sum + item.discountAmount, 0);
   const totalAfterDiscount = data.reduce((sum, item) => sum + item.totalPrice - item.discountAmount, 0);
