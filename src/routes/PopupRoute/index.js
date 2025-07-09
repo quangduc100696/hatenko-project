@@ -3,14 +3,18 @@ import { HASH_POPUP, HASH_POPUP_CLOSE } from 'configs/constant';
 import { InAppEvent } from 'utils/FuseUtils';
 import { Modal } from 'antd';
 import { NoFooter } from 'components/common/NoFooter';
-import styled from 'styled-components';
+import { createGlobalStyle } from 'styled-components';
 import ChoiseSKU from './ChoiseSKU';
 
-const CustomModalWrapper = styled.div`
+const CustomModalStyles = createGlobalStyle`
   .custom-modal {
     top: 50%;
     max-height: 90vh;
     overflow: auto;
+  }
+  .custom-modal .ant-modal-content .ant-modal-header .ant-modal-title {
+    font-size: 20px;
+    font-weight: 500;
   }
 `;
 
@@ -59,24 +63,23 @@ function MyPopup() {
     [params.hash],
   );
   
-  return (
-    <CustomModalWrapper>
-      <Modal
-        {...PopupRoute?.modalOptions}
-        title={params?.title || ''}
-        open={params.open}
-        onCancel={closePopup}
-        footer={<NoFooter />}
-        wrapClassName="custom-modal"
-        width={PopupRoute?.modalOptions?.width || 800}
-      >
-        <PopupRoute.Component 
-          closeModal={closePopup} 
-          {...(params.data || {})}
-        />
-      </Modal>
-    </CustomModalWrapper>
-  );
+  return <>
+    <CustomModalStyles />
+    <Modal
+      {...PopupRoute?.modalOptions}
+      title={params?.title || ''}
+      open={params.open}
+      onCancel={closePopup}
+      footer={<NoFooter />}
+      wrapClassName="custom-modal"
+      width={PopupRoute?.modalOptions?.width || 800}
+    >
+      <PopupRoute.Component 
+        closeModal={closePopup} 
+        {...(params.data || {})}
+      />
+    </Modal>
+  </>;
 }
 
 export default MyPopup;
