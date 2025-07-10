@@ -25,7 +25,12 @@ const warrantyOptions = [
   { label: '24 Tháng', value: 24 }
 ];
 
-const EditButton = ({ editable, onEdit, onClose, onDelete }) => (
+const EditButton = ({ 
+  editable, 
+  onEdit, 
+  onClose, 
+  onDelete 
+}) => (
   <div style={{ display: 'flex', alignItems: 'center' }}>
     <Button size="small" onClick={editable ? onClose : onEdit}>
       {editable ? <CheckOutlined /> : 'Sửa'}
@@ -43,13 +48,24 @@ const EditButton = ({ editable, onEdit, onClose, onDelete }) => (
 const BanHangPage = (props) => {
 
   const onAddProduct = useCallback(() => {
-    const onSave = (values) => {
+    const onAfterChoiseProduct = (values) => {
       console.log('Save new product', values);
     };
     InAppEvent.emit(HASH_POPUP, {
       hash: "sku.add",
       title: "Thêm sản phẩm",
-      data: { onSave }
+      data: { onSave: onAfterChoiseProduct }
+    });
+  }, []);
+
+  const onAddStock = useCallback(() => {
+    const onAfterSubmit = (values) => {
+      console.log('Save stock', values);
+    };
+    InAppEvent.emit(HASH_POPUP, {
+      hash: "stock.add",
+      title: "Nhập kho",
+      data: { onSave: onAfterSubmit }
     });
   }, []);
 
@@ -310,7 +326,7 @@ const BanHangPage = (props) => {
         dataSource={data}
         columns={columns.map(col => ({
           ...col,
-          onCell: () => ({ editable: col.editable }),
+          onCell: () => ({ editable: col.editable?.toString() }),
           render: col.dataIndex !== 'operation'
             ? (text, record, index) => renderCell(text, record, index, col)
             : col.render
@@ -336,7 +352,13 @@ const BanHangPage = (props) => {
         >
           Thêm sản phẩm
         </Button>
-        <Button style={{ marginLeft: 8 }} icon={<ShoppingCartOutlined />}>Nhập kho</Button>
+        <Button 
+          onClick={onAddStock}
+          style={{ marginLeft: 8 }} 
+          icon={<ShoppingCartOutlined />}
+        >
+          Nhập kho
+        </Button>
         <Button style={{ marginLeft: 8 }} icon={<TagOutlined />}>Chương trình khuyến mãi</Button>
       </div>
     </>
