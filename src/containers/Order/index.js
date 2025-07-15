@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Table, Button, InputNumber, Select, message } from 'antd';
-import { formatMoney } from 'utils/dataUtils';
+import { arrayEmpty, formatMoney } from 'utils/dataUtils';
 import { formatterInputNumber, parserInputNumber } from 'utils/tools';
 import { HASH_POPUP } from 'configs/constant';
 import { InAppEvent } from 'utils/FuseUtils';
@@ -14,9 +14,9 @@ import {
 } from '@ant-design/icons';
 
 const warehouseOptions = [
-  { label: 'KHO HL1', value: 1 },
-  { label: 'KHO HL2', value: 2 },
-  { label: 'KHO HL3', value: 3 }
+  { label: 'KHO HL1', value: 1, quantity: 0 },
+  { label: 'KHO HL2', value: 2, quantity: 0 },
+  { label: 'KHO HL3', value: 3, quantity: 0 }
 ];
 
 const warrantyOptions = [
@@ -175,6 +175,7 @@ const BanHangPage = (props) => {
       discountRate: 0,
       discountAmount: 0,
       editable: false,
+      warehouseOptions: warehouseOptions
     },
     {
       key: '2',
@@ -189,7 +190,8 @@ const BanHangPage = (props) => {
       stock: 50,
       discountRate: 0,
       discountAmount: 0,
-      editable: false
+      editable: false,
+      warehouseOptions: []
     },
     {
       key: '3',
@@ -204,11 +206,12 @@ const BanHangPage = (props) => {
       stock: 50,
       discountRate: 0,
       discountAmount: 0,
-      editable: false
+      editable: false,
+      warehouseOptions: []
     }
   ];
 
-  const [data, setData] = useState(dataSource);
+  const [ data, setData ] = useState(dataSource);
   const totalQuantity = data.reduce((sum, item) => sum + item.quantity, 0);
   const totalDiscount = data.reduce((sum, item) => sum + item.discountAmount, 0);
   const totalAfterDiscount = data.reduce((sum, item) => sum + item.totalPrice - item.discountAmount, 0);
@@ -265,9 +268,9 @@ const BanHangPage = (props) => {
         return (
           <Select
             placeholder="Chọn kho"
-            disabled={!record.editable}
+            disabled={arrayEmpty(record?.warehouseOptions)}
             value={text}
-            options={warehouseOptions}
+            options={record?.warehouseOptions ?? []}
             onChange={value => handleChange(record.key, column.dataIndex, value)}
             style={{ width: '100%' }}
           />
