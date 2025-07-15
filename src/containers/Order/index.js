@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { Table, Button, InputNumber, Select, message } from 'antd';
-import { arrayEmpty, formatMoney } from 'utils/dataUtils';
+import { Table, Button, InputNumber, Select, Typography } from 'antd';
+import { ShowSkuDetail } from 'containers/Product/SkuView';
+import { arrayEmpty, arrayNotEmpty, formatMoney } from 'utils/dataUtils';
 import { formatterInputNumber, parserInputNumber } from 'utils/tools';
 import { HASH_POPUP } from 'configs/constant';
 import { InAppEvent } from 'utils/FuseUtils';
@@ -12,18 +13,46 @@ import {
   DeleteOutlined,
   CheckOutlined
 } from '@ant-design/icons';
+import _ from 'lodash';
 
-const warehouseOptions = [
-  { label: 'KHO HL1', value: 1, quantity: 0 },
-  { label: 'KHO HL2', value: 2, quantity: 0 },
-  { label: 'KHO HL3', value: 3, quantity: 0 }
-];
-
+const { Text } = Typography;
 const warrantyOptions = [
-  { label: '6 Tháng', value: 6 },
-  { label: '12 Tháng', value: 12 },
-  { label: '24 Tháng', value: 24 }
+  { name: '(Chưa có)', id: 1 },
+  { name: '6 Tháng', id: 6 },
+  { name: '12 Tháng', id: 12 },
+  { name: '24 Tháng', id: 24 }
 ];
+
+const ORDER_TEMPLATE = {
+  key: "1",
+  skuDetailCode: "",
+  unit: "(Chưa có)",
+  warrantyPeriod: "(Chưa có)",
+  quantity: 1,
+  price: 0,
+  totalPrice: 0,
+  warehouse: "",
+  stock: 0,
+  discountRate: 0,
+  discountAmount: 0,
+  editable: false,
+  mSkuDetails: []
+}
+
+const getWarehouseByProduct = (mSkuDetails, mProduct) => {
+  if(arrayEmpty(mProduct?.warehouses)) {
+    return []
+  }
+  let warehouseOptions = [];
+  for(let warehouse of mProduct.warehouses) {
+    const skuInfo = JSON.stringify(warehouse.skuInfo || {});
+    const skuChoise = JSON.stringify(mSkuDetails);
+    if(skuInfo === skuChoise) {
+      warehouseOptions.push(warehouse);
+    }
+  }
+  return warehouseOptions;
+}
 
 const EditButton = ({ 
   editable, 
@@ -47,9 +76,24 @@ const EditButton = ({
 
 const BanHangPage = (props) => {
 
+  const [ data, setData ] = useState([]);
   const onAddProduct = useCallback(() => {
     const onAfterChoiseProduct = (values) => {
       console.log('Save new product', values);
+      let order = _.cloneDeep(ORDER_TEMPLATE);
+      const { mSkuDetails, mProduct, quantity, productId, skuId } = values;
+      /* Tạo Item trong list sản phẩm */
+      order.key = String(productId);
+      order.unit = mProduct.unit ?? "N/A";
+      order.mSkuDetails = mSkuDetails;
+      order.skuDetailCode = String(skuId);
+      order.quantity = quantity;
+      order.warehouseOptions = getWarehouseByProduct(mSkuDetails, mProduct);
+      if(arrayNotEmpty(order.warehouseOptions)) {
+        order.warehouse = order.warehouseOptions[0]?.stockName ?? '';
+        order.stock = order.warehouseOptions[0]?.quantity ?? 0;
+      }
+      setData(datas => ([...datas, order]));
     };
     InAppEvent.emit(HASH_POPUP, {
       hash: "sku.add",
@@ -78,8 +122,8 @@ const BanHangPage = (props) => {
     },
     {
       title: 'Diễn giải',
-      dataIndex: 'description',
-      key: 'description',
+      dataIndex: 'mSkuDetails',
+      render: (mSkuDetails) => (<span />),
       width: 260,
       ellipsis: true,
     },
@@ -160,58 +204,6 @@ const BanHangPage = (props) => {
     }
   ];
 
-  const dataSource = [
-    {
-      key: '1',
-      skuDetailCode: 'BIOZ69035',
-      description: 'MAIN BIOSTAR Z690A SILVER',
-      unit: 'Chiếc',
-      warrantyPeriod: '36 Tháng',
-      quantity: 1,
-      price: 3650000,
-      totalPrice: 3650000,
-      warehouse: 'KHO HL3',
-      stock: 50,
-      discountRate: 0,
-      discountAmount: 0,
-      editable: false,
-      warehouseOptions: warehouseOptions
-    },
-    {
-      key: '2',
-      skuDetailCode: '14600KFT',
-      description: 'CPU INTEL CORE I5 14600KF (UP TO 5.3',
-      unit: 'Chiếc',
-      warrantyPeriod: '36 Tháng',
-      quantity: 1,
-      price: 4300000,
-      totalPrice: 4300000,
-      warehouse: 'KHO HL2',
-      stock: 50,
-      discountRate: 0,
-      discountAmount: 0,
-      editable: false,
-      warehouseOptions: []
-    },
-    {
-      key: '3',
-      skuDetailCode: 'OCPRI6G144',
-      description: 'RAM OCPC XT II 16GB (1x16GB) BUS 32',
-      unit: 'Chiếc',
-      warrantyPeriod: '36 Tháng',
-      quantity: 2,
-      price: 690000,
-      totalPrice: 1380000,
-      warehouse: 'KHO HL3',
-      stock: 50,
-      discountRate: 0,
-      discountAmount: 0,
-      editable: false,
-      warehouseOptions: []
-    }
-  ];
-
-  const [ data, setData ] = useState(dataSource);
   const totalQuantity = data.reduce((sum, item) => sum + item.quantity, 0);
   const totalDiscount = data.reduce((sum, item) => sum + item.discountAmount, 0);
   const totalAfterDiscount = data.reduce((sum, item) => sum + item.totalPrice - item.discountAmount, 0);
@@ -235,18 +227,12 @@ const BanHangPage = (props) => {
       return;
     }
 
-    if (field === 'quantity') {
-      if (parseFloat(value) > target.stock) {
-        message.warning('Số lượng không được lớn hơn tồn kho!');
-        return;
-      }
-      target[field] = parseFloat(value || 0);
-    } else if (['price', 'discountRate', 'discountAmount'].includes(field)) {
+    if (['quantity', 'price', 'discountRate', 'discountAmount'].includes(field)) {
       target[field] = parseFloat(value || 0);
     } else if (field === 'warehouse') {
-      target[field] = warehouseOptions.find(option => option.value === value)?.label || '';
+      target[field] = target.warehouseOptions.find(option => option.id === value)?.stockName || '';
     } else if (field === 'warrantyPeriod') {
-      target[field] = warrantyOptions.find(option => option.value === value)?.label || '';
+      target[field] = warrantyOptions.find(option => option.id === value)?.name || '';
     }
 
     /* Calculate dependent fields */
@@ -270,7 +256,10 @@ const BanHangPage = (props) => {
             placeholder="Chọn kho"
             disabled={arrayEmpty(record?.warehouseOptions)}
             value={text}
-            options={record?.warehouseOptions ?? []}
+            options={(record?.warehouseOptions ?? []).map(opt => ({
+              label: opt.stockName,
+              value: opt.id
+            }))}
             onChange={value => handleChange(record.key, column.dataIndex, value)}
             style={{ width: '100%' }}
           />
@@ -282,7 +271,10 @@ const BanHangPage = (props) => {
             placeholder="Chọn bảo hành"
             disabled={!record.editable}
             value={text}
-            options={warrantyOptions}
+            options={warrantyOptions.map(opt => ({
+              label: opt.name,
+              value: opt.id
+            }))}
             onChange={value => handleChange(record.key, column.dataIndex, value)}
             style={{ width: '100%' }}
           />
@@ -291,8 +283,7 @@ const BanHangPage = (props) => {
       if (column.dataIndex === 'quantity') {
         return (
           <InputNumber
-            min={0}
-            max={record.stock}
+            min={1}
             value={text}
             onChange={value => handleChange(record.key, column.dataIndex, value)}
             style={{ width: '100%' }}
@@ -312,6 +303,13 @@ const BanHangPage = (props) => {
         />
       );
     } else {
+      if (column.dataIndex === 'warehouse') { 
+        return <Text style={{ width: 120 }} ellipsis> {text || '(Chưa nhập)'} </Text>;
+      }
+      if (column.dataIndex === 'mSkuDetails') { 
+        return <ShowSkuDetail skuInfo={record.mSkuDetails} />
+      }
+      
       const isFormatted = ['price', 'discountAmount', 'totalPrice'].includes(column.dataIndex);
       return isFormatted ? formatMoney(text) : text;
     }
@@ -362,7 +360,13 @@ const BanHangPage = (props) => {
         >
           Nhập kho
         </Button>
-        <Button style={{ marginLeft: 8 }} icon={<TagOutlined />}>Chương trình khuyến mãi</Button>
+        <Button 
+          style={{ marginLeft: 8 }} 
+          icon={<TagOutlined />}
+          disabled
+        >
+          Thanh toán
+        </Button>
       </div>
     </>
   );

@@ -4,11 +4,15 @@ import FormSelectInfiniteProduct from 'components/form/SelectInfinite/FormSelect
 import FormSelect from 'components/form/FormSelect';
 import FormInputNumber from 'components/form/FormInputNumber';
 import BtnSubmit from 'components/CustomButton/BtnSubmit';
+import _ from 'lodash';
+import { arrayEmpty, arrayNotEmpty, decodeProperty } from 'utils/dataUtils';
+import InStockTable from 'containers/WareHouse/InStockTable'
 
 const SKU_DETAIL_ID_PREFIX = 'skuDetailId_';
 const AddSKU = ({ onSave }) => {
   
   const [ form ] = Form.useForm();
+  const [ inStocks, setInStocks ] = useState([]);
   const [ skus, setSkus ] = useState([]);
   const [ mProduct, setProduct ] = useState({});
   const [ skuDetail, setSkuDetail ] = useState([]);
@@ -33,7 +37,17 @@ const AddSKU = ({ onSave }) => {
     onSave({ ...mValues, mProduct, mSkuDetails });
   }, [onSave, skuDetail, mProduct]);
 
-  const onChangeGetSelectedItem = (value, nProduct) => {
+  const onChangeGetSelectedItem = (value, item) => {
+    let nProduct = _.cloneDeep(item);
+    let { warehouses } = nProduct;
+    if(arrayNotEmpty(warehouses)) {
+      for(let stock of warehouses) {
+        decodeProperty(stock, ["skuInfo"]);
+      }
+      setInStocks(warehouses);
+    } else {
+      setInStocks([]);
+    }
     setSkus(nProduct?.skus || []);
     setProduct(nProduct);
     form.setFieldsValue({ skuId: undefined });
@@ -49,15 +63,49 @@ const AddSKU = ({ onSave }) => {
     }
   };
 
-  const groupedData  = skuDetail.reduce((oKey, item) => {
-    if (!oKey[item.name]) {
-      oKey[item.name] = [];
-    }
-    oKey[item.name].push(item);
-    return oKey;
-  }, {});
+  const memoSkuDetail = React.useMemo(() => {
+    const groupedData  = skuDetail.reduce((oKey, item) => {
+      if (!oKey[item.name]) {
+        oKey[item.name] = [];
+      }
+      oKey[item.name].push(item);
+      return oKey;
+    }, {});
+    const numberOfKeys = Object.keys(groupedData).length;
+    return Object.keys(groupedData).map((groupName) => (
+      <Col key={groupName} span={numberOfKeys <= 1 ? 24 : 12}>
+        <FormSelect
+          mode='multiple'
+          name={`${SKU_DETAIL_ID_PREFIX}${groupName}`}
+          valueProp='id'
+          titleProp='value'
+          label={`Chọn ${groupName}`}
+          placeholder={`Chọn ${groupName}`}
+          resourceData={groupedData[groupName]}
+          required
+        />
+      </Col>
+    ))
+  }, [skuDetail]);
 
-  const numberOfKeys = Object.keys(groupedData).length;
+  const onSelectedStock = useCallback((item) => {
+    const { skuInfo, ...params } = item;
+    form.setFieldsValue(params);
+
+    /* Lấy SKU trong sản phẩm để lọc detail */
+    const { skus } = mProduct;
+    setSkuDetail(skus?.find(i => i.id === item.skuId)?.skuDetail ?? []);
+
+    /* Fill vào form */
+    if(arrayEmpty(skuInfo)) {
+      return;
+    }
+    for(let sku of skuInfo) {
+      let key = `${SKU_DETAIL_ID_PREFIX}${sku.text}`
+      form.setFieldsValue({ [key]: sku?.values?.map(i => i.id) ?? [] });
+    }
+  }, [form, mProduct]);
+
   return (
     <Form form={form} layout="vertical" onFinish={onFinish}>
       <Row gutter={16}>
@@ -82,20 +130,13 @@ const AddSKU = ({ onSave }) => {
             onChangeGetSelectedItem={onChangeGetSelectedSku}
           />
         </Col>
-        {Object.keys(groupedData).map((groupName) => (
-          <Col key={groupName} span={numberOfKeys <= 1 ? 24 : 12}>
-            <FormSelect
-              mode='multiple'
-              name={`${SKU_DETAIL_ID_PREFIX}${groupName}`}
-              valueProp='id'
-              titleProp='value'
-              label={`Chọn ${groupName}`}
-              placeholder={`Chọn ${groupName}`}
-              resourceData={groupedData[groupName]}
-              required
-            />
-          </Col>
-        ))}
+        { memoSkuDetail }
+        <Col span={24}>
+          <InStockTable 
+            data={inStocks} 
+            onChangeSelected={onSelectedStock} 
+          />
+        </Col>
         <Col span={12}>
           <FormInputNumber
             label='Số lượng'
