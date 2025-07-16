@@ -5,6 +5,7 @@ import { Modal } from 'antd';
 import { NoFooter } from 'components/common/NoFooter';
 import { createGlobalStyle } from 'styled-components';
 import ChoiseSKU from './ChoiseSKU';
+import NhapKho from './NhapKho';
 
 const CustomModalStyles = createGlobalStyle`
   .custom-modal {
@@ -19,7 +20,8 @@ const CustomModalStyles = createGlobalStyle`
 `;
 
 const modalRoutes = [
-  ...ChoiseSKU
+  ...ChoiseSKU,
+  ...NhapKho
 ];
 
 const getPopupRoute = (currentModal) => {
@@ -37,6 +39,8 @@ const getPopupRoute = (currentModal) => {
 function MyPopup() {
 
   const [ params, setParams ] = useState({ open: false });
+  const [ reLoad, setReload ] = useState(false);
+
   const handleEventDraw = useCallback( ({ hash, data, title }) => {
     setParams({open: true, hash, data, title});
   }, []);
@@ -55,12 +59,13 @@ function MyPopup() {
   }, [handleEventDraw, handleCloseDraw]);
 
   const closePopup =useCallback(() => {
-    setParams({open: false})
+    setParams({open: false});
+    setReload(pre => !pre);
   }, []);
 
   const PopupRoute = useMemo(
     () => getPopupRoute(params.hash),
-    [params.hash],
+    [params.hash]
   );
   
   return <>
@@ -75,6 +80,7 @@ function MyPopup() {
       width={PopupRoute?.modalOptions?.width || 800}
     >
       <PopupRoute.Component 
+        reLoad={reLoad}
         closeModal={closePopup} 
         {...(params.data || {})}
       />

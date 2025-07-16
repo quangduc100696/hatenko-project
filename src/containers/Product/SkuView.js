@@ -1,4 +1,4 @@
-import { arrayEmpty, formatMoney } from "utils/dataUtils";
+import { arrayEmpty, arrayNotEmpty, formatMoney } from "utils/dataUtils";
 import { SKUContent } from "./styles";
 import { Typography } from 'antd';
 const { Text } = Typography;
@@ -31,6 +31,30 @@ const SkuView = ({ skus }) => {
       </Text>
     </SKUContent>
   )
+}
+
+export const ShowSkuDetail = ({ skuInfo, width = 0 }) => {
+  if (!arrayNotEmpty(skuInfo)) {
+    return <span />;
+  }
+  const maxLines = 2;
+  const itemsToShow = skuInfo.slice(0, maxLines);
+  return <>
+    {itemsToShow.map((item, key) => (
+      <SKUContent key={key}>
+        <Typography.Paragraph>
+          <Text 
+            ellipsis
+            {...(width > 0 ? {style: { width }} : {})}
+          >
+            <strong>{item.text}: </strong>
+            <span>{item.values?.map(d => d.text).join(', ')}</span>
+          </Text>
+        </Typography.Paragraph>
+      </SKUContent>
+    ))}
+    {skuInfo.length > maxLines && <div>...</div>}
+  </>
 }
 
 export const PriceView = ({ skus }) => {
