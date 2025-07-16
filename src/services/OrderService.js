@@ -3,6 +3,12 @@ import RequestUtils from "utils/RequestUtils";
 
 const OrderService = {
   allStatus: [],
+  getListOrderName() {
+    return [
+      {name: "Bán lẻ", color: "rgb(0, 176, 216)"}, 
+      {name: "Sản xuất", color: "rgb(242, 111, 33)"}
+    ]
+  },
   empty () {
     this.allStatus = [];
   },

@@ -33,7 +33,7 @@ const SkuView = ({ skus }) => {
   )
 }
 
-export const ShowSkuDetail = ({ skuInfo }) => {
+export const ShowSkuDetail = ({ skuInfo, width = 0 }) => {
   if (!arrayNotEmpty(skuInfo)) {
     return <span />;
   }
@@ -43,8 +43,13 @@ export const ShowSkuDetail = ({ skuInfo }) => {
     {itemsToShow.map((item, key) => (
       <SKUContent key={key}>
         <Typography.Paragraph>
-          <Text strong>{item.text}: </Text>
-          <Text>{item.values?.map(d => d.text).join(', ')}</Text>
+          <Text 
+            ellipsis
+            {...(width > 0 ? {style: { width }} : {})}
+          >
+            <strong>{item.text}: </strong>
+            <span>{item.values?.map(d => d.text).join(', ')}</span>
+          </Text>
         </Typography.Paragraph>
       </SKUContent>
     ))}

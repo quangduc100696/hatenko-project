@@ -11,7 +11,8 @@ import {
   ShoppingCartOutlined,
   PlusOutlined,
   DeleteOutlined,
-  CheckOutlined
+  CheckOutlined,
+  FilePptOutlined
 } from '@ant-design/icons';
 import _ from 'lodash';
 
@@ -25,6 +26,8 @@ const warrantyOptions = [
 
 const ORDER_TEMPLATE = {
   key: "1",
+  orderName: "",
+  productId: null,
   skuDetailCode: "",
   unit: "(Chưa có)",
   warrantyPeriod: "(Chưa có)",
@@ -54,6 +57,21 @@ const getWarehouseByProduct = (mSkuDetails, mProduct) => {
   return warehouseOptions;
 }
 
+function randomString(length = 8) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+function findByQuantity(arr, quantity) {
+  return arrayNotEmpty(arr) ? arr.find(
+    item => quantity >= item.quantityFrom && quantity <= item.quantityTo
+  ) || {} : {};
+}
+
 const EditButton = ({ 
   editable, 
   onEdit, 
@@ -79,22 +97,36 @@ const BanHangPage = (props) => {
   const [ data, setData ] = useState([]);
   const onAddProduct = useCallback(() => {
     const onAfterChoiseProduct = (values) => {
-      console.log('Save new product', values);
+      console.log('App Product', values);
       let order = _.cloneDeep(ORDER_TEMPLATE);
       const { mSkuDetails, mProduct, quantity, productId, skuId } = values;
       /* Tạo Item trong list sản phẩm */
-      order.key = String(productId);
+      order.key = randomString();
+      order.orderName = values?.orderName ?? "";
+      order.productId = productId;
       order.unit = mProduct.unit ?? "N/A";
       order.mSkuDetails = mSkuDetails;
       order.skuDetailCode = String(skuId);
       order.quantity = quantity;
       order.warehouseOptions = getWarehouseByProduct(mSkuDetails, mProduct);
+
+      const skus = mProduct?.skus ?? [];
+      let listPriceRange = [];
       if(arrayNotEmpty(order.warehouseOptions)) {
-        order.warehouse = order.warehouseOptions[0]?.stockName ?? '';
-        order.stock = order.warehouseOptions[0]?.quantity ?? 0;
+        let warehouse = _.first(order.warehouseOptions);
+        order.warehouse = warehouse?.stockName ?? '';
+        order.stock = warehouse?.quantity ?? 0;
+        listPriceRange = skus.find(s => s.id === warehouse?.skuId)?.listPriceRange ?? [];
+      }
+      
+      const dataPrice = findByQuantity(listPriceRange, order.quantity);
+      if(dataPrice?.priceRef) {
+        order.price = dataPrice.priceRef;
+        order.totalPrice = order.price * order.quantity;
       }
       setData(datas => ([...datas, order]));
     };
+
     InAppEvent.emit(HASH_POPUP, {
       hash: "sku.add",
       title: "Thêm sản phẩm",
@@ -115,10 +147,10 @@ const BanHangPage = (props) => {
 
   const columns = [
     {
-      title: 'Mã hàng hóa',
+      title: 'Mã',
       dataIndex: 'skuDetailCode',
       key: 'skuDetailCode',
-      width: 120,
+      width: 80,
     },
     {
       title: 'Diễn giải',
@@ -126,12 +158,6 @@ const BanHangPage = (props) => {
       render: (mSkuDetails) => (<span />),
       width: 260,
       ellipsis: true,
-    },
-    {
-      title: 'Đơn vị',
-      dataIndex: 'unit',
-      key: 'unit',
-      width: 90,
     },
     {
       title: 'Bảo hành',
@@ -179,13 +205,19 @@ const BanHangPage = (props) => {
       dataIndex: 'warehouse',
       key: 'warehouse',
       editable: true,
-      width: 120,
+      width: 130,
     },
     {
       title: 'Tồn kho',
       dataIndex: 'stock',
       key: 'stock',
       width: 100,
+    },
+    {
+      title: 'Đơn vị',
+      dataIndex: 'unit',
+      key: 'unit',
+      width: 90,
     },
     {
       title: 'Sửa',
@@ -206,7 +238,7 @@ const BanHangPage = (props) => {
 
   const totalQuantity = data.reduce((sum, item) => sum + item.quantity, 0);
   const totalDiscount = data.reduce((sum, item) => sum + item.discountAmount, 0);
-  const totalAfterDiscount = data.reduce((sum, item) => sum + item.totalPrice - item.discountAmount, 0);
+  const totalSubOrder = data.reduce((sum, item) => sum + item.totalPrice - item.discountAmount, 0);
 
   const editRow = (key) => {
     const newData = data.map(item => ({
@@ -307,9 +339,8 @@ const BanHangPage = (props) => {
         return <Text style={{ width: 120 }} ellipsis> {text || '(Chưa nhập)'} </Text>;
       }
       if (column.dataIndex === 'mSkuDetails') { 
-        return <ShowSkuDetail skuInfo={record.mSkuDetails} />
+        return <ShowSkuDetail skuInfo={record.mSkuDetails} width={260} />
       }
-      
       const isFormatted = ['price', 'discountAmount', 'totalPrice'].includes(column.dataIndex);
       return isFormatted ? formatMoney(text) : text;
     }
@@ -318,6 +349,10 @@ const BanHangPage = (props) => {
   const deleteRow = (key) => {
     setData(data.filter(item => item.key !== key));
   };
+
+  const onSave = useCallback(() => {
+    console.log('Order Save', data);
+  }, [data]);
 
   return (
     <>
@@ -338,35 +373,58 @@ const BanHangPage = (props) => {
             <Table.Summary.Cell index={0} colSpan={4}>Tổng cộng</Table.Summary.Cell>
             <Table.Summary.Cell index={4}>{totalQuantity}</Table.Summary.Cell>
             <Table.Summary.Cell index={5}></Table.Summary.Cell>
-            <Table.Summary.Cell index={6}>{totalDiscount.toLocaleString()}</Table.Summary.Cell>
-            <Table.Summary.Cell index={7}>{totalAfterDiscount.toLocaleString()}</Table.Summary.Cell>
-            <Table.Summary.Cell index={8}></Table.Summary.Cell>
+            <Table.Summary.Cell index={7}>{formatMoney(totalDiscount)}</Table.Summary.Cell>
+            <Table.Summary.Cell index={8}>{formatMoney(totalSubOrder)}</Table.Summary.Cell>
+            <Table.Summary.Cell index={9}></Table.Summary.Cell>
           </Table.Summary.Row>
         )}
       />
-      <div style={{ marginTop: 25 }}>
-        <Button icon={<SaveOutlined />}>Lưu đơn hàng</Button>
-        <Button
-          onClick={onAddProduct}
-          style={{ marginLeft: 8 }}
-          icon={<PlusOutlined />}
-        >
-          Thêm sản phẩm
-        </Button>
-        <Button 
-          onClick={onAddStock}
-          style={{ marginLeft: 8 }} 
-          icon={<ShoppingCartOutlined />}
-        >
-          Nhập kho
-        </Button>
-        <Button 
-          style={{ marginLeft: 8 }} 
-          icon={<TagOutlined />}
-          disabled
-        >
-          Thanh toán
-        </Button>
+      <div style={{ marginTop: 25, display: 'flex', justifyContent: 'space-between' }}>
+        <div>
+          <Button 
+            disabled={arrayEmpty(data)}
+            onClick={onSave}
+            icon={<SaveOutlined />}
+          >
+            Lưu đơn hàng
+          </Button>
+          <Button
+            onClick={onAddProduct}
+            style={{ marginLeft: 8 }}
+            icon={<PlusOutlined />}
+          >
+            Thêm sản phẩm
+          </Button>
+          <Button 
+            onClick={onAddStock}
+            style={{ marginLeft: 8 }} 
+            icon={<ShoppingCartOutlined />}
+          >
+            Nhập kho
+          </Button>
+          <Button 
+            style={{ marginLeft: 8 }} 
+            icon={<TagOutlined />}
+            disabled
+          >
+            VAT + K.Mãi + Thanh toán
+          </Button>
+          <Button 
+            style={{ marginLeft: 8 }} 
+            icon={<FilePptOutlined />}
+            disabled
+          >
+            In hóa đơn
+          </Button>
+        </div>
+        <div>
+          <p>Tổng chưa VAT: {formatMoney(totalSubOrder)}</p>
+          <p>VAT: {formatMoney(0)}</p>
+          <p>C.Khấu Voucher: {formatMoney(0)}</p>
+          <p><strong>Tổng tiền: {formatMoney(totalSubOrder)}</strong></p>
+          <p><strong>Đã thanh toán: {formatMoney(0)}</strong></p>
+          <p><strong>Còn lại: {formatMoney(totalSubOrder)}</strong></p>
+        </div>
       </div>
     </>
   );
