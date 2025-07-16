@@ -236,58 +236,6 @@ const BanHangPage = (props) => {
     }
   ];
 
-<<<<<<< HEAD
-  const dataSource = [
-    {
-      key: '1',
-      skuDetailCode: 'BIOZ69035',
-      description: 'MAIN BIOSTAR Z690A SILVER',
-      unit: 'Chiếc',
-      warrantyPeriod: '36 Tháng',
-      quantity: 1,
-      price: 3650000,
-      totalPrice: 3650000,
-      warehouse: 'KHO HL3',
-      stock: 50,
-      discountRate: 0,
-      discountAmount: 0,
-      editable: false,
-    },
-    {
-      key: '2',
-      skuDetailCode: '14600KFT',
-      description: 'CPU INTEL CORE I5 14600KF (UP TO 5.3',
-      unit: 'Chiếc',
-      warrantyPeriod: '36 Tháng',
-      quantity: 1,
-      price: 4300000,
-      totalPrice: 4300000,
-      warehouse: 'KHO HL2',
-      stock: 50,
-      discountRate: 0,
-      discountAmount: 0,
-      editable: false
-    },
-    {
-      key: '3',
-      skuDetailCode: 'OCPRI6G144',
-      description: 'RAM OCPC XT II 16GB (1x16GB) BUS 32',
-      unit: 'Chiếc',
-      warrantyPeriod: '36 Tháng',
-      quantity: 2,
-      price: 690000,
-      totalPrice: 1380000,
-      warehouse: 'KHO HL3',
-      stock: 50,
-      discountRate: 0,
-      discountAmount: 0,
-      editable: false
-    }
-  ];
-
-  const [ data, setData ] = useState(dataSource);
-=======
->>>>>>> cf3e137600376fc26af65c4973f69181b2c5e95c
   const totalQuantity = data.reduce((sum, item) => sum + item.quantity, 0);
   const totalDiscount = data.reduce((sum, item) => sum + item.discountAmount, 0);
   const totalSubOrder = data.reduce((sum, item) => sum + item.totalPrice - item.discountAmount, 0);
