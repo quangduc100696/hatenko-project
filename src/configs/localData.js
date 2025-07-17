@@ -46,6 +46,7 @@ export const CHANNEL_SOURCE = [
   { 'id': 10, 'name': 'Shopee' }
 ];
 export const CHANNEL_SOURCE_MAP_KEYS = mapKeys(CHANNEL_SOURCE, 'id');
+
 export const CHANNEL_STATUS = [
   { 'id': 1, 'name': 'Chưa liên hệ' },
   { 'id': 2, 'name': 'Đã liên hệ' }

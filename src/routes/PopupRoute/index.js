@@ -4,8 +4,10 @@ import { InAppEvent } from 'utils/FuseUtils';
 import { Modal } from 'antd';
 import { NoFooter } from 'components/common/NoFooter';
 import { createGlobalStyle } from 'styled-components';
+
 import ChoiseSKU from './ChoiseSKU';
 import NhapKho from './NhapKho';
+import Cusomter from './Customer';
 
 const CustomModalStyles = createGlobalStyle`
   .custom-modal {
@@ -21,7 +23,8 @@ const CustomModalStyles = createGlobalStyle`
 
 const modalRoutes = [
   ...ChoiseSKU,
-  ...NhapKho
+  ...NhapKho,
+  ...Cusomter
 ];
 
 const getPopupRoute = (currentModal) => {

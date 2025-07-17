@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Table, Button, InputNumber, Select, Typography } from 'antd';
+import { Table, Button, InputNumber, Select, Typography, message } from 'antd';
 import { ShowSkuDetail } from 'containers/Product/SkuView';
 import { arrayEmpty, arrayNotEmpty, formatMoney } from 'utils/dataUtils';
 import { formatterInputNumber, parserInputNumber } from 'utils/tools';
@@ -15,6 +15,8 @@ import {
   FilePptOutlined
 } from '@ant-design/icons';
 import _ from 'lodash';
+import { HASH_MODAL } from 'configs';
+import RequestUtils from 'utils/RequestUtils';
 
 const { Text } = Typography;
 const warrantyOptions = [
@@ -28,6 +30,7 @@ const ORDER_TEMPLATE = {
   key: "1",
   orderName: "",
   productId: null,
+  productName: "",
   skuDetailCode: "",
   unit: "(Chưa có)",
   warrantyPeriod: "(Chưa có)",
@@ -92,9 +95,14 @@ const EditButton = ({
   </div>
 );
 
-const BanHangPage = (props) => {
+const BanHangPage = ({
+  orderId
+}) => {
 
   const [ data, setData ] = useState([]);
+  const [ customer, setCustomer ] = useState();
+  const [ customerOrder, setCustomerOrder ] = useState();
+
   const onAddProduct = useCallback(() => {
     const onAfterChoiseProduct = (values) => {
       console.log('App Product', values);
@@ -104,6 +112,7 @@ const BanHangPage = (props) => {
       order.key = randomString();
       order.orderName = values?.orderName ?? "";
       order.productId = productId;
+      order.productName = mProduct.name;
       order.unit = mProduct.unit ?? "N/A";
       order.mSkuDetails = mSkuDetails;
       order.skuDetailCode = String(skuId);
@@ -350,9 +359,49 @@ const BanHangPage = (props) => {
     setData(data.filter(item => item.key !== key));
   };
 
-  const onSave = useCallback(() => {
+  const onSave = useCallback(async () => {
     console.log('Order Save', data);
-  }, [data]);
+    const submit = async (mCustomer) => {
+      let params = { customer: mCustomer, details: data };
+      if(customerOrder?.id) {
+        params.id = customerOrder.id;
+      }
+      const { message: eMsg } = await RequestUtils.Post("/order/save", params);
+      message.info(eMsg);
+    }
+
+    const onAfterSaveCustomer = (values) => {
+      submit(values);
+      setCustomer(values);
+    }
+
+    /* Tạo mới chưa có thông tin khách hàng */
+    if( (customer?.id || 0) === 0) {
+      InAppEvent.emit(HASH_POPUP, {
+        hash: "customer.add",
+        title: "Thêm / Chọn khách hàng ",
+        data: { onSave: onAfterSaveCustomer }
+      });
+    } else {
+      submit(customer);
+    }
+  }, [data, customer, customerOrder]);
+
+  const onOpenFormPayment = useCallback(() => {
+    const onAfterSaveOrder = (order) => {
+      setCustomerOrder(order);
+    }
+    InAppEvent.emit(HASH_MODAL, {
+      hash: "#order/payment",
+      title: "Thêm thanh toán đơn hàng",
+      data: {
+        customerOrder,
+        customer,
+        details: data,
+        onSave: onAfterSaveOrder 
+      }
+    });
+  }, [customerOrder, customer, data]);
 
   return (
     <>
@@ -370,8 +419,9 @@ const BanHangPage = (props) => {
         pagination={false}
         summary={() => (
           <Table.Summary.Row>
-            <Table.Summary.Cell index={0} colSpan={4}>Tổng cộng</Table.Summary.Cell>
-            <Table.Summary.Cell index={4}>{totalQuantity}</Table.Summary.Cell>
+            <Table.Summary.Cell index={0} colSpan={3}>Tổng cộng</Table.Summary.Cell>
+            <Table.Summary.Cell index={3}>{totalQuantity}</Table.Summary.Cell>
+            <Table.Summary.Cell index={4}></Table.Summary.Cell>
             <Table.Summary.Cell index={5}></Table.Summary.Cell>
             <Table.Summary.Cell index={7}>{formatMoney(totalDiscount)}</Table.Summary.Cell>
             <Table.Summary.Cell index={8}>{formatMoney(totalSubOrder)}</Table.Summary.Cell>
@@ -410,9 +460,10 @@ const BanHangPage = (props) => {
             VAT + K.Mãi + Thanh toán
           </Button>
           <Button 
-            style={{ marginLeft: 8 }} 
+            style={{ marginLeft: 8 }}
+            onClick={onOpenFormPayment}
             icon={<FilePptOutlined />}
-            disabled
+            disabled={(customerOrder?.id || 0) === 0}
           >
             In hóa đơn
           </Button>

@@ -12,21 +12,6 @@ export const HASH_POPUP_CLOSE = "HASH_POPUP_CLOSE"
 export const FORMAT_DATE_INPUT = 'DD-MM-YYYY';
 export const CURRENCY_UNIT = 'VND';
 
-export const SOURCE = {
-  FACEBOOK: 1,
-  ZALO: 2,
-  HOTLINE: 3,
-  DIRECT: 4,
-  EMAIL: 5,
-  MKT0D: 6,
-  GIOITHIEU: 7,
-  CSKH: 8,
-  WHATSAPP: 11,
-  PARTNER: 9,
-  SHOPEE: 10,
-  TIKTOK: 11
-}
-
 export const STATUS_LEAD = {
   CREATE_DATA: 0,
   DO_NOT_MANUFACTORY: 1,
@@ -110,34 +95,6 @@ export const getColorStatusLead = (option) => {
       return 'N/A';
   }
 }
-
-// export const getStatusWareHouseExport = (option) => {
-//   switch (option) {
-//     case 1:
-//       return 'Tạo mới';
-//     case 2:
-//       return 'Phê duyệt';
-//     case 3:
-//       return 'Hoàn thành';
-//     default:
-//       return 'N/A';
-//   }
-// }
-
-// export const getStatusWareHouse = (option) => {
-//   switch (option) {
-//     case 0:
-//       return 'Chưa nhập';
-//     case 1:
-//       return 'Duyệt';
-//     case 3:
-//       return 'Duyệt';
-//     case 4:
-//       return 'Hoàn thành';
-//     default:
-//       return 'N/A';
-//   }
-// }
 
 export const getTypeGroup = (option) => {
   switch (option) {

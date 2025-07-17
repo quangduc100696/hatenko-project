@@ -1,23 +1,9 @@
 import { Row, Col } from 'antd';
 import FormInput from 'components/form/FormInput';
 import FormSelect from 'components/form/FormSelect';
-import { SOURCE, STATUS_LEAD } from 'configs/constant';
+import { STATUS_LEAD } from 'configs/constant';
 
-const resourceData = [
-  { id: SOURCE.FACEBOOK, name: 'Facebook' },
-  { id: SOURCE.ZALO, name: 'Zalo' },
-  { id: SOURCE.HOTLINE, name: 'Hotline' },
-  { id: SOURCE.DIRECT, name: 'Direct' },
-  { id: SOURCE.EMAIL, name: 'Email' },
-  { id: SOURCE.MKT0D, name: 'MKT0D' },
-  { id: SOURCE.GIOITHIEU, name: 'Giới thiệu' },
-  { id: SOURCE.CSKH, name: 'CSKH' },
-  { id: SOURCE.WHATSAPP, name: 'WhatsApp' },
-  { id: SOURCE.PARTNER, name: 'PartNer' },
-  { id: SOURCE.SHOPEE, name: 'SHOPEE' },
-  { id: SOURCE.TIKTOK, name: 'Tiktok' },
-]
-
+const resourceData = []
 export const statusData = [
   { id: STATUS_LEAD.CREATE_DATA, name: 'Chưa liên hệ' },
   { id: STATUS_LEAD.DO_NOT_MANUFACTORY, name: 'Không triển khai' },

@@ -1,9 +1,11 @@
 import Order from 'containers/Order';
 import { Helmet } from 'react-helmet';
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
+import { useState } from 'react';
 
 const title = 'Tạo cơ hội bán hàng';
 const BanHangPage = (props) => {
+	const [ orderId ] = useState();
 	return <>
 		<Helmet>
 			<title>{title}</title>
@@ -11,7 +13,10 @@ const BanHangPage = (props) => {
 		<CustomBreadcrumb
 			data={[{ title: 'Trang chủ' }, { title: title }]}
 		/>
-		<Order {...props} />
+		<Order
+			orderId={orderId}
+			{...props} 
+		/>
 	</>;
 }
 

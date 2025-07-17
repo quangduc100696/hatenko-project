@@ -4,28 +4,13 @@ import FormHidden from 'components/form/FormHidden';
 import CustomButton from 'components/CustomButton';
 import FormInput from 'components/form/FormInput';
 import FormSelect from 'components/form/FormSelect';
-import { SOURCE } from 'configs/constant';
+
 import Dragger from 'antd/es/upload/Dragger';
 import FormTextArea from 'components/form/FormTextArea';
 import RequestUtils from 'utils/RequestUtils';
 import { GATEWAY } from 'configs';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { InAppEvent } from 'utils/FuseUtils';
-
-const resourceData = [
-  { id: SOURCE.FACEBOOK, name: 'Facebook' },
-  { id: SOURCE.ZALO, name: 'Zalo' },
-  { id: SOURCE.HOTLINE, name: 'Hotline' },
-  { id: SOURCE.DIRECT, name: 'Direct' },
-  { id: SOURCE.EMAIL, name: 'Email' },
-  { id: SOURCE.MKT0D, name: 'MKT0D' },
-  { id: SOURCE.GIOITHIEU, name: 'Giới thiệu' },
-  { id: SOURCE.CSKH, name: 'CSKH' },
-  { id: SOURCE.WHATSAPP, name: 'WhatsApp' },
-  { id: SOURCE.PARTNER, name: 'PartNer' },
-  { id: SOURCE.SHOPEE, name: 'SHOPEE' },
-  { id: SOURCE.TIKTOK, name: 'Tiktok' },
-]
 
 const ProductForm = ({ setNewFile, dataUpdate, setSaleId }) => {
   const [province, setProvince] = useState([])
@@ -122,7 +107,7 @@ const ProductForm = ({ setNewFile, dataUpdate, setSaleId }) => {
           name="source"
           label="Nguồn"
           placeholder="Chọn Nguồn"
-          resourceData={resourceData || []}
+          resourceData={[]}
           valueProp="id"
           titleProp="name"
         />
