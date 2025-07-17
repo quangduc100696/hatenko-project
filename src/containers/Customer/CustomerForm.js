@@ -6,8 +6,16 @@ import FormInput from "components/form/FormInput";
 import BtnSubmit from 'components/CustomButton/BtnSubmit';
 import FormSelect from "components/form/FormSelect";
 import { CHANNEL_SOURCE } from "configs/localData";
+import { arrayEmpty } from "utils/dataUtils";
+import RequestUtils from "utils/RequestUtils";
+import { SUCCESS_CODE } from "configs";
+import { InAppEvent } from "utils/FuseUtils";
 
-const CustomerForm = ({ customer, onSave }) => {
+const CustomerForm = ({
+  details,
+  customer, 
+  onSave 
+}) => {
 
   const [ form ] = Form.useForm();
   const [ record, setRecord ] = useState({});
@@ -17,7 +25,27 @@ const CustomerForm = ({ customer, onSave }) => {
   }, [customer]);
 
   const onFinish = async(values) => {
-    console.log(values);
+    /* Tạo Lead mới nếu khách chưa tốn tại */
+    if(values.id) {
+      onSave(values);
+      return;
+    }
+    if(arrayEmpty(details)) {
+      return;
+    }
+    
+    let [ product ] = details;
+    const { errorCode, data } = await RequestUtils.Post("/data/create-from-customer", { 
+      product, 
+      customer: values 
+    });
+    if(errorCode !== SUCCESS_CODE) {
+      InAppEvent.normalError("Lỗi tạo mới dữ liệu khách hàng !");
+      return;
+    }
+    const { mCustomer } = data;
+    values.id = mCustomer.id;
+    onSave(values);
   }
 
   const updateRecord = useCallback((values) => {
@@ -34,7 +62,8 @@ const CustomerForm = ({ customer, onSave }) => {
         <Row gutter={16}>
           <Col span={12}>
             <FormSelectInfiniteCustomer
-              name="customerId"
+              formatText={(_, item) => item.name + " (" + item.mobile + ")"}
+              name="id"
               label='Chọn khách hàng'
               placeholder='Chọn khách hàng'
               onChangeGetSelectedItem={onChangeGetSelectedItem}
@@ -43,12 +72,14 @@ const CustomerForm = ({ customer, onSave }) => {
           <Col span={12}>
             <FormInput 
               label={"Tên khách hàng"}
+              placeholder='Họ tên'
               name={"name"}
               required
             />
           </Col>
           <Col span={12}>
             <FormInput 
+              placeholder='Số điện thoại'
               label={"Số điện thoại"}
               name={"mobile"}
               required
@@ -56,6 +87,7 @@ const CustomerForm = ({ customer, onSave }) => {
           </Col>
           <Col span={12}>
             <FormInput 
+              placeholder='Email'
               label={"Email"}
               name={"email"}
             />
@@ -63,11 +95,13 @@ const CustomerForm = ({ customer, onSave }) => {
           <Col span={12}>
             <FormInput 
               label={"Địa chỉ (Nếu có)"}
+              placeholder='Địa chỉ'
               name={"address"}
             />
           </Col>
           <Col span={12}>
             <FormInput 
+              placeholder='Link facebook'
               label={"Facebook"}
               name={"facebookId"}
             />
@@ -75,6 +109,7 @@ const CustomerForm = ({ customer, onSave }) => {
           <Col span={12}>
             <FormSelect 
               required
+              placeholder='Chọn nguồn'
               resourceData={CHANNEL_SOURCE}
               label={"Nguồn"}
               name={"sourceId"}

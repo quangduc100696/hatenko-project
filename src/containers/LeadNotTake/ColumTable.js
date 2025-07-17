@@ -1,5 +1,5 @@
 import { Tag } from "antd";
-import { getColorStatusLead, getSource, getStatusLead } from "configs/constant";
+import { getColorStatusLead, getStatusLead } from "configs/constant";
 import { useEffect, useState } from "react";
 import { dateFormatOnSubmit, formatMoney, formatTime } from "utils/dataUtils";
 import RequestUtils from "utils/RequestUtils";
@@ -66,18 +66,6 @@ export const TableColumnInteract = () => {
   }, [])
 
   const columnInteract = [
-    {
-      title: 'Nguồn',
-      dataIndex: 'source',
-      key: 'source',
-      render: (source) => {
-        return (
-          <div>
-            {getSource(source)}
-          </div>
-        )
-      }
-    },
     {
       title: 'Trạng thái',
       dataIndex: 'status',

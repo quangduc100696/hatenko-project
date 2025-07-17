@@ -3,6 +3,7 @@ export const QUERY_PARAMS_PROPERTY = {
   filters: 'filters',
   extraFilters: 'extraFilters'
 }
+
 export const MAX_FILE_SIZE_MB = 3;
 export const VAT_PERCENT = 8;
 export const HASH_MODAL = "#modal";
@@ -19,43 +20,6 @@ export const STATUS_LEAD = {
   CONTACT_LATER: 6,
   KO_LIEN_HE_DUOC: 4,
   THANH_CO_HOI: 7
-}
-
-export const SERVICE_ID = {
-  PRINTGO: 1,
-  PAKGO: 2,
-  GIFGO: 3,
-}
-
-export const getSource = (option) => {
-  switch (option) {
-    case SOURCE.FACEBOOK:
-      return 'Facebook';
-    case SOURCE.ZALO:
-      return 'Zalo';
-    case SOURCE.HOTLINE:
-      return 'Hotline';
-    case SOURCE.DIRECT:
-      return 'Direct';
-    case SOURCE.EMAIL:
-      return 'Email';
-    case SOURCE.MKT0D:
-      return 'MKT0D';
-    case SOURCE.GIOITHIEU:
-      return 'Giới thiệu';
-    case SOURCE.CSKH:
-      return 'CSKH';
-    case SOURCE.WHATSAPP:
-      return 'WhatsApp';
-    case SOURCE.PARTNER:
-      return 'PartNer';
-    case SOURCE.SHOPEE:
-      return 'Shoppe';
-    case SOURCE.TIKTOK:
-      return 'Tiktok';
-    default:
-      return 'Chưa xác định';
-  }
 }
 
 export const getStatusLead = (option) => {
@@ -88,11 +52,11 @@ export const getColorStatusLead = (option) => {
     case STATUS_LEAD.CONTACT_LATER:
       return '#108ee9';
     case STATUS_LEAD.KO_LIEN_HE_DUOC:
-      return 'error';
+      return 'red';
     case STATUS_LEAD.THANH_CO_HOI:
       return 'green';
     default:
-      return 'N/A';
+      return 'black';
   }
 }
 
@@ -110,6 +74,3 @@ export const getTypeGroup = (option) => {
       return 'N/A';
   }
 }
-
-
-

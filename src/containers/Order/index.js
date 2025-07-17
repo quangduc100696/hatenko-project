@@ -359,7 +359,7 @@ const BanHangPage = ({
     setData(data.filter(item => item.key !== key));
   };
 
-  const onSave = useCallback(async () => {
+  const onSubmitOrder = useCallback(async () => {
     console.log('Order Save', data);
     const submit = async (mCustomer) => {
       let params = { customer: mCustomer, details: data };
@@ -376,15 +376,21 @@ const BanHangPage = ({
     }
 
     /* Tạo mới chưa có thông tin khách hàng */
-    if( (customer?.id || 0) === 0) {
-      InAppEvent.emit(HASH_POPUP, {
-        hash: "customer.add",
-        title: "Thêm / Chọn khách hàng ",
-        data: { onSave: onAfterSaveCustomer }
-      });
-    } else {
+    if( (customer?.id || 0) !== 0) {
       submit(customer);
+      return;
     }
+
+    /* Tạo Lead và Customer */
+    InAppEvent.emit(HASH_POPUP, {
+      hash: "customer.add",
+      title: "Thêm / Chọn khách hàng ",
+      data: {
+        onSave: onAfterSaveCustomer,
+        customer,
+        details: data
+      }
+    });
   }, [data, customer, customerOrder]);
 
   const onOpenFormPayment = useCallback(() => {
@@ -433,7 +439,7 @@ const BanHangPage = ({
         <div>
           <Button 
             disabled={arrayEmpty(data)}
-            onClick={onSave}
+            onClick={onSubmitOrder}
             icon={<SaveOutlined />}
           >
             Lưu đơn hàng

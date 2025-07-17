@@ -1,5 +1,5 @@
 import { Tag } from "antd";
-import { getColorStatusLead, getSource, getStatusLead } from "configs/constant";
+import { getColorStatusLead, getStatusLead } from "configs/constant";
 import { useEffect, useState } from "react";
 import { dateFormatOnSubmit, formatMoney } from "utils/dataUtils";
 import RequestUtils from "utils/RequestUtils";
@@ -14,18 +14,6 @@ export const columnsTake = [
         title: 'Nguyên nhân',
         dataIndex: 'cause',
         key: 'cause',
-    },
-    {
-        title: 'Thời gian',
-        dataIndex: 'newIntime',
-        key: 'newIntime',
-        render: (inTime) => {
-            return (
-                <div>
-                    {getSource(inTime)}
-                </div>
-            )
-        }
     },
     {
         title: 'Sale',
@@ -66,18 +54,6 @@ export const TableColumnInteract = () => {
     }, [])
 
     const columnInteract = [
-        {
-            title: 'Nguồn',
-            dataIndex: 'source',
-            key: 'source',
-            render: (source) => {
-                return (
-                    <div>
-                        {getSource(source)}
-                    </div>
-                )
-            }
-        },
         {
             title: 'Trạng thái',
             dataIndex: 'status',
