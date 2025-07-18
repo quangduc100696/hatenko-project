@@ -8,6 +8,7 @@ export const CohoiConfig = {
     auth    : authRoles.user,
     routes  : [
         { path     : '/sale/co-hoi', element: <CohoiPage /> },
-        { path     : '/sale/ban-hang', element: <BanHangPage /> }
+        { path     : '/sale/ban-hang', element: <BanHangPage /> },
+        { path     : '/sale/ban-hang/:orderId', element: <BanHangPage /> }
     ]
 };

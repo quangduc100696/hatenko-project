@@ -17,7 +17,7 @@ import {
 import _ from 'lodash';
 import { HASH_MODAL, SUCCESS_CODE } from 'configs';
 import RequestUtils from 'utils/RequestUtils';
-import OrderService from 'services/OrderService';
+import OrderService, { getWarehouseByProduct } from 'services/OrderService';
 import { useEffectAsync } from 'hooks/MyHooks';
 
 const { Text } = Typography;
@@ -46,21 +46,6 @@ const ORDER_TEMPLATE = {
   discountAmount: 0,
   editable: false,
   mSkuDetails: []
-}
-
-const getWarehouseByProduct = (mSkuDetails, mProduct) => {
-  if(arrayEmpty(mProduct?.warehouses)) {
-    return []
-  }
-  let warehouseOptions = [];
-  for(let warehouse of mProduct.warehouses) {
-    const skuInfo = JSON.stringify(warehouse.skuInfo || {});
-    const skuChoise = JSON.stringify(mSkuDetails);
-    if(skuInfo === skuChoise) {
-      warehouseOptions.push(warehouse);
-    }
-  }
-  return warehouseOptions;
 }
 
 function randomString(length = 8) {

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import FuseUtils from 'utils/FuseUtils';
 import { useStore } from "DataContext";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, matchPath } from "react-router-dom";
 
 const LOGIN_PATH = '/login';
 /* const log = (key, value) => console.log('[auth.Authorization] ' + key + ' ', value); */
@@ -15,7 +15,8 @@ const Authorization = (props) => {
     const { pathname } = location;
 
     useEffect(() => {
-        const matched = routes.find(r => r.path === pathname);
+        /* const matched = routes.find(r => r.path === pathname); */
+        const matched = routes.find(r => r.path && matchPath({ path: r.path, end: true }, pathname));
         const granted = matched ? FuseUtils.hasPermission(matched.auth, (user?.id || '') !== '') : false;
         setAccessGranted(granted);
         /* eslint-disable-next-line */

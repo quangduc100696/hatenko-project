@@ -1,11 +1,11 @@
 import Order from 'containers/Order';
 import { Helmet } from 'react-helmet';
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
-import { useState } from 'react';
+import { useParams } from "react-router-dom";
 
 const title = 'Tạo cơ hội bán hàng';
 const BanHangPage = (props) => {
-	const [ orderId ] = useState(33994);
+	const { orderId } = useParams();
 	return <>
 		<Helmet>
 			<title>{title}</title>
