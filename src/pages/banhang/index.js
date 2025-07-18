@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 const title = 'Tạo cơ hội bán hàng';
 const BanHangPage = (props) => {
-	const [ orderId ] = useState();
+	const [ orderId ] = useState(33994);
 	return <>
 		<Helmet>
 			<title>{title}</title>

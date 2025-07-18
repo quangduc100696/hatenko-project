@@ -63,8 +63,11 @@ useEffectAsync(async () => {
 });
 */
 export function useEffectAsync(effect, inputs = []) {
-  useEffect(() => {
-    return effect();
+ useEffect(() => {
+    const run = async () => {
+      await effect();
+    };
+    run();
     /* eslint-disable-next-line */
   }, inputs);
 }

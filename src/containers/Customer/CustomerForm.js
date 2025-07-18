@@ -11,6 +11,15 @@ import RequestUtils from "utils/RequestUtils";
 import { SUCCESS_CODE } from "configs";
 import { InAppEvent } from "utils/FuseUtils";
 
+function mapFields(source, mapping) {
+  let result = {};
+  for (const [sourceKey, targetKey] of Object.entries(mapping)) {
+    if(source[sourceKey])
+    result[targetKey] = source[sourceKey];
+  }
+  return result;
+}
+
 const CustomerForm = ({
   details,
   customer, 
@@ -35,14 +44,28 @@ const CustomerForm = ({
     }
     
     let [ product ] = details;
-    const { errorCode, data } = await RequestUtils.Post("/data/create-from-customer", { 
-      product, 
-      customer: values 
-    });
+    const defindMappingSchema = {
+      name: "customerName",
+      mobile: "customerMobile",
+      email: "customerEmail",
+      facebookId: "customerFacebook",
+      address: "provinceName",
+      sourceId: "source"
+    };
+
+    const customerFields = mapFields(values, defindMappingSchema);
+    const payload = {
+      productId: product.productId,
+      productName: product.productName,
+      ...customerFields
+    };
+
+    const { errorCode, data } = await RequestUtils.Post("/data/create", payload);
     if(errorCode !== SUCCESS_CODE) {
       InAppEvent.normalError("Lỗi tạo mới dữ liệu khách hàng !");
       return;
     }
+
     const { mCustomer } = data;
     values.id = mCustomer.id;
     onSave(values);

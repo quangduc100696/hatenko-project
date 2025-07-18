@@ -19,6 +19,11 @@ const OrderService = {
       }
     })
   },
+  async getOrderOnEdit(orderId) {
+    let response = { customer: null, order: null, data: [] };
+    const { data, errorCode } = await RequestUtils.Get("/order/view-on-edit", {orderId});
+    return errorCode === SUCCESS_CODE ? data : response
+  },
   statusName(sId) {
     return this.allStatus.find(i => i.id === sId)?.name ?? '';
   },

@@ -15,8 +15,10 @@ import {
   FilePptOutlined
 } from '@ant-design/icons';
 import _ from 'lodash';
-import { HASH_MODAL } from 'configs';
+import { HASH_MODAL, SUCCESS_CODE } from 'configs';
 import RequestUtils from 'utils/RequestUtils';
+import OrderService from 'services/OrderService';
+import { useEffectAsync } from 'hooks/MyHooks';
 
 const { Text } = Typography;
 const warrantyOptions = [
@@ -28,6 +30,7 @@ const warrantyOptions = [
 
 const ORDER_TEMPLATE = {
   key: "1",
+  detailId: null,
   orderName: "",
   productId: null,
   productName: "",
@@ -102,6 +105,19 @@ const BanHangPage = ({
   const [ data, setData ] = useState([]);
   const [ customer, setCustomer ] = useState();
   const [ customerOrder, setCustomerOrder ] = useState();
+
+  useEffectAsync(async () => {
+    const { customer, order, data } = await OrderService.getOrderOnEdit(orderId);
+    if(customer) {
+      setCustomer(customer);
+    }
+    if(order) {
+      setCustomerOrder(order);
+    }
+    if(arrayNotEmpty(data)) {
+      setData(data);
+    }
+  }, [orderId]);
 
   const onAddProduct = useCallback(() => {
     const onAfterChoiseProduct = (values) => {
@@ -360,14 +376,18 @@ const BanHangPage = ({
   };
 
   const onSubmitOrder = useCallback(async () => {
-    console.log('Order Save', data);
+    
     const submit = async (mCustomer) => {
       let params = { customer: mCustomer, details: data };
       if(customerOrder?.id) {
         params.id = customerOrder.id;
       }
-      const { message: eMsg } = await RequestUtils.Post("/order/save", params);
+      const { message: eMsg, data: order, errorCode } = await RequestUtils.Post("/order/save", params);
       message.info(eMsg);
+      if(errorCode === SUCCESS_CODE) {
+        setCustomerOrder(order);
+        setCustomer(mCustomer);
+      }
     }
 
     const onAfterSaveCustomer = (values) => {
@@ -394,9 +414,6 @@ const BanHangPage = ({
   }, [data, customer, customerOrder]);
 
   const onOpenFormPayment = useCallback(() => {
-    const onAfterSaveOrder = (order) => {
-      setCustomerOrder(order);
-    }
     InAppEvent.emit(HASH_MODAL, {
       hash: "#order/payment",
       title: "Thêm thanh toán đơn hàng",
@@ -404,7 +421,7 @@ const BanHangPage = ({
         customerOrder,
         customer,
         details: data,
-        onSave: onAfterSaveOrder 
+        onSave: (order) => setCustomerOrder(order)
       }
     });
   }, [customerOrder, customer, data]);
