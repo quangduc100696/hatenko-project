@@ -373,7 +373,6 @@ const BanHangPage = ({
       const { message: eMsg, data: order, errorCode } = await RequestUtils.Post("/order/save", params);
       message.info(eMsg);
       if(errorCode === SUCCESS_CODE) {
-        console.log(order)
         setLocalOrder(pre => ({orderId: order.id, reload: !pre.reload}));
       }
     }
