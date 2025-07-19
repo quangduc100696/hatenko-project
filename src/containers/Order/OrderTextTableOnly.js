@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Table, Typography } from "antd";
 import styled from "styled-components";
-const { Text } = Typography;
+import { arrayEmpty } from 'utils/dataUtils';
+import { ShowSkuDetail } from 'containers/Product/SkuView';
 
+const { Text } = Typography;
 const COL_SPAN_0 = { props:{ colSpan: 0}};
 const COL_SPAN_4 = { props:{ colSpan: 4}};
 
@@ -22,32 +24,33 @@ const StyledTable = styled.div`
 	}
 `;
 
-const OrderTextTableOnly = () => {
-	const rawData = [
-		{
-			key: "1",
-			tenSanPham: "Tem nhãn",
-			soLuong: 1000,
-			donGia: 780,
-			thanhTien: 780000
-		},
-		{
-			key: "2",
-			tenSanPham: "Tem nhãn",
-			soLuong: 500,
-			donGia: 1040,
-			thanhTien: 520000
-		}
-	];
+const OrderTextTableOnly = ({ details }) => {
 
-	let data = rawData.flatMap((item, index) => [
-		{ ...item, isNoiDungMoRong: false, key: `${item.key}-main` },
-		{
-			isNoiDungMoRong: true,
-			key: `${item.key}-sub`,
-			content: "Ngày dự kiến sản xuất xong: 09-07-2025, Ngày dự kiến sản xuất xong: 09-07-2025, Ngày dự kiến sản xuất xong: 09-07-2025",
+	const [ rawData, setRawData ] = useState([]);
+	const generateRaws = useCallback((datas) => {
+		let raws = [];
+		if(arrayEmpty(datas)) {
+			return []
 		}
-	]);
+		let key = 0;
+		for(let detail of datas) {
+			key++;
+			let raw = { ...detail, isNoiDungMoRong: false, key: `${key}-main` }
+			raws.push(raw);
+			raws.push({
+				isNoiDungMoRong: true,
+				key: `${key}-sub`,
+				mSkuDetails: detail.mSkuDetails
+			});
+		}
+		return raws;
+	}, []);
+
+	useEffect(() => {
+		let raws = generateRaws(details);
+		setRawData(raws);
+		/* eslint-disable-next-line */
+	}, [details]);
 	
 	const columns = [
 		{
@@ -57,7 +60,7 @@ const OrderTextTableOnly = () => {
 			align: "center",
 			render: (_, record, index) => {
 				if (record.isNoiDungMoRong) {
-					return { children: null, ...COL_SPAN_0 };
+					return { ...COL_SPAN_0 };
 				}
 				return {
 					children: Math.floor(index / 2) + 1,
@@ -71,36 +74,30 @@ const OrderTextTableOnly = () => {
 			render: (_, record) => {
 				if (record.isNoiDungMoRong) {
 					return {
-						children: <Text type="secondary">{record.content}</Text>,
+						children: <ShowSkuDetail skuInfo={record.mSkuDetails} />,
 						...COL_SPAN_4
 					};
 				}
-				return (
-					<div>
-						<Text strong>Tên sản phẩm: </Text> {record.tenSanPham}
-						<br />
-						<Text strong>Quy cách in ấn và gia công:</Text>
-					</div>
-				)
+				return <Text>{record.productName}</Text>
 			}
 		},
 		{
 			title: "Số lượng",
-			dataIndex: "soLuong",
+			dataIndex: "quantity",
 			align: "center",
 			render: (text, record) =>
 				record.isNoiDungMoRong ? COL_SPAN_0 : text
 		},
 		{
 			title: "Đơn giá",
-			dataIndex: "donGia",
+			dataIndex: "price",
 			align: "center",
 			render: (text, record) =>
 				record.isNoiDungMoRong ? COL_SPAN_0 : text.toLocaleString("vi-VN")
 		},
 		{
 			title: "Thành tiền",
-			dataIndex: "thanhTien",
+			dataIndex: "totalPrice",
 			align: "center",
 			render: (text, record) =>
 				record.isNoiDungMoRong ? COL_SPAN_0 : <Text strong>{text.toLocaleString("vi-VN")}</Text>
@@ -111,7 +108,7 @@ const OrderTextTableOnly = () => {
 		<StyledTable>
 			<Table
 				columns={columns}
-				dataSource={data}
+				dataSource={rawData}
 				pagination={false}
 				bordered
 				rowClassName={(record) => (record.isNoiDungMoRong ? "sub-row" : "main-row")}

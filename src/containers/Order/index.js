@@ -404,14 +404,21 @@ const BanHangPage = ({
 
   const onOpenFormPayment = useCallback(() => {
     InAppEvent.emit(HASH_MODAL, {
-      hash: "#order/payment",
+      hash: "#order.payment",
       title: "Thêm thanh toán đơn hàng",
       data: {
         customerOrder,
-        customer,
         details: data,
         onSave: (order) => setCustomerOrder(order)
       }
+    });
+  }, [customerOrder, data]);
+
+   const onOpenInvoice = useCallback(() => {
+    InAppEvent.emit(HASH_MODAL, {
+      hash: "#order.invoice",
+      title: "Hóa đơn thanh toán",
+      data: { customerOrder, customer, details: data }
     });
   }, [customerOrder, customer, data]);
 
@@ -474,7 +481,7 @@ const BanHangPage = ({
           </Button>
           <Button 
             style={{ marginLeft: 8 }}
-            onClick={onOpenFormPayment}
+            onClick={onOpenInvoice}
             icon={<FilePptOutlined />}
             disabled={!isOrder}
           >
@@ -503,7 +510,7 @@ const InvoiceTable = ({
       leftLabel: 'Tổng chưa VAT',
       leftValue: formatMoney(subtotal),
       rightLabel: 'VAT',
-      rightValue: formatMoney(vat),
+      rightValue: formatMoney(subtotal * (vat / 100)),
     },
     {
       key: '2',
