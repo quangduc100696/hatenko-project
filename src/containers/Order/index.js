@@ -30,6 +30,7 @@ const warrantyOptions = [
 
 const ORDER_TEMPLATE = {
   key: "1",
+  note: "",
   detailId: null,
   orderName: "",
   productId: null,
@@ -113,6 +114,7 @@ const BanHangPage = ({
       const { mSkuDetails, mProduct, quantity, productId, skuId } = values;
       /* Tạo Item trong list sản phẩm */
       order.key = randomString();
+      order.note = values?.note ?? "";
       order.orderName = values?.orderName ?? "";
       order.productId = productId;
       order.productName = mProduct.name;
@@ -193,10 +195,10 @@ const BanHangPage = ({
       editable: true
     },
     {
-      title: 'Tỷ lệ CK (%)',
+      title: 'CK (%)',
       dataIndex: 'discountRate',
       key: 'discountRate',
-      width: 110,
+      width: 90,
       editable: true,
     },
     {
@@ -210,7 +212,7 @@ const BanHangPage = ({
       title: 'Thành tiền',
       dataIndex: 'totalPrice',
       key: 'totalPrice',
-      width: 130
+      width: 150
     },
     {
       title: 'Kho',

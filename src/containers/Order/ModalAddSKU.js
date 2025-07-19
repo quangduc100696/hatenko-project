@@ -9,6 +9,7 @@ import { arrayEmpty, arrayNotEmpty, decodeProperty } from 'utils/dataUtils';
 import InStockTable from 'containers/WareHouse/InStockTable'
 import FormAutoComplete from 'components/form/FormAutoComplete';
 import OrderService from 'services/OrderService';
+import FormTextArea from 'components/form/FormTextArea';
 
 const SKU_DETAIL_ID_PREFIX = 'skuDetailId_';
 const AddSKU = ({ onSave }) => {
@@ -161,7 +162,15 @@ const AddSKU = ({ onSave }) => {
           />
         </Col>
         <Col span={24}>
-          <BtnSubmit marginTop={30} text='Hoàn thành' />
+          <FormTextArea 
+            rows={3}
+            label='Ghi chú (Nếu có)'
+            placeholder='Ghi chú'
+            name={"note"}
+          />
+        </Col>
+        <Col span={24}>
+          <BtnSubmit marginTop={0} text='Hoàn thành' />
         </Col>
       </Row>
     </Form>
