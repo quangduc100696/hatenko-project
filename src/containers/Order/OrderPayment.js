@@ -36,7 +36,7 @@ const OrderPayment = ({ data }) => {
   }, [form, customerOrder]);
 
   const onSubmitPayment = useCallback(async (values) => {
-    const { data, errorCode, message: MSG } = await RequestUtils.Post("/order/payment", {
+    const { data, errorCode, message: MSG } = await RequestUtils.Post("/pay/manual", {
       orderId: customerOrder.id,
       ...values
     })
@@ -114,7 +114,7 @@ const OrderPayment = ({ data }) => {
               required={false}
               label="Số tiền"
               min="0"
-              name="monney"
+              name="amount"
               placeholder={"Số tiền thanh toán"}
             />
           </Col>
@@ -132,7 +132,7 @@ const OrderPayment = ({ data }) => {
               valueProp='name'
               titleProp='name'
               label='Nội dung'
-              name='note'
+              name='content'
               placeholder={'Nội dung thanh toán'}
             />
           </Col>

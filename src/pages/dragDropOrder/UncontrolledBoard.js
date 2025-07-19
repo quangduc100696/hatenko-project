@@ -20,8 +20,8 @@ const convertData = (data) => {
         id: card.id,
         title: card.code || "No title",
         description: `${card.customerName || ''} - ${(card.total || 0).toLocaleString()} VNĐ`,
-        customerName: card.customerName,    // thêm
-        total: card.total,                  // thêm
+        customerName: card.customerName,
+        total: card.total,
         createDate: card.createDate,
         status: card.status,
       })),
@@ -30,6 +30,7 @@ const convertData = (data) => {
 };
 
 const UncontrolledBoard = () => {
+
   const [newOrder, setNewOrder] = useState({});
   const [open, setOpen] = useState(false);
   const [shouldRefetch, setShouldRefetch] = useState(false);
@@ -133,10 +134,6 @@ const UncontrolledBoard = () => {
                   <p style={{ fontSize: 12, color: '#666', margin: 0, padding: 0 }}>
                     Ngày tạo: {date}
                   </p>
-                  {/* <p style={{ fontSize: 12, color: '#666', margin: 0, padding: 0 }}>
-                    Trạng thái: {card?.status}
-                  </p> */}
-                  {/* Khung hover hiển thị */}
                 </div>
               </div>
             );

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Table, Typography } from "antd";
 import styled from "styled-components";
-import { arrayEmpty } from 'utils/dataUtils';
+import { arrayEmpty, formatMoney } from 'utils/dataUtils';
 import { ShowSkuDetail } from 'containers/Product/SkuView';
 
 const { Text } = Typography;
@@ -92,15 +92,25 @@ const OrderTextTableOnly = ({ details }) => {
 			title: "Đơn giá",
 			dataIndex: "price",
 			align: "center",
-			render: (text, record) =>
-				record.isNoiDungMoRong ? COL_SPAN_0 : text.toLocaleString("vi-VN")
+			render: (price, record) => record.isNoiDungMoRong ? COL_SPAN_0 : (
+				<>
+					{formatMoney(price)}
+					{record.discountAmount > 0 &&
+						<strong><br/>Giảm: ({formatMoney(record.discountAmount)}) </strong>
+					}
+				</>
+			)
 		},
 		{
 			title: "Thành tiền",
 			dataIndex: "totalPrice",
 			align: "center",
-			render: (text, record) =>
-				record.isNoiDungMoRong ? COL_SPAN_0 : <Text strong>{text.toLocaleString("vi-VN")}</Text>
+			render: (totalPrice, record) => record.isNoiDungMoRong ? COL_SPAN_0 : (
+				<Text strong>{record.discountAmount > 0 
+					? formatMoney(totalPrice - record.discountAmount) 
+					: formatMoney(totalPrice)}
+				</Text>
+			)
 		}
 	];
 

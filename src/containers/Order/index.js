@@ -409,7 +409,7 @@ const BanHangPage = ({
       data: {
         customerOrder,
         details: data,
-        onSave: (order) => setCustomerOrder(order)
+        onSave: (_) => setLocalOrder(pre => ({...pre, reload: !pre.reload}))
       }
     });
   }, [customerOrder, data]);
