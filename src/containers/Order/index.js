@@ -89,10 +89,12 @@ const BanHangPage = ({
 
   const [ data, setData ] = useState([]);
   const [ customer, setCustomer ] = useState();
+
+  const [ localOrder, setLocalOrder ] = useState({ orderId, reload: false });
   const [ customerOrder, setCustomerOrder ] = useState();
 
-  useEffectAsync(async () => {
-    const { customer, order, data } = await OrderService.getOrderOnEdit(orderId);
+  useEffectAsync(async (isMounted) => {
+    const { customer, order, data } = await OrderService.getOrderOnEdit(localOrder.orderId);
     if(customer) {
       setCustomer(customer);
     }
@@ -102,7 +104,7 @@ const BanHangPage = ({
     if(arrayNotEmpty(data)) {
       setData(data);
     }
-  }, [orderId]);
+  }, [localOrder]);
 
   const onAddProduct = useCallback(() => {
     const onAfterChoiseProduct = (values) => {
@@ -246,6 +248,7 @@ const BanHangPage = ({
     }
   ];
 
+  let isOrder = (customerOrder?.id || 0) !== 0;
   const totalQuantity = data.reduce((sum, item) => sum + item.quantity, 0);
   const totalDiscount = data.reduce((sum, item) => sum + item.discountAmount, 0);
   const totalSubOrder = data.reduce((sum, item) => sum + item.totalPrice - item.discountAmount, 0);
@@ -370,8 +373,8 @@ const BanHangPage = ({
       const { message: eMsg, data: order, errorCode } = await RequestUtils.Post("/order/save", params);
       message.info(eMsg);
       if(errorCode === SUCCESS_CODE) {
-        setCustomerOrder(order);
-        setCustomer(mCustomer);
+        console.log(order)
+        setLocalOrder(pre => ({orderId: order.id, reload: !pre.reload}));
       }
     }
 
@@ -463,7 +466,8 @@ const BanHangPage = ({
           <Button 
             style={{ marginLeft: 8 }} 
             icon={<TagOutlined />}
-            disabled
+            disabled={!isOrder}
+            onClick={onOpenFormPayment}
           >
             VAT + K.Mãi + Thanh toán
           </Button>
@@ -471,22 +475,78 @@ const BanHangPage = ({
             style={{ marginLeft: 8 }}
             onClick={onOpenFormPayment}
             icon={<FilePptOutlined />}
-            disabled={(customerOrder?.id || 0) === 0}
+            disabled={!isOrder}
           >
             In hóa đơn
           </Button>
         </div>
         <div>
-          <p>Tổng chưa VAT: {formatMoney(totalSubOrder)}</p>
-          <p>VAT: {formatMoney(0)}</p>
-          <p>C.Khấu Voucher: {formatMoney(0)}</p>
-          <p><strong>Tổng tiền: {formatMoney(totalSubOrder)}</strong></p>
-          <p><strong>Đã thanh toán: {formatMoney(0)}</strong></p>
-          <p><strong>Còn lại: {formatMoney(totalSubOrder)}</strong></p>
+          { isOrder && 
+            <InvoiceTable 
+              order={customerOrder}
+            />
+          }
         </div>
       </div>
     </>
   );
 }
+
+const InvoiceTable = ({
+  order
+}) => {
+  const { subtotal, vat, priceOff, total, paid } = order;
+  const data = [
+    {
+      key: '1',
+      leftLabel: 'Tổng chưa VAT',
+      leftValue: formatMoney(subtotal),
+      rightLabel: 'VAT',
+      rightValue: formatMoney(vat),
+    },
+    {
+      key: '2',
+      leftLabel: 'C.Khấu | Voucher',
+      leftValue: formatMoney(priceOff),
+      rightLabel: 'Tổng tiền',
+      rightValue: formatMoney(total)
+    },
+    {
+      key: '3',
+      leftLabel: 'Đã thanh toán',
+      leftValue: formatMoney(paid),
+      rightLabel: 'Còn lại',
+      rightValue: formatMoney(total - paid)
+    }
+  ];
+
+  const columns = [
+    {
+      dataIndex: 'leftLabel',
+      key: 'left',
+      render: (_, record) => (
+        <div style={{ fontWeight: 'bold' }}>{record.leftLabel}: <span style={{ fontWeight: 'normal' }}>{record.leftValue}</span></div>
+      )
+    },
+    {
+      dataIndex: 'rightLabel',
+      key: 'right',
+      render: (_, record) => (
+        <div style={{ fontWeight: 'bold' }}>{record.rightLabel}: <span style={{ fontWeight: 'normal' }}>{record.rightValue}</span></div>
+      )
+    }
+  ];
+
+  return (
+    <Table
+      dataSource={data}
+      columns={columns}
+      pagination={false}
+      bordered
+      showHeader={false}
+      style={{ width: '100%' }}
+    />
+  )
+};
 
 export default BanHangPage;

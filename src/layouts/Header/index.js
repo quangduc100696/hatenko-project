@@ -8,20 +8,14 @@ import HeaderWrapper from './styles';
 import CustomButton from 'components/CustomButton';
 import { BellFilled, PlusOutlined } from '@ant-design/icons';
 import UserInfo from './UserInfo';
-import { HASH_MODAL } from 'configs/constant';
 import useServiceId from 'hooks/useServiceId';
-import { InAppEvent } from 'utils/FuseUtils';
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
 
   const { isCollapseSidebar, toggleCollapse } = useCollapseSidebar();
   const { serviceId, setServiceId } = useServiceId();
-
-  const onClickBooking = () => InAppEvent.emit(HASH_MODAL, {
-    hash: '#draw/order.edit',
-    title: 'Tạo mới đơn hàng',
-    data: {}
-  });
+  let navigate = useNavigate();
 
   return (
     <HeaderWrapper className="header">
@@ -40,7 +34,7 @@ const Header = () => {
       <div className="rightHeader">
          <CustomButton
           title="button.fastBooking"
-          onClick={onClickBooking}
+          onClick={() => navigate("/sale/ban-hang")}
           icon={<PlusOutlined />}
           type='primary'
         />
