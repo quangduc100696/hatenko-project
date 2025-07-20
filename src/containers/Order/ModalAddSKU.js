@@ -10,15 +10,28 @@ import InStockTable from 'containers/WareHouse/InStockTable'
 import FormAutoComplete from 'components/form/FormAutoComplete';
 import OrderService from 'services/OrderService';
 import FormTextArea from 'components/form/FormTextArea';
+import { useEffectAsync } from 'hooks/MyHooks';
+import RequestUtils from 'utils/RequestUtils';
 
 const SKU_DETAIL_ID_PREFIX = 'skuDetailId_';
-const AddSKU = ({ onSave }) => {
+const AddSKU = ({ onSave, productId }) => {
   
   const [ form ] = Form.useForm();
   const [ inStocks, setInStocks ] = useState([]);
   const [ skus, setSkus ] = useState([]);
   const [ mProduct, setProduct ] = useState({});
   const [ skuDetail, setSkuDetail ] = useState([]);
+
+  useEffectAsync(async () => {
+    if(!productId) {
+      return;
+    }
+    form.setFieldValue("productId", productId);
+    const { data, errorCode } = await RequestUtils.Get("/product/find-by-id", { id: productId});
+    if(errorCode === 200) {
+      onChangeSelectedProductItem(errorCode, data);
+    }
+  }, [productId, form]);
 
   const onFinish = useCallback((values) => {
  
@@ -40,7 +53,7 @@ const AddSKU = ({ onSave }) => {
     onSave({ ...mValues, mProduct, mSkuDetails });
   }, [onSave, skuDetail, mProduct]);
 
-  const onChangeGetSelectedItem = (value, item) => {
+  const onChangeSelectedProductItem = (value, item) => {
     let nProduct = _.cloneDeep(item);
     let { warehouses } = nProduct;
     if(arrayNotEmpty(warehouses)) {
@@ -117,8 +130,9 @@ const AddSKU = ({ onSave }) => {
             label='Chọn sản phẩm'
             placeholder='Chọn sản phẩm'
             name='productId'
+            customValue={productId}
             required
-            onChangeGetSelectedItem={onChangeGetSelectedItem}
+            onChangeGetSelectedItem={onChangeSelectedProductItem}
           />
         </Col>
         <Col span={12}>

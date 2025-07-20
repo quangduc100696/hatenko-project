@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Row, Col } from 'antd';
 import FormHidden from 'components/form/FormHidden';
 import CustomButton from 'components/CustomButton';
@@ -7,12 +7,19 @@ import FormSelect from 'components/form/FormSelect';
 import Dragger from 'antd/es/upload/Dragger';
 import FormTextArea from 'components/form/FormTextArea';
 import { CHANNEL_SOURCE } from 'configs/localData';
+import RequestUtils from 'utils/RequestUtils';
+import FormSelectInfiniteProduct from 'components/form/SelectInfinite/FormSelectInfiniteProduct';
 
-const LeadForm = () => {
-
-  const [ province ] = useState([])
-  const [ serviceList ] = useState([]);
+const LeadForm = ({
+  listServices = [],
+  listSale = []
+}) => {
   
+  const [ province, setListProvince ] = useState([])
+  useEffect(() => {
+    RequestUtils.GetAsList('/province/find', {id: 0}).then(setListProvince);
+  },[]);
+
   /* Tải file mẫu */
   const props = {
     multiple:true,
@@ -60,13 +67,23 @@ const LeadForm = () => {
           titleProp="name"
         />
       </Col>
-      <Col md={24} xs={24} style={{marginTop: 15}}>
+      <Col md={12} xs={24}>
         <FormSelect
           required
           name="serviceId"
           label="Dịch vụ"
           placeholder="Chọn dịch vụ"
-          resourceData={serviceList || []}
+          resourceData={listServices}
+          valueProp="id"
+          titleProp="name"
+        />
+      </Col>
+      <Col md={12} xs={24}>
+        <FormSelectInfiniteProduct
+          required
+          name="productId"
+          label="Sản phẩm"
+          placeholder="Chọn sản phẩm"
           valueProp="id"
           titleProp="name"
         />
@@ -93,9 +110,9 @@ const LeadForm = () => {
           name="staff"
           label="Nhân viên"
           placeholder="Chọn nhân viên"
-          resourceData={[]}
-          valueProp="ssoId"
-          titleProp="fullName"
+          resourceData={listSale}
+          valueProp="name"
+          titleProp="name"
         />
       </Col>
       <Col md={24} xs={24} style={{ marginTop: 10 }}>
@@ -115,14 +132,12 @@ const LeadForm = () => {
         />
       </Col>
       <Col md={24} xs={24}>
-        <div style={{ display: 'flex', marginBottom: 20, justifyContent: 'end' }}>
-          <CustomButton
-            htmlType="submit"
-            title="Hoàn thành"
-            color="danger"
-            variant="solid"
-          />
-        </div>
+        <CustomButton
+          htmlType="submit"
+          title="Hoàn thành"
+          color="danger"
+          variant="solid"
+        />
       </Col>
     </Row>
   )

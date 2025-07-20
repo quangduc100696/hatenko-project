@@ -8,7 +8,8 @@ import { HASH_MODAL_CLOSE } from 'configs';
 
 const NewLead = ({ closeModal, data }) => {
 
-  const [ record, setRecord] = useState(data);
+  const { record: item, listServices, listSale } = data;
+  const [ record, setRecord] = useState(item);
   const onSubmit = async (values) => {
     const newData = await RequestUtils.Post("/data/create", values);
     const isSuccess = newData?.errorCode === 200;
@@ -27,7 +28,10 @@ const NewLead = ({ closeModal, data }) => {
       record={record}
       closeModal={closeModal}
     >
-      <LeadForm />
+      <LeadForm 
+        listServices={listServices}
+        listSale={listSale}
+      />
     </RestEditModal>
   )
 }

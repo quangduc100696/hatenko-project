@@ -85,7 +85,8 @@ const EditButton = ({
 );
 
 const BanHangPage = ({
-  orderId
+  orderId,
+  dataId
 }) => {
 
   const [ data, setData ] = useState([]);
@@ -107,7 +108,18 @@ const BanHangPage = ({
     }
   }, [localOrder]);
 
-  const onAddProduct = useCallback(() => {
+  useEffectAsync(async (isMounted) => {
+    if(!dataId) {
+      return;
+    }
+    const { data: response, errorCode } = await RequestUtils.Get("/data/get-customer", {dataId});
+    if(errorCode === SUCCESS_CODE) {
+      setCustomer(response.customer);
+      onAddProduct(response.lead);
+    }
+  }, [dataId]);
+
+  const onAddProduct = useCallback((lead = null) => {
     const onAfterChoiseProduct = (values) => {
       console.log('App Product', values);
       let order = _.cloneDeep(ORDER_TEMPLATE);
@@ -144,7 +156,10 @@ const BanHangPage = ({
     InAppEvent.emit(HASH_POPUP, {
       hash: "sku.add",
       title: "Thêm sản phẩm",
-      data: { onSave: onAfterChoiseProduct }
+      data: { 
+        onSave: onAfterChoiseProduct,
+        ...(lead ? {productId: lead.productId} : {})
+      }
     });
   }, []);
 
@@ -372,6 +387,9 @@ const BanHangPage = ({
       if(customerOrder?.id) {
         params.id = customerOrder.id;
       }
+      if(dataId) {
+        params.dataId = dataId;
+      }
       const { message: eMsg, data: order, errorCode } = await RequestUtils.Post("/order/save", params);
       message.info(eMsg);
       if(errorCode === SUCCESS_CODE) {
@@ -400,7 +418,7 @@ const BanHangPage = ({
         details: data
       }
     });
-  }, [data, customer, customerOrder]);
+  }, [data, dataId, customer, customerOrder]);
 
   const onOpenFormPayment = useCallback(() => {
     InAppEvent.emit(HASH_MODAL, {
@@ -458,7 +476,7 @@ const BanHangPage = ({
             Lưu đơn hàng
           </Button>
           <Button
-            onClick={onAddProduct}
+            onClick={() => onAddProduct()}
             style={{ marginLeft: 8 }}
             icon={<PlusOutlined />}
           >

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
-import { SelectOutlined, EditTwoTone } from '@ant-design/icons';
+import { SelectOutlined, UserAddOutlined } from '@ant-design/icons';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './LeadFilter';
 import useGetList from "hooks/useGetList";
@@ -14,32 +14,43 @@ import { cloneDeep } from 'lodash';
 import ModaleStyles from './style';
 import FormSelect from 'components/form/FormSelect';
 import { NoFooter } from 'components/common/NoFooter';
+import { useNavigate } from "react-router-dom";
 
 const LeadPage = () => {
 
   const [ form ] = Form.useForm();
   const [ title ] = useState("Danh sách Lead");
-  const [ listSale ] = useState([]);
+  const [ listSale, setListSale ] = useState([]);
   const [ isOpen, setIsOpen ] = useState(false);
   const [ detailRecord, setDetailRecord ] = useState({});
-  const [ listService, setListService ] = useState([])
+  const [ listServices, setlistServices ] = useState([])
 
   useEffect(() => {
-    RequestUtils.Get('/service/list').then(
-      ({data}) => setListService(data)
-    );
+    RequestUtils.GetAsList('/service/list').then(setlistServices);
+    RequestUtils.GetAsList('/user/list-name-id').then(setListSale);
   },[])
 
   useEffect(() => {
     form.setFieldsValue({ saleId: detailRecord?.saleId })
   }, [form, detailRecord])
 
-  const onEdit = (item, text) => {
-    let title = text === 'base' ? 'Tạo cơ hội' : 'Sửa lead mới # ' + item.id;
-    let hash = '#draw/lead.edit';
+  const onEdit = (item) => {
     let data = cloneDeep(item);
-    InAppEvent.emit(HASH_MODAL, { hash, title, data });
+    InAppEvent.emit(HASH_MODAL, { 
+      hash: '#draw/lead.edit', 
+      title: 'Cập nhật lead #' + item.id, 
+      data: {
+        record: data,
+        listServices,
+        listSale
+      }
+    });
   }
+
+  let navigate = useNavigate();
+  const onCreateOpportunity = useCallback(({id}) => {
+    navigate(RequestUtils.generateUrlGetParams("/sale/ban-hang", {dataId: id}));
+  }, [navigate]);
 
   const CUSTOM_ACTION = [
     {
@@ -50,17 +61,23 @@ const LeadPage = () => {
     {
       title: "Dịch vụ",
       dataIndex: 'serviceId',
-      width: 200,
+      width: 150,
       ellipsis: true,
-      render: (item) => {
-        const nameService = listService.find(f => f.id === item?.serviceId)
+      render: (serviceId) => {
+        const nameService = listServices.find(f => f.id === serviceId)
         return <Tag color="orange">{nameService?.name || 'N/A'} </Tag>
       }
     },
     {
+      title: "Sản phẩm",
+      dataIndex: 'productName',
+      width: 200,
+      ellipsis: true
+    },
+    {
       title: "Ngày",
       dataIndex: 'inTime',
-      width: 200,
+      width: 150,
       ellipsis: true,
       render: (inTime) => dateFormatOnSubmit(inTime)
     },
@@ -73,23 +90,23 @@ const LeadPage = () => {
     {
       title: "Số đ/t",
       dataIndex: 'customerMobile',
-      width: 200,
+      width: 120,
       ellipsis: true
     },
     {
       title: "Sale",
-      dataIndex: 'ssoId',
-      width: 200,
+      dataIndex: 'assignTo',
+      width: 100,
       ellipsis: true
     },
     {
-      title: "Tạo cơ hội",
-      width: 120,
+      title: "Cơ hội",
+      width: 100,
       fixed: 'right',
       render: (record) => (
        <Button 
           color="danger" 
-          variant="dashed" onClick={() => onEdit(record, 'base')} 
+          variant="dashed" onClick={() => onCreateOpportunity(record)} 
           size='small'
         >
           Tạo cơ hội
@@ -103,14 +120,14 @@ const LeadPage = () => {
       ellipsis: true,
       render: (record) => (
         <div style={{ display: 'flex', gap: 20 }}>
-          <Tooltip style={{cursor: 'pointer'}} title={record?.saleId ? 'Chuyển sale' : 'Tạo sale'}>
-            <EditTwoTone style={{ color: '#1677ff', fontSize: 20 }} onClick={() => {
+          <Tooltip style={{cursor: 'pointer'}} title="Chuyển sale">
+            <UserAddOutlined style={{ color: '#1677ff', fontSize: 16 }} onClick={() => {
               setIsOpen(true);
               setDetailRecord(record)
             }}/>
           </Tooltip>
           <Tooltip style={{cursor: 'pointer'}} title={'Detail'}>
-            <SelectOutlined style={{ color: '#1677ff', fontSize: 20 }} onClick={() => onEdit(record, 'detail')}/>
+            <SelectOutlined style={{ color: '#1677ff', fontSize: 16 }} onClick={() => onEdit(record)}/>
           </Tooltip>
         </div>
       )
@@ -125,18 +142,24 @@ const LeadPage = () => {
   const onCreateLead = () => InAppEvent.emit(HASH_MODAL, {
     hash: '#draw/lead.edit',
     title: 'Tạo mới Lead',
-    data: {}
+    data: {
+      record: {},
+      listServices,
+      listSale
+    }
   });
 
   const onHandleSubmitSaleLead = async (value) => {
-    const data = await RequestUtils.Post(`/data/re-assign?dataId=${detailRecord?.id}&saleId=${value?.saleId}`, '');
+    const data = await RequestUtils.Post('/data/re-assign', {
+      dataId: detailRecord.id,
+      saleId: value.saleId
+    }, {});
     if (data?.errorCode === 200) {
       f5List('data/lists');
-      InAppEvent.normalSuccess("Tạo sale chăm sóc lead thành công");
-      /* nếu tạo ok thì tắt popup */
+      InAppEvent.normalSuccess("Lead đã được chuyển.");
       setIsOpen(false);
     } else {
-      InAppEvent.normalError("Tạo thất bại");
+      InAppEvent.normalError("Lỗi chuyển lead!");
     }
   }
 
@@ -172,7 +195,6 @@ const LeadPage = () => {
       >
         <div style={{ padding: 15 }}>
           <Form
-            name="basic"
             layout='vertical'
             form={form}
             onFinish={onHandleSubmitSaleLead}
@@ -184,12 +206,10 @@ const LeadPage = () => {
               placeholder="Sale phụ trách"
               resourceData={listSale || []}
               valueProp="id"
-              titleProp="fullName"
+              titleProp="name"
             />
             <Form.Item style={{ display: 'flex', justifyContent: 'end', marginTop: 10 }}>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
+              <Button type="primary" htmlType="submit"> Submit </Button>
             </Form.Item>
           </Form>
         </div>
