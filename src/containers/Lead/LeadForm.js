@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Row, Col } from 'antd';
+import { useState, useEffect, useContext } from 'react';
+import { Row, Col, Tag, List, Button } from 'antd';
 import FormHidden from 'components/form/FormHidden';
 import CustomButton from 'components/CustomButton';
 import FormInput from 'components/form/FormInput';
@@ -9,21 +9,55 @@ import FormTextArea from 'components/form/FormTextArea';
 import { CHANNEL_SOURCE } from 'configs/localData';
 import RequestUtils from 'utils/RequestUtils';
 import FormSelectInfiniteProduct from 'components/form/SelectInfinite/FormSelectInfiniteProduct';
+import { FormContextCustom } from 'components/context/FormContextCustom';
+import { arrayEmpty, arrayNotEmpty } from 'utils/dataUtils';
+import { DeleteOutlined } from '@ant-design/icons';
 
 const LeadForm = ({
   listServices = [],
   listSale = []
 }) => {
   
-  const [ province, setListProvince ] = useState([])
+  const { record, updateRecord } = useContext(FormContextCustom);
+  const [ province, setListProvince ] = useState([]);
+  const [ fileUploads, setFileList ] = useState([]);
+  const [ fileUrls, setFileUrls ] = useState([]);
+
+  useEffect(() => {
+    if(arrayNotEmpty(record?.fileUrls)) {
+      setFileUrls(record.fileUrls);
+    }
+  },[record]);
+
   useEffect(() => {
     RequestUtils.GetAsList('/province/find', {id: 0}).then(setListProvince);
   },[]);
 
+  useEffect(() => {
+    updateRecord({ fileUploads })
+    /* eslint-disable-next-line */
+  },[fileUploads]);
+
+  const handleChange = ({ fileList }) => setFileList(prev => {
+    const newFiles = fileList.filter(
+      file => !prev.some(f => f.uid === file.uid)
+    );
+    return [...prev, ...newFiles];
+  })
+
+  const handleRemove = (file) => {
+    const newFileList = fileUploads.filter(f => f.uid !== file.uid);
+    setFileList(newFileList);
+  };
+
   /* Tải file mẫu */
   const props = {
-    multiple:true,
-    fileList:[]
+    multiple: true,
+    beforeUpload: () => false,
+    fileList:fileUploads,
+    onChange:handleChange,
+    onRemove:handleRemove,
+    showUploadList:false
   }
 
   return (
@@ -123,6 +157,17 @@ const LeadForm = ({
           </p>
         </Dragger>
       </Col>
+      <Col span={24}>
+        <List
+          style={{ display: arrayEmpty(fileUploads) ? 'none' : 'grid' }}
+          locale={{ emptyText: <></> }}
+          dataSource={fileUploads}
+          renderItem={file => <RenderFileItem file={file} handleRemove={handleRemove} />}
+        />
+        <div style={{marginTop: arrayEmpty(fileUrls) ? 0 : 20}}>
+          {fileUrls.map((file, key) => (<Tag key={key}>{file}</Tag>))}
+        </div>
+      </Col>
       <Col md={24} xs={24} style={{ marginTop: 40 }}>
         <FormTextArea
           rows={3}
@@ -142,5 +187,25 @@ const LeadForm = ({
     </Row>
   )
 }
+
+const RenderFileItem = ({file, handleRemove }) => (
+  <List.Item
+    actions={[
+      <Button
+        type="link"
+        danger
+        icon={<DeleteOutlined />}
+        onClick={() => handleRemove(file)}
+      >
+        Xóa
+      </Button>
+    ]}
+  >
+    <List.Item.Meta
+      title={file.name}
+      description={`Kích thước: ${Math.round(file.size / 1024)} KB`}
+    />
+  </List.Item>
+);
 
 export default LeadForm;

@@ -3,7 +3,6 @@ import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from 'theme/constants';
 import { 
   FolderOpenOutlined, 
   UnorderedListOutlined, 
-  ControlOutlined,
   PieChartOutlined, 
   GroupOutlined, 
   ContainerOutlined,
@@ -49,7 +48,6 @@ function SideBar() {
 
   const items = [
     getItem(<Link to="/sale/report-common">{t('sideBar.dashboard')}</Link>, 'home', <DashboardFIcon />),
-    getItem(<Link to="/sale/dashboard">Tình trạng đơn</Link>, 'dashboard', <ControlOutlined />),
 		getItem(<Link to="/project/list">Dự án</Link>, 'project_list', <PieChartOutlined />),
     getItem(<Link to="/lead">Lead</Link>, 'tong_lead', <FolderOpenOutlined />),
 		

@@ -21,7 +21,6 @@ const LeadPage = () => {
   const [ form ] = Form.useForm();
   const [ title ] = useState("Danh sách Lead");
   const [ listSale, setListSale ] = useState([]);
-  const [ isOpen, setIsOpen ] = useState(false);
   const [ detailRecord, setDetailRecord ] = useState({});
   const [ listServices, setlistServices ] = useState([])
 
@@ -122,7 +121,6 @@ const LeadPage = () => {
         <div style={{ display: 'flex', gap: 20 }}>
           <Tooltip style={{cursor: 'pointer'}} title="Chuyển sale">
             <UserAddOutlined style={{ color: '#1677ff', fontSize: 16 }} onClick={() => {
-              setIsOpen(true);
               setDetailRecord(record)
             }}/>
           </Tooltip>
@@ -150,14 +148,14 @@ const LeadPage = () => {
   });
 
   const onHandleSubmitSaleLead = async (value) => {
-    const data = await RequestUtils.Post('/data/re-assign', {
+    const data = await RequestUtils.Post('/data/re-assign', {}, {
       dataId: detailRecord.id,
       saleId: value.saleId
-    }, {});
+    });
     if (data?.errorCode === 200) {
       f5List('data/lists');
       InAppEvent.normalSuccess("Lead đã được chuyển.");
-      setIsOpen(false);
+      setDetailRecord({});
     } else {
       InAppEvent.normalError("Lỗi chuyển lead!");
     }
@@ -189,9 +187,9 @@ const LeadPage = () => {
             Chọn sale chăm sóc lead
           </div>
         }
-        open={isOpen} 
+        open={(detailRecord?.id ?? 0) !== 0} 
         footer={<NoFooter />} 
-        onCancel={() => setIsOpen(false)}
+        onCancel={() => setDetailRecord({})}
       >
         <div style={{ padding: 15 }}>
           <Form
