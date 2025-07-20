@@ -51,6 +51,18 @@ export const parserInputNumber = (value) => {
   return value ? value.replace(/\$\s?|(\.*)/g, '').replace(/(,{1})/g, '.') : '';
 };
 
+export const formatPhoneNumber = (phone) => {
+  if(!phone) {
+    return '';
+  }
+  const cleaned = phone.replace(/\D/g, '');
+  const match = cleaned.match(/^(\d{4})(\d{3})(\d{3})$/);
+  if (match) {
+    return `(${match[1]}) ${match[2]}-${match[3]}`;
+  }
+  return phone;
+}
+
 export const calPriceOff = ({ discountValue, discountUnit, total }) => {
   if(!discountValue || !discountUnit) {
     return 0;
