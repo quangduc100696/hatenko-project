@@ -2,12 +2,12 @@ import RestEditModal from 'components/RestLayout/RestEditModal';
 import React, { useEffect, useState } from 'react'
 import ProductForm from './ProductForm';
 import RequestUtils from 'utils/RequestUtils';
-import { validateRegex } from 'utils/validateUtils';
 import { InAppEvent } from 'utils/FuseUtils';
 import { f5List } from 'utils/dataUtils';
 import { HASH_MODAL_CLOSE } from 'configs';
 
 const UserAccount = ({ data, closeModal }) => {
+  
   const [record, setRecord] = useState({});
   const [listProFile, setListProFile] = useState([]);
   const { listMember } = data;

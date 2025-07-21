@@ -26,13 +26,6 @@ import { CancellationsConfig } from './CancellationsPageConfig';
 import { CongnoConfig } from './ConnoConfig';
 import { OrderTakeConfig } from './OrderTakeCareConfig';
 import { DragDropConfig } from './DragDropOrderConfig';
-import { OvertimeConfig } from './OvertimeConfig';
-import { NghiphepConfig } from './NghiphepConfig';
-import { UserConfig } from './UserConfig';
-import { BookingCarConfig } from './BookingCarConfig';
-import { BookingHotelConfig } from './BookingHotelConfig';
-import { BookingFlightConfig } from './BookingFlightConfig';
-import { SchedulerConfig } from './SchedulerConfig';
 
 const OrderPage = React.lazy(() => import('pages/order'));
 const SaleConfig = {

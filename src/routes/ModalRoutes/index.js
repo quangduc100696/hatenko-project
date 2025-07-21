@@ -7,7 +7,6 @@ import OrderRoute from './OrderRoute';
 import LeadRoute from './LeadRouter.js';
 import LeadNotTakeRouter from './LeadNotTakeRouter.js';
 import LeadTakeRouter from './LeadTakeRouter.js';
-import CohoiRouter from './CohoiRouter.js';
 import WareHoseRouter from './WareHouseRouter.js';
 import CutomerRetailRouter from './CustomerRetailRouter.js';
 import ActionXuatkhoRouter from './ActionXuatkhoRouter.js';
@@ -15,20 +14,19 @@ import WareHoseActionRouter from './WareHouseActionRouter.js';
 import OrderRouter from './UserAccountRouter.js';
 import UserGroupRouter from './UserGroupRouter.js';
 import CohoiNotTakeRouter from './CohoiNotTakeRouter.js';
-import DuyetTienRouter from './DuyetTienRouter.js';
 import ActionChamSocDonHangRouter from './ChamSocDonHangRouter.js';
 import NghiPhepRouter from './NghiPhepRouter.js';
 import OvertimeRouter from './OvertimeRouter.js';
 import BookingRouter from './BookingRouter.js';
 import UserRouter from './UserRouter.js';
 
+const notFoundHash = { Component: () => <div /> };
 const modalRoutes = [
   ...ProductRoute,
   ...OrderRoute,
   ...LeadRoute,
   ...LeadNotTakeRouter,
   ...LeadTakeRouter,
-  ...CohoiRouter,
   ...WareHoseRouter,
   ...CutomerRetailRouter,
   ...ActionXuatkhoRouter,
@@ -36,15 +34,8 @@ const modalRoutes = [
   ...OrderRouter,
   ...UserGroupRouter,
   ...CohoiNotTakeRouter,
-  ...DuyetTienRouter,
-  ...ActionChamSocDonHangRouter,
-  ...NghiPhepRouter,
-  ...OvertimeRouter,
-  ...BookingRouter,
-  ...UserRouter
+  ...ActionChamSocDonHangRouter
 ]
-const log = (key, val) => console.log('[routes.draw-routes] ' + key + ' ', val);
-const notFoundHash = { Component: () => <div /> };
 
 const getModalRoute = (urlHash) => {
   if (!urlHash) {
@@ -52,12 +43,10 @@ const getModalRoute = (urlHash) => {
   }
   const iHash = urlHash.replaceAll('/', '.')
   const modalRoute = modalRoutes.find(route => iHash.includes(route.path));
-  log('==== modalRoute', modalRoute)
   if (!modalRoute) {
     return notFoundHash;
   }
   if (modalRoute['Component']) {
-    delete modalRoute.routes;
     return modalRoute;
   }
   const route = modalRoute.routes.find(route => iHash.includes(route.path));
@@ -68,7 +57,6 @@ function ModalRoutes() {
 
   const [params, setParams] = useState({ open: false });
   const handleEventDraw = useCallback(({ hash, data, title }) => {
-    log('#hash', { hash, data });
     setParams({ open: true, hash, data, title });
   }, []);
 

@@ -1,21 +1,17 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
-import { dateFormatOnSubmit, f5List } from 'utils/dataUtils';
+import { dateFormatOnSubmit } from 'utils/dataUtils';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
-import useGetMe from 'hooks/useGetMe';
 import { Button } from 'antd';
 
 const ListUser = () => {
 
-  const { user: profile } = useGetMe();
-  const [title] = useState("Danh sách tài khoản");
-  const [isOpen, setIsOpen] = useState(false);
-
+  const [ title]  = useState("Danh sách tài khoản");
   const CUSTOM_ACTION = [
     {
       title: "Hộ và tên",

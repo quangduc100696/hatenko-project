@@ -1,11 +1,14 @@
 import { useGetAllBusinessUsersQuery } from 'hooks/useData';
 import FormSelectInfinite from './FormSelectInfinite';
 
-const FormSelectInfiniteBusinessUser = props => {
+const FormSelectInfiniteBusinessUser = ({ 
+  name="assigneeId", 
+  ...props
+}) => {
   return (
     <FormSelectInfinite
       useGetAllQuery={useGetAllBusinessUsersQuery}
-      name="assigneeId"
+      name={name}
       valueProp="id"
       titleProp="fullName"
       searchKey="fullName"

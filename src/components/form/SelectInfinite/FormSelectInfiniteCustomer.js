@@ -1,11 +1,14 @@
 import { useGetAllCustomersSimpleQuery } from 'hooks/useData';
 import FormSelectInfinite from './FormSelectInfinite';
 
-const FormSelectInfiniteCustomer = props => {
+const FormSelectInfiniteCustomer = ({ 
+  name = "customerId", 
+  ...props
+}) => {
   return (
     <FormSelectInfinite
       useGetAllQuery={useGetAllCustomersSimpleQuery}
-      name="customerId"
+      name={name}
       valueProp="id"
       titleProp="name"
       searchKey='name'

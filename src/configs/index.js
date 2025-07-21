@@ -1,11 +1,12 @@
 
 export const SUCCESS_CODE = 200;
-const GATE_EVN = {
-  Loc: 'https://hatenko.flast.vn',
+export const GATE_EVN = {
+  Loc: 'http://127.0.0.1:9765',
   Pro: 'https://open.api.flast.vn',
-  bao_gia: `https://flash-solution-eight.vercel.app/bao-gia-don-hang-i`
+  bao_gia: 'https://flash-solution-eight.vercel.app/bao-gia-don-hang-i',
+  configAi: 'https://service.aicuatui.vn'
 };
-export const BASE_URL = "https://unitika.flast.vn";
+
 export const GATEWAY = GATE_EVN['Loc'];
 export const CHANGE_STORE = 'CHANGE_STORE';
 export const UPLOAD_PATH = GATEWAY + '/uploads'

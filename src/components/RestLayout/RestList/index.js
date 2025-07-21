@@ -51,9 +51,10 @@ const RestList = ({
   };
 
   const onClearFilter = () => {
-    const initFilter = {apiPath: queryParams.apiPath, resource, page: 1, limit: 10 };    
+    const initFilter = { apiPath: queryParams.apiPath, resource, page: 1, limit: 10 };    
     setQueryParams(initFilter);
-    navigate({ search: convertObjToSearchStr(initFilter) });
+    const { apiPath, ...params } = initFilter;
+    navigate({ search: convertObjToSearchStr(params) });
   };
 
   return (
@@ -76,7 +77,6 @@ const RestList = ({
         data={data?.embedded || []}
         totalItems={data?.page?.totalElements ?? 0}
         loading={loading}
-        expandable={props.expandable} 
         setTableFilter={onSetTableFilter}
         {...props}
       />

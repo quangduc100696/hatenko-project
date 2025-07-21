@@ -4,13 +4,11 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
-import { Button, Form, Image, Tag } from 'antd';
-import { arrayEmpty, dateFormatOnSubmit, formatMoney } from 'utils/dataUtils';
+import { Image } from 'antd';
+import { arrayEmpty, dateFormatOnSubmit } from 'utils/dataUtils';
 import { GATEWAY, HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
-import useGetMe from 'hooks/useGetMe';
-import { cloneDeep } from 'lodash';
 
 const thStyle = {
   padding: "8px 12px",
@@ -25,22 +23,20 @@ const tdStyle = {
 
 const ListInStocK = () => {
 
-  const { user: profile } = useGetMe();
-  const [title] = useState("Trong kho");
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [listProvince, setListProvince] = useState([]);
+  const [ title ] = useState("Trong kho");
+  const [ page ] = useState(1);
+  const [ listProvince, setListProvince ] = useState([]);
 
   useEffect(() => {
     (async () => {
       const [province] = await Promise.all([
-        await RequestUtils.Get(`/provider/fetch?page=${page}&limit=${limit}`)
+        await RequestUtils.Get(`/provider/fetch?page=${page}&limit=10`)
       ])
       if (province) {
         setListProvince(province?.data?.embedded);
       }
     })()
-  }, [])
+  }, [page])
 
   const CUSTOM_ACTION = [
     {

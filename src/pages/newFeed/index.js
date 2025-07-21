@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import RequestUtils from 'utils/RequestUtils';
 import ChartActivityRevenue from './ChartActivityRevenue'
 import { LayoutWrapper } from './style';
-import { formatMoney } from 'utils/dataUtils';
 import ChartActivityLead from './ChartActivityLead';
 import ChartSale from './ChartSale';
 import { Text } from '@react-email/components';
@@ -38,8 +37,8 @@ const getRankIcon = (index) => {
 };
 
 const NewFeed = () => {
-  const [listDataActivity, setListDataActivity] = useState({});
-  const { activityGroup, activityLead, activityRevenue, activitySale } = listDataActivity;
+  const [ listDataActivity, setListDataActivity ] = useState({});
+  const { activityGroup, activityLead, activityRevenue } = listDataActivity;
 
   useEffect(() => {
     (async () => {

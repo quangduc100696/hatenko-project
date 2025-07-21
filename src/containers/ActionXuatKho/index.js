@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Form, InputNumber, Row, Select, Table, Tag } from 'antd';
+import { Checkbox, Col, Form, InputNumber, Row, Select, Table } from 'antd';
 import CustomButton from 'components/CustomButton';
 import FormInput from 'components/form/FormInput';
 import FormSelectAPI from 'components/form/FormSelectAPI';
@@ -20,8 +20,8 @@ const tdStyle = {
 };
 
 const ActionXuatKho = ({ data }) => {
+
   const { orderWarhouse, result } = data;
-  const [listProduct, setListProduct] = useState([]);
   const [productDetails, setProductDetails] = useState([]);
   const [newOrder, setNewOrder] = useState(orderWarhouse);
   const [results, setResults] = useState(result);
@@ -33,7 +33,6 @@ const ActionXuatKho = ({ data }) => {
   const sttRef = useRef(null);
   const resultsRef = useRef([]);
 
-  // Tính tổng số lượng đã xuất
   const totalQuantity = newOrder?.items?.reduce((total, item) => {
     const itemQuantity = item.detaiItems?.reduce((sum, detail) => sum + detail.quantity, 0);
     return total + itemQuantity;
@@ -70,11 +69,9 @@ const ActionXuatKho = ({ data }) => {
 
   useEffect(() => {
     (async () => {
-      const listProduct = await RequestUtils.Get(`/product/fetch`);
       const listStatus = await RequestUtils.Get(`/warehouse-export/fetch-status`);
       const listWareHouse = await RequestUtils.Get(`/warehouse/fetch-stock`);
       setListStatus(listStatus.data);
-      setListProduct(listProduct?.data?.embedded);
       setListWareHouse(listWareHouse?.data);
     })()
   }, [data])
@@ -93,9 +90,8 @@ const ActionXuatKho = ({ data }) => {
         console.error("Error fetching product details:", error);
       }
     })();
-  }, []);
+  }, [results]);
 
-  // Hàm xử lý thay đổi số lượng
   const handleQuantityChange = (productId, skuId, value) => {
     setProductQuantities(prev => ({
       ...prev,
@@ -166,10 +162,7 @@ const ActionXuatKho = ({ data }) => {
         const orderItem = result?.details[0]?.items.find(
           o => o?.productId === record?.productId && o?.skuId === record?.skuId
         );
-        const quantityKey = `${record.productId}_${record.skuId}`;
-        // Sửa ở đây: lấy số lượng từ orderItem nếu chưa có newOrder
         const defaultValue = !newOrder ? (orderItem?.quantity || 1) : (record.diff || 1);
-
         return (
           <InputNumber
             min={1}
@@ -203,7 +196,7 @@ const ActionXuatKho = ({ data }) => {
       if (f.stt === record.stt && f.statusConfirm === 0) {
         return false;
       }
-      return true; // giữ lại các phần tử khác
+      return true;
     });
     setNewOrder(pre => ({ ...pre, items: data }))
     resultsRef.current = [];
@@ -235,7 +228,6 @@ const ActionXuatKho = ({ data }) => {
 
         const remainingQty = orderItem.quantity - totalExported;
         const exportQty = Math.min(productQuantities[quantityKey] || remainingQty, remainingQty);
-        // const newWarehouseDeliveryId = Math.min(ProductIdWareHouse[quantityKey]);
         if (exportQty <= 0) {
           InAppEvent.normalInfo("Sản phẩm đã được xuất đủ số lượng");
           return;
@@ -251,7 +243,6 @@ const ActionXuatKho = ({ data }) => {
           i => !(i.productId === record.productId && i.skuId === record.skuId)
         );
 
-        // Thêm mới
         resultsRef.current.push(newItem);
         const params = {
           detaiItems: resultsRef?.current,
@@ -266,11 +257,6 @@ const ActionXuatKho = ({ data }) => {
             items: [...filteredItems, params]
           };
         });
-      } else {
-        // setNewOrder(prev => ({
-        //   ...prev,
-        //   items: prev.items.slice(0, -1)
-        // }));
       }
     } else {
       setResults(prev => {
@@ -279,12 +265,10 @@ const ActionXuatKho = ({ data }) => {
           ...updatedDetails[0],
           items: updatedDetails[0].items.map(item => {
             if (item.productId === productId && item.skuId === skuId) {
-              // Sửa ở đây: lấy số lượng từ orderItem nếu chưa có newOrder
               const orderItem = result.details[0]?.items.find(
                 o => o?.productId === productId && o?.skuId === skuId
               );
               const defaultQty = orderItem?.quantity || 1;
-
               return {
                 ...item,
                 isSelected: checked,
@@ -301,7 +285,6 @@ const ActionXuatKho = ({ data }) => {
       });
     }
   };
-console.log('resultsRef', resultsRef);
 
   const createOrdernotFound = async (value) => {
     const now = new Date();

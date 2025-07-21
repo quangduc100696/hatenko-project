@@ -67,10 +67,12 @@ export const CHANNEL_SOURCE = [
   { 'id': 10, 'name': 'Shopee' }
 ];
 export const CHANNEL_SOURCE_MAP_KEYS = mapKeys(CHANNEL_SOURCE, 'id');
+
 export const CHANNEL_STATUS = [
   { 'id': 1, 'name': 'Chưa liên hệ' },
   { 'id': 2, 'name': 'Đã liên hệ' }
 ];
+export const CHANNEL_STATUS_MAP_KEYS = mapKeys(CHANNEL_STATUS, 'id');
 
 export const DISCOUNT_UNIT_CONST = [
   { text: 'Tiền mặt', value: 'money' },
@@ -78,17 +80,15 @@ export const DISCOUNT_UNIT_CONST = [
 ]
 export const DISCOUNT_MAP_KEYS = mapKeys(DISCOUNT_UNIT_CONST, 'value');
 
-export const VAT_UNIT_CONST = [
-  { text: '8%', value: 8 },
-  { text: '10%', value: 10 },
-  { text: 'K.Vat', value: 0 }
-]
-export const PAYMENT_STATUS_CONST = {
-  unpaid: { text: 'bookings.unpaid', value: 'UNPAID', color: 'red' },
-  paid: { text: 'bookings.paid', value: 'PAID', color: 'green' },
-  partial: { text: 'bookings.partial', value: 'PARTIAL', color: 'orange' },
-};
-export const PAYMENT_STATUS_MAP_KEYS = mapKeys(PAYMENT_STATUS_CONST, 'value');
+export const PAYMENT_TYPE_CONST = [
+  { label: 'Tiền mặt', value: 6 }, 
+  { label: 'Chuyển khoản MBbank', value: 1 },
+	{ label: 'Chuyển khoản TPbank', value: 7 }, 
+  { label: 'COD Viettel', value: 2 },
+	{ label: 'Ví Momo', value: 3 }, 
+  { label: 'Ví Vnpay', value: 4 },
+	{ label: 'Ncc thu hộ', value: 5 }
+];
 
 export const GENDERS = [
   {
@@ -122,24 +122,6 @@ export const CUSTOMERS_TYPE_TAGS_MAP_KEYS = mapKeys(
   CUSTOMERS_TYPE_TAGS,
   'value',
 );
-
-export const AMOUNT_DATA = [
-  {
-    text: 'amountDataShort.total',
-    value: 'total',
-    color: theme.color.blue,
-  },
-  {
-    text: 'amountDataShort.paid',
-    value: 'paid',
-    color: theme.color.green,
-  },
-  {
-    text: 'amountDataShort.unpaid',
-    value: 'unpaid',
-    color: theme.color.red,
-  }
-];
 
 export const PRODUCT_STATUS = [
   { value: 0, text: 'Ngưng', color: 'red' },

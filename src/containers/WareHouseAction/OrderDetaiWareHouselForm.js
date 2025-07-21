@@ -1,21 +1,19 @@
-import { Col, Form, Image, Row, Table } from 'antd'
+import { Col, Form, Row } from 'antd'
 import CustomButton from 'components/CustomButton';
 import FormHidden from 'components/form/FormHidden';
 import FormInput from 'components/form/FormInput';
 import FormInputNumber from 'components/form/FormInputNumber';
 import FormSelect from 'components/form/FormSelect';
 import FormSelectAPI from 'components/form/FormSelectAPI';
-import FormTextArea from 'components/form/FormTextArea';
-import { GATEWAY, HASH_MODAL_CLOSE } from 'configs';
+import { HASH_MODAL_CLOSE } from 'configs';
 import React, { useEffect, useState } from 'react'
-import { dateFormatOnSubmit, f5List, formatMoney } from 'utils/dataUtils';
+import { f5List } from 'utils/dataUtils';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
 
 const OrderDetaiWareHouselForm = ({ title, data }) => {
-  const [province, setProvince] = useState([]);
-  const [shipStatus, setShipStatus] = useState([]);
-  const [stockData, setStockData] = useState([]);
+  const [ province, setProvince ] = useState([]);
+  const [ stockData, setStockData ] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -24,76 +22,11 @@ const OrderDetaiWareHouselForm = ({ title, data }) => {
       const newData = data.map(f => {
         return { id: f?.id, name: f?.name }
       })
-      const shipData = await RequestUtils.Get('/shipping/fetch-status');
       const stockData = await RequestUtils.Get(`/warehouse/fetch-stock`)
-      setShipStatus(shipData?.data);
       setStockData(stockData?.data)
       setProvince(newData);
     })()
   }, [data])
-
-  const columns = [
-    {
-      title: 'Tên sản phẩm',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'Ngày tạo',
-      render: (record) => {
-        return (
-          <div>{dateFormatOnSubmit(record?.createdAt)}</div>
-        )
-      }
-    },
-    {
-      title: 'Đơn giá',
-      render: (record) => {
-        return (
-          <div>{formatMoney(record.price)}</div>
-        )
-      },
-    },
-    {
-      title: 'Số lượng',
-      dataIndex: 'quantity',
-      render: (record) => {
-        return (
-          <div>{record?.quantity || 'N/A'}</div>
-        )
-      },
-    },
-    {
-      title: 'SKU',
-      render: (item) => {
-        let parsedSkuInfo = [];
-        try {
-          if (item?.skuInfo) {
-            parsedSkuInfo = JSON.parse(item?.skuInfo);
-          }
-        } catch (error) {
-          console.error("Lỗi parse JSON:", error);
-        }
-        return (
-          <>
-            <p style={{ marginRight: "10px" }}>
-              <strong>{parsedSkuInfo[0]?.name}:</strong> {parsedSkuInfo[1]?.value}...
-            </p>
-          </>
-        );
-      }
-    },
-    {
-      title: 'Thành tiền',
-      render: (item) => {
-        return (
-          <div>
-            {formatMoney(item.total)}
-          </div>
-        );
-      }
-    }
-  ];
 
   const onHandleCreateOdder = async (value) => {
     const params = {
@@ -130,23 +63,6 @@ const OrderDetaiWareHouselForm = ({ title, data }) => {
   return (
     <div>
       <Form onFinish={onHandleCreateOdder} layout="vertical">
-        {/* <p style={{ fontWeight: 700, margin: 0, padding: 0 }}>Thông tin sản phẩm</p><br />
-        <div class="group-inan" style={{ background: '#f4f4f4', borderTop: '1px dashed red', marginBottom: 20 }}></div>
-        <Table
-          columns={columns}
-          scroll={{ x: 1700 }}
-          dataSource={data?.items[0]?.detaiItems}
-          pagination={false}
-        />
-        <FormInput
-          required={false}
-          name="note"
-          label="Note khách hàng"
-          placeholder="Note khách hàng"
-        />
-        <div style={{ display: 'flex', justifyContent: 'end', marginBottom: 50 }}>
-          <CustomButton title="Tạo đơn" htmlType="submit" />
-        </div> */}
         <Row gutter={16} style={{ marginTop: 20 }}>
           <FormHidden name={'id'} />
           <Col md={24} xs={24}>

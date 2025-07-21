@@ -1,70 +1,55 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
-import { SelectOutlined, EditTwoTone } from '@ant-design/icons';
+import { SelectOutlined, UserAddOutlined } from '@ant-design/icons';
 import RestList from 'components/RestLayout/RestList';
-import LeadFilter, { statusData } from './LeadFilter';
+import LeadFilter from './LeadFilter';
 import useGetList from "hooks/useGetList";
-import { Button, Form, Select, Tag, Tooltip } from 'antd';
-import { arrayEmpty, dateFormatOnSubmit, f5List } from 'utils/dataUtils';
-import { getColorStatusLead, getSource, getStatusLead, STATUS_LEAD } from 'configs/constant';
+import { Button, Form, Tag, Tooltip } from 'antd';
+import { dateFormatOnSubmit, f5List } from 'utils/dataUtils';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import RequestUtils from 'utils/RequestUtils';
-import { cloneDeep, map } from 'lodash';
+import { cloneDeep } from 'lodash';
 import ModaleStyles from './style';
 import FormSelect from 'components/form/FormSelect';
-import useGetMe from 'hooks/useGetMe';
+import { NoFooter } from 'components/common/NoFooter';
+import { useNavigate } from "react-router-dom";
 
-const roleUserSale = "ROLE_SALE";
-const roleUserAdmin = "ROLE_ADMIN";
-const roleUser = "ROLE_USER"
 const LeadPage = () => {
 
-  const { user: profile } = useGetMe();
   const [form] = Form.useForm();
   const [title] = useState("Danh sách Lead");
   const [listSale, setListSale] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
   const [detailRecord, setDetailRecord] = useState({});
-  const [listService, setListService] = useState([])
-
-  const newRoleUser = profile?.userProfiles?.map(item => item?.type);
-  const hasAdminRole = newRoleUser.some(role => role === roleUserAdmin);
-  const hasSaleRole = newRoleUser.some(role => role === roleUserSale);
-  const hasUserRole = newRoleUser.some(role => role === roleUser);
-  const shouldHideLeadLinks = (hasSaleRole || hasUserRole) && !hasAdminRole;
+  const [listServices, setlistServices] = useState([])
 
   useEffect(() => {
-    (async () => {
-      const { data } = await RequestUtils.Get('/service/list');
-      setListService(data);
-    })()
+    RequestUtils.GetAsList('/service/list').then(setlistServices);
+    RequestUtils.GetAsList('/user/list-name-id').then(setListSale);
   }, [])
 
   useEffect(() => {
     form.setFieldsValue({ saleId: detailRecord?.saleId })
   }, [form, detailRecord])
 
-  const onEdit = (item, text) => {
-    let title = text === 'base' ? 'Tạo cơ hội' : 'Sửa lead mới # ' + item.id;
-    let hash = '#draw/lead.edit';
+  const onEdit = (item) => {
     let data = cloneDeep(item);
-    InAppEvent.emit(HASH_MODAL, { hash, title, data });
+    InAppEvent.emit(HASH_MODAL, {
+      hash: '#draw/lead.edit',
+      title: 'Cập nhật lead #' + item.id,
+      data: {
+        record: data,
+        listServices,
+        listSale
+      }
+    });
   }
 
-  const onHandleUpdateState = async (v, data) => {
-    const newData = {
-      ...data,
-      status: v
-    }
-    const result = await RequestUtils.Post(`/data/update?leadId=${data?.id}`, newData);
-    if (result?.errorCode === 200) {
-      InAppEvent.normalSuccess("Cập nhập thành công");
-    } else {
-      InAppEvent.normalError("Cập nhập thất bại");
-    }
-  }
+  let navigate = useNavigate();
+  const onCreateOpportunity = useCallback(({ id }) => {
+    navigate(RequestUtils.generateUrlGetParams("/sale/ban-hang", { dataId: id }));
+  }, [navigate]);
 
   const CUSTOM_ACTION = [
     {
@@ -74,125 +59,57 @@ const LeadPage = () => {
     },
     {
       title: "Dịch vụ",
-      ataIndex: 'serviceId',
-      width: 200,
+      dataIndex: 'serviceId',
+      width: 150,
       ellipsis: true,
-      render: (item) => {
-        const nameService = listService.find(f => f.id === item?.serviceId)
-        return (
-          <div>
-            <Tag color="orange">{nameService?.name || 'N/A'} </Tag>
-          </div>
-        )
+      render: (serviceId) => {
+        const nameService = listServices.find(f => f.id === serviceId)
+        return <Tag color="orange">{nameService?.name || 'N/A'} </Tag>
       }
+    },
+    {
+      title: "Sản phẩm",
+      dataIndex: 'productName',
+      width: 200,
+      ellipsis: true
     },
     {
       title: "Ngày",
-      ataIndex: 'inTime',
-      width: 200,
+      dataIndex: 'inTime',
+      width: 150,
       ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {dateFormatOnSubmit(item?.inTime)}
-          </div>
-        )
-      }
-    },
-    {
-      title: "Nguồn",
-      ataIndex: 'source',
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {getSource(item?.source)}
-          </div>
-        )
-      }
+      render: (inTime) => dateFormatOnSubmit(inTime)
     },
     {
       title: "Khách hàng",
-      ataIndex: 'customerName',
+      dataIndex: 'customerName',
       width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {item?.customerName}
-          </div>
-        )
-      }
+      ellipsis: true
     },
     {
       title: "Số đ/t",
-      ataIndex: 'customerMobile',
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {item?.customerMobile}
-          </div>
-        )
-      }
-    },
-    {
-      title: "Trạng thái",
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {!!shouldHideLeadLinks ? (
-              <Select
-                style={{ width: 170 }}
-                defaultValue={getStatusLead(item?.status)}
-                onChange={(v) => onHandleUpdateState(v, item)}
-                disabled={STATUS_LEAD.THANH_CO_HOI === item?.status ? true : false}
-              >
-                {map(statusData, (data, index) => (
-                  <Select.Option
-                    key={String(index)}
-                    value={data?.id}
-                  >
-                    {data?.name}
-                  </Select.Option>
-                ))}
-              </Select>
-
-            ) : <Tag color={getColorStatusLead(item?.status)}>{getStatusLead(item?.status)}</Tag>}
-          </div>
-        )
-      }
+      dataIndex: 'customerMobile',
+      width: 120,
+      ellipsis: true
     },
     {
       title: "Sale",
-      ataIndex: 'saleId',
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        const newSale = listSale.find(v => v?.id === item?.saleId);
-        return (
-          <div>
-            {newSale?.fullName || 'N/A'}
-          </div>
-        )
-      }
+      dataIndex: 'assignTo',
+      width: 100,
+      ellipsis: true
     },
     {
-      title: "Tạo cơ hội",
-      width: 120,
+      title: "Cơ hội",
+      width: 100,
       fixed: 'right',
       render: (record) => (
-        <div style={{ display: 'flex', gap: 10 }}>
-          {record?.saleId && (
-            <div>
-              <Button color="danger" variant="dashed" onClick={() => onEdit(record, 'base')} size='small'>Tạo cơ hội</Button>
-            </div>
-          )}
-        </div>
+        <Button
+          color="danger"
+          variant="dashed" onClick={() => onCreateOpportunity(record)}
+          size='small'
+        >
+          Tạo cơ hội
+        </Button>
       )
     },
     {
@@ -201,41 +118,19 @@ const LeadPage = () => {
       fixed: 'right',
       ellipsis: true,
       render: (record) => (
-        <div>
-          <div style={{ display: 'flex', gap: 20 }}>
-            {/* <Button
-              color="primary"
-              size='small'
-              variant="dashed"
-              style={{ width: '100px' }}
-              onClick={() => {
-                setIsOpen(true);
-                setDetailRecord(record)
-              }}
-            >
-              {record?.saleId ? 'Chuyển sale' : 'Tạo sale'}
-            </Button> */}
-            <Tooltip style={{ cursor: 'pointer' }} title={record?.saleId ? 'Chuyển sale' : 'Tạo sale'}>
-              <EditTwoTone style={{ color: '#1677ff', fontSize: 20 }} onClick={() => {
-                setIsOpen(true);
-                setDetailRecord(record)
-              }} />
-            </Tooltip>
-            <Tooltip style={{ cursor: 'pointer' }} title={'Detail'}>
-              <SelectOutlined style={{ color: '#1677ff', fontSize: 20 }} onClick={() => onEdit(record, 'detail')} />
-            </Tooltip>
-          </div>
+        <div style={{ display: 'flex', gap: 20 }}>
+          <Tooltip style={{ cursor: 'pointer' }} title="Chuyển sale">
+            <UserAddOutlined style={{ color: '#1677ff', fontSize: 16 }} onClick={() => {
+              setDetailRecord(record)
+            }} />
+          </Tooltip>
+          <Tooltip style={{ cursor: 'pointer' }} title={'Detail'}>
+            <SelectOutlined style={{ color: '#1677ff', fontSize: 16 }} onClick={() => onEdit(record)} />
+          </Tooltip>
         </div>
       )
     }
   ];
-
-  const onData = useCallback((values) => {
-    if (arrayEmpty(values.embedded)) {
-      return values;
-    }
-    return values;
-  }, []);
 
   const beforeSubmitFilter = useCallback((values) => {
     dateFormatOnSubmit(values, ['from', 'to']);
@@ -245,18 +140,24 @@ const LeadPage = () => {
   const onCreateLead = () => InAppEvent.emit(HASH_MODAL, {
     hash: '#draw/lead.edit',
     title: 'Tạo mới Lead',
-    data: {}
+    data: {
+      record: {},
+      listServices,
+      listSale
+    }
   });
 
   const onHandleSubmitSaleLead = async (value) => {
-    const data = await RequestUtils.Post(`/data/re-assign?dataId=${detailRecord?.id}&saleId=${value?.saleId}`, '');
+    const data = await RequestUtils.Post('/data/re-assign', {}, {
+      dataId: detailRecord.id,
+      saleId: value.saleId
+    });
     if (data?.errorCode === 200) {
       f5List('data/lists');
-      InAppEvent.normalSuccess("Tạo sale chăm sóc lead thành công");
-      /* nếu tạo ok thì tắt popup */
-      setIsOpen(false);
+      InAppEvent.normalSuccess("Lead đã được chuyển.");
+      setDetailRecord({});
     } else {
-      InAppEvent.normalError("Tạo thất bại");
+      InAppEvent.normalError("Lỗi chuyển lead!");
     }
   }
 
@@ -268,9 +169,9 @@ const LeadPage = () => {
       <CustomBreadcrumb
         data={[{ title: 'Trang chủ' }, { title: title }]}
       />
+
       <RestList
         xScroll={1200}
-        onData={onData}
         initialFilter={{ limit: 10, page: 1 }}
         filter={<LeadFilter />}
         beforeSubmitFilter={beforeSubmitFilter}
@@ -280,14 +181,18 @@ const LeadPage = () => {
         columns={CUSTOM_ACTION}
       />
 
-      <ModaleStyles title={
-        <div style={{ color: '#fff' }}>
-          Chọn sale chăm sóc lead
-        </div>
-      } open={isOpen} footer={false} onCancel={() => setIsOpen(false)}>
+      <ModaleStyles
+        title={
+          <div style={{ color: '#fff' }}>
+            Chọn sale chăm sóc lead
+          </div>
+        }
+        open={(detailRecord?.id ?? 0) !== 0}
+        footer={<NoFooter />}
+        onCancel={() => setDetailRecord({})}
+      >
         <div style={{ padding: 15 }}>
           <Form
-            name="basic"
             layout='vertical'
             form={form}
             onFinish={onHandleSubmitSaleLead}
@@ -299,17 +204,14 @@ const LeadPage = () => {
               placeholder="Sale phụ trách"
               resourceData={listSale || []}
               valueProp="id"
-              titleProp="fullName"
+              titleProp="name"
             />
             <Form.Item style={{ display: 'flex', justifyContent: 'end', marginTop: 10 }}>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
+              <Button type="primary" htmlType="submit"> Submit </Button>
             </Form.Item>
           </Form>
         </div>
       </ModaleStyles>
-
     </div>
   )
 }

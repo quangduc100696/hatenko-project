@@ -4,11 +4,7 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
-import { Button, Tag } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
-import { HASH_MODAL } from 'configs';
-import { InAppEvent } from 'utils/FuseUtils';
-import { cloneDeep } from 'lodash';
 
 const thStyle = {
   padding: "8px 12px",
@@ -24,13 +20,6 @@ const tdStyle = {
 const CareOrdersPage = () => {
 
   const [title] = useState("Danh sách Đơn hàng Chưa chăm sóc");
-
-  const onEdit = (item) => {
-    let title = 'Chăm sóc cơ hội# ' + item.id;
-    let hash = '#draw/cohoiNotTake.edit';
-    let data = cloneDeep(item);
-    InAppEvent.emit(HASH_MODAL, { hash, title, data });
-  }
 
   const CUSTOM_ACTION = [
     {
@@ -115,19 +104,7 @@ const CareOrdersPage = () => {
           </div>
         )
       }
-    },
-    // {
-    //   title: "Thao tác",
-    //   width: 120,
-    //   fixed: 'right',
-    //   render: (record) => (
-    //     <div>
-    //       <Button color="primary" variant="dashed" onClick={() => onEdit(record)} size='small'>
-    //         Chăm sóc
-    //       </Button>
-    //     </div>
-    //   )
-    // }
+    }
   ];
 
   const onData = useCallback((values) => {

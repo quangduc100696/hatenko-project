@@ -5,9 +5,6 @@ import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
 import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
-import { HASH_MODAL } from 'configs';
-import { InAppEvent } from 'utils/FuseUtils';
-import { cloneDeep } from 'lodash';
 import RequestUtils from 'utils/RequestUtils';
 
 const thStyle = {
@@ -32,13 +29,6 @@ const OrderTakeCarePage = () => {
       setListSale(listSalse?.data);
     })()
   },[])
-
-  const onEdit = (item) => {
-    let title = 'Chăm sóc đơn hàng# ' + item.id;
-    let hash = '#draw/chamsocdonhang.edit';
-    let data = cloneDeep(item);
-    InAppEvent.emit(HASH_MODAL, { hash, title, data });
-  }
 
   const CUSTOM_ACTION = [
     {
@@ -123,19 +113,7 @@ const OrderTakeCarePage = () => {
           </div>
         )
       }
-    },
-    // {
-    //   title: "Thao tác",
-    //   width: 120,
-    //   fixed: 'right',
-    //   render: (record) => (
-    //     <div>
-    //       <Button color="primary" variant="dashed" onClick={() => onEdit(record)} size='small'>
-    //         Chăm sóc
-    //       </Button>
-    //     </div>
-    //   )
-    // }
+    }
   ];
 
   const onData = useCallback((values) => {

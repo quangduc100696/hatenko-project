@@ -1,8 +1,7 @@
 import React from 'react';
 import { Table } from 'antd';
-import { dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
+import { formatMoney, formatTime } from 'utils/dataUtils';
 
-const log = (value) => console.log('[container.product.index] ', value);
 const DuyetTienPage = ({ closeModal, title, data }) => {
     const CUSTOM_ACTION = [
         {
@@ -70,7 +69,6 @@ const DuyetTienPage = ({ closeModal, title, data }) => {
             }
         },
     ];
-
 
     return <>
         <div>

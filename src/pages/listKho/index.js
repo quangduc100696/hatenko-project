@@ -5,9 +5,7 @@ import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
 import { dateFormatOnSubmit, f5List } from 'utils/dataUtils';
-import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
-import useGetMe from 'hooks/useGetMe';
 import { Button, Col, Form, Row } from 'antd';
 import ModaleStyles from 'pages/lead/style';
 import { useForm } from 'antd/es/form/Form';
@@ -16,7 +14,6 @@ import RequestUtils from 'utils/RequestUtils';
 
 const ListWareHouse = () => {
 
-  const { user: profile } = useGetMe();
   const [title] = useState("Danh sách kho");
   const [isOpen, setIsOpen] = useState(false);
   const [detailWareHouse, setDetailWareHouse] = useState({});
@@ -31,7 +28,7 @@ const ListWareHouse = () => {
         area: detailWareHouse?.area,
       })
     }
-  },[detailWareHouse])
+  },[form, detailWareHouse])
   
   const CUSTOM_ACTION = [
     {

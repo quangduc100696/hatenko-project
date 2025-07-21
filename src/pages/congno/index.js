@@ -4,11 +4,7 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
-import { Button } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit, formatMoney } from 'utils/dataUtils';
-import { InAppEvent } from 'utils/FuseUtils';
-import { cloneDeep } from 'lodash';
-import { HASH_MODAL } from 'configs';
 import RequestUtils from 'utils/RequestUtils';
 
 const thStyle = {
@@ -33,13 +29,6 @@ const CongnoPage = () => {
         setListSale(listSalse?.data);
     })()
     },[])
-
-    const onEdit = (item) => {
-        let title = 'lead đã chăm sóc# ' + item.id;
-        let hash = '#draw/leadTake.edit';
-        let data = cloneDeep(item);
-        InAppEvent.emit(HASH_MODAL, { hash, title, data });
-    }
 
     const CUSTOM_ACTION = [
         {
@@ -124,19 +113,7 @@ const CongnoPage = () => {
                     </div>
                 )
             }
-        },
-        // {
-        //     title: "Thao tác",
-        //     width: 120,
-        //     fixed: 'right',
-        //     render: (record) => (
-        //         <div>
-        //             <Button color="primary" variant="dashed" onClick={() => onEdit(record)} size='small'>
-        //                 Thanh toán
-        //             </Button>
-        //         </div>
-        //     )
-        // }
+        }
     ];
 
     const onData = useCallback((values) => {

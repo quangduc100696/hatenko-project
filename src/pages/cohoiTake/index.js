@@ -4,7 +4,7 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
-import { Button, Tag } from 'antd';
+import { Button } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
@@ -22,9 +22,7 @@ const tdStyle = {
 };
 
 const CohoiTakePage = () => {
-
-  const [title] = useState("Danh sách Cơ hội đã chăm sóc");
-
+  const [ title ] = useState("Danh sách Cơ hội đã chăm sóc");
   const onEdit = (item) => {
     let title = 'Chăm sóc cơ hội# ' + item.id;
     let hash = '#draw/cohoiNotTake.edit';

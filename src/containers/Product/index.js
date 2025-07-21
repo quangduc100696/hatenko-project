@@ -10,9 +10,11 @@ import { cloneDeep } from 'lodash';
 
 const log = (value) => console.log('[container.product.index] ', value);
 const Product = ({ closeModal, data }) => {
+
   const [ record, setRecord ] = useState({});
   const [ fileActive, setFileActive ] = useState('');
   const [ sessionId, setSessionId ] = useState(null);
+
   useEffect(() => {
     (async () => {
       let dRe = {}, skus = []
@@ -47,6 +49,7 @@ const Product = ({ closeModal, data }) => {
     })();
     return () => ProductAttrService.empty();
   }, [data]);
+
   const onSubmit = useCallback( async (datas) => {
     log(datas);
     let values = cloneDeep(datas);
@@ -60,7 +63,7 @@ const Product = ({ closeModal, data }) => {
         );
         if (!exists) {
           newSku.push({
-            id: null, // Giữ ID nếu có, còn không thì null
+            id: null,
             attributedId: sku[0],
             attributedValueId: sku[1]
           });
@@ -69,25 +72,26 @@ const Product = ({ closeModal, data }) => {
       arrsku.id = arrsku.id || null;
       arrsku.sku = newSku;
       skusAdd.push(arrsku)
-    }  
-    const newListProperties = values?.listProperties.map(item => {
-      return {
-        attributedId: item?.attributedId, 
-        propertyValueId: item?.attributedValueId,
-      }
-    })
+    }
+
+    const newListProperties = values?.listProperties.map(item => ({
+      attributedId: item?.attributedId, 
+      propertyValueId: item?.attributedValueId,
+    })) || [];
+
     const newItem = {
       ...values, 
       listProperties: newListProperties,
       sessionId: !sessionId ? 0 : sessionId,
       skus: skusAdd
     }
+
     const newValue = {...newItem, image: fileActive || data?.image}
     let params = (values?.id ?? '') === '' ? {} : { id: values.id };
     if(arrayEmpty(values.skus)) {
       message.info("Can't create Product with empty skus .!");
       return;
-    } 
+    }
     const { errorCode } = await RequestUtils.Post("/product/save", newValue, params);
     const isSuccess = errorCode === 200;
     if(isSuccess) {
@@ -96,7 +100,7 @@ const Product = ({ closeModal, data }) => {
     InAppEvent.normalInfo(isSuccess ? "Cập nhật thành công" : "Lỗi cập nhật, vui lòng thử lại sau");
   }, [data, fileActive, sessionId]);
 
-  return <>
+  return (
     <RestEditModal
       isMergeRecordOnSubmit={false}
       updateRecord={(values) => setRecord(curvals => ({...curvals, ...values}))}
@@ -104,13 +108,14 @@ const Product = ({ closeModal, data }) => {
       record={record}
       closeModal={closeModal}
     >
-      <ProductForm data={data} 
+      <ProductForm 
+        data={data}
         fileActive={fileActive} 
         setFileActive={setFileActive}
         setSessionId={setSessionId}
       />
     </RestEditModal>
-  </>
+  )
 }
 
 export default Product;

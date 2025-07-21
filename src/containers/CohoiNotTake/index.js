@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import RestEditModal from 'components/RestLayout/RestEditModal';
-import { PhoneOutlined, MailOutlined, UserAddOutlined, FacebookOutlined, AimOutlined, FundOutlined, SearchOutlined } from '@ant-design/icons';
+import { PhoneOutlined, MailOutlined, UserAddOutlined, FacebookOutlined, AimOutlined } from '@ant-design/icons';
 import ProductForm from './ProductForm';
 import RequestUtils from 'utils/RequestUtils';
 import { InAppEvent } from 'utils/FuseUtils';
 import { GATEWAY, HASH_MODAL_CLOSE } from 'configs';
 import { f5List, formatMoney } from 'utils/dataUtils';
-import { Col, Form, Image, Input, InputNumber, Row, Select, Table } from 'antd';
+import { Col, Form, Image, InputNumber, Row, Select, Table } from 'antd';
 import { formatterInputNumber, parserInputNumber } from 'utils/tools';
 import { DISCOUNT_UNIT_CONST } from 'configs/localData';
-
-const log = (value) => console.log('[container.product.index] ', value);
 
 const thStyle = {
   padding: "8px 12px",
@@ -27,10 +25,10 @@ const newSp = (data) => {
   const newData = data.map((item, i) => {
     const newItem = item?.items?.map((subItem) => ({
       ...subItem,
-      code: item.code, // Thêm code vào từng phần tử trong mảng items
+      code: item.code,
       key: i,
     }));
-    return newItem; // Phải return object
+    return newItem;
   });
   return newData.flat();
 };
@@ -46,10 +44,9 @@ const TakeNotLead = ({ closeModal, title, data }) => {
   useEffect(() => {
     const productIds = data?.details
       ?.flatMap((detail) => detail.items?.map((item) => item.productId) || [])
-      .filter(Boolean); // Loại bỏ giá trị null hoặc undefined
+      .filter(Boolean);
     (async () => {
       if (!Array.isArray(productIds) || productIds.length === 0) return;
-
       try {
         const productDetails = await RequestUtils.Get(`/product/find-list-id?ids=${productIds.join(",")}`);
         setProductDetails(Array.isArray(productDetails?.data) ? productDetails.data : []);
@@ -57,14 +54,14 @@ const TakeNotLead = ({ closeModal, title, data }) => {
         console.error("Error fetching product details:", error);
       }
     })();
-  }, []);
+  }, [data]);
 
   useEffect(() => {
     (async () => {
       const customer = await RequestUtils.Get(`/customer/find-by-phone?phone=${data?.customerMobilePhone}&withOrder=withOrder`);
       setCustomer(customer?.data);
     })()
-  }, [])
+  }, [data])
 
   useEffect(() => {
     (async () => {

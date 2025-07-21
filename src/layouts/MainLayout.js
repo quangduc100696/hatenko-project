@@ -9,7 +9,7 @@ const MainLayout = (props) => {
     const { user } = useStore();
     useEffect(() => {
         OrderService.fetchStatus();
-        return OrderService.empty();
+        return () => OrderService.empty();
     }, []);
     
     const menoInAppNotify = useMemo( () => {

@@ -1,144 +1,72 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
-import { Button, Image } from 'antd';
+import { Button } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit, formatTime } from 'utils/dataUtils';
-import { GATEWAY, HASH_MODAL } from 'configs';
+import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
-import RequestUtils from 'utils/RequestUtils';
 
 const ListCustomerRetail = () => {
 
-  const [title] = useState("Khách lẻ");
-  const [listSale, setListSale] = useState([])
-
-  useEffect(() => {
-    (async () => {
-      const [sale] = await Promise.all([
-        await RequestUtils.Get('/user/list-sale')
-      ])
-      setListSale(sale?.data)
-    })()
-  }, [])
-
+  const [ title ] = useState("Khách lẻ");
   const CUSTOM_ACTION = [
     {
       title: "Tên khách hàng",
-      dataIndex: 'name',
+      ddataIndex: 'name',
       width: 150
     },
     {
-      title: "Avatar",
-      ataIndex: 'avatar',
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <Image
-            width={50}
-            style={{borderRadius: 50}}
-            src={`${item?.avatar ? `${GATEWAY}${item?.avatar}` : '/img/image_not_found.png'}`}
-            alt='image'
-          />
-        )
-      }
-    },
-    {
       title: "Số điện thoại",
-      ataIndex: 'mobile',
+      dataIndex: 'mobile',
       width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {item?.mobile}
-          </div>
-        )
-      }
+      ellipsis: true
     },
     {
       title: "Email",
-      ataIndex: 'email',
+      dataIndex: 'email',
       width: 200,
       ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {item?.email || 'N/A'}
-          </div>
-        )
-      }
+      render: (email) => email || '(Chưa có)'
     },
     {
       title: "Ngày tạo",
-      ataIndex: 'createdAt',
+      dataIndex: 'createdAt',
       width: 200,
       ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {dateFormatOnSubmit(item?.createdAt)}
-          </div>
-        )
-      }
+      render: (createdAt) => dateFormatOnSubmit(createdAt)
     },
     {
       title: "Ngày sinh",
-      ataIndex: 'dateOfBirth',
+      dataIndex: 'dateOfBirth',
       width: 200,
       ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {formatTime(item?.dateOfBirth)}
-          </div>
-        )
-      }
+      render: (dateOfBirth) => formatTime(dateOfBirth)
     },
     {
       title: "Sale",
-      ataIndex: 'saleId',
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        const detailSale = listSale.find(f => f?.id === item?.saleId)
-        return (
-          <div>
-            {detailSale?.fullName || 'N/A'}
-          </div>
-        )
-      }
+      dataIndex: 'sale',
+      width: 100,
+      ellipsis: true
     },
     {
       title: "Giới tính",
-      ataIndex: 'gender',
+      dataIndex: 'gender',
       width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {item?.gender}
-          </div>
-        )
-      }
+      ellipsis: true
     },
     {
       title: "Thao tác",
       width: 120,
       fixed: 'right',
       ellipsis: true,
-      render: (record) => {
-        return (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
-            <Button color="primary" variant="dashed" onClick={() => onHandleEdit(record)} size='small'>
-              Chi tiết
-            </Button>
-          </div>
-        )
-      }
+      render: (record) => (
+        <Button color="primary" variant="dashed" onClick={() => onHandleEdit(record)} size='small'>
+          Chi tiết
+        </Button>
+      )
     }
   ];
 
@@ -164,15 +92,6 @@ const ListCustomerRetail = () => {
     let title = 'Thông tin khách hàng';
     let hash = '#draw/cutomerRetail.edit';
     InAppEvent.emit(HASH_MODAL, { hash, title, data: record });
-  }
-
-  // duyệt lệnh
-  const onHandleApproveStatus = async (record) => {
-    await RequestUtils.Get(`/warehouse-history/fetch-status?id=${record?.id}`).then(data => {
-      if (data?.errorCode === 200) {
-        InAppEvent.normalSuccess("Duyệt lệnh thành công ?");
-      }
-    })
   }
 
   return (

@@ -4,20 +4,17 @@ import CustomBreadcrumb from 'components/BreadcrumbCustom';
 import RestList from 'components/RestLayout/RestList';
 import LeadFilter from './Filter';
 import useGetList from "hooks/useGetList";
-import { dateFormatOnSubmit, f5List, formatTime } from 'utils/dataUtils';
+import { dateFormatOnSubmit } from 'utils/dataUtils';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
-import useGetMe from 'hooks/useGetMe';
 import { Button } from 'antd';
-import { formatTimeStr } from 'antd/es/statistic/utils';
 import { getTypeGroup } from 'configs/constant';
 import RequestUtils from 'utils/RequestUtils';
 
 const ListUserGroup = () => {
 
-  const { user: profile } = useGetMe();
-  const [title] = useState("Danh sách tài khoản Team");
-  const [listMember, setListMember] = useState([])
+  const [ title ] = useState("Danh sách tài khoản Team");
+  const [ listMember, setListMember ] = useState([])
 
   useEffect(() => {
     (async () => {

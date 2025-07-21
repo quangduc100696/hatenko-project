@@ -64,7 +64,12 @@ useEffectAsync(async () => {
 */
 export function useEffectAsync(effect, inputs = []) {
   useEffect(() => {
-    return effect();
+    let isMounted = true;
+    const run = async () => {
+      await effect(isMounted);
+    };
+    run();
+    return () => { isMounted = false; };
     /* eslint-disable-next-line */
   }, inputs);
 }

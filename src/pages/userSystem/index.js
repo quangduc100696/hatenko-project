@@ -7,13 +7,10 @@ import useGetList from "hooks/useGetList";
 import { dateFormatOnSubmit } from 'utils/dataUtils';
 import { GATEWAY, HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
-import useGetMe from 'hooks/useGetMe';
 import { Button, Image } from 'antd';
 
 const ListUserSystem = () => {
-
-  const [title] = useState("Danh sách tài khoản hệ thống");
-
+  const [ title ] = useState("Danh sách tài khoản hệ thống");
   const CUSTOM_ACTION = [
     {
       title: "Tên",
@@ -107,7 +104,6 @@ const ListUserSystem = () => {
   ];
 
   const onData = useCallback((values) => {
-    const newData = { embedded: values, page: { pageSize: 10, total: 1 } }
     return values;
   }, []);
 

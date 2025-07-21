@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Modal, Row } from 'antd';
+import { Row } from 'antd';
 
 const FormStyles = styled(Row)`
   .form-list {
@@ -68,63 +68,5 @@ export const FormPriceStyle = styled.div`
 export const SKUContent = styled.div`
   .ant-typography {
     margin-bottom: 0px;
-  }
-`
-
-export const ModaleCreateCohoiStyle = styled(Modal)`
-
-  .ant-input-number {
-    width: 100%;
-  }
-  .ant-modal-title {
-    background: #ffc016;
-    padding: 15px;
-    border-top-left-radius: 7px;
-    border-top-right-radius: 7px;
-  }
-  .ant-modal-content {
-    padding: 0;
-  }
-`
-
-export const ContainerSerchSp = styled.div`
-  position: absolute;
-  top: 30px;
-  right: 0;
-  background: #fff;
-  width: 30%;
-  z-index: 999;
-  min-height: 50px;
-  max-height: 300px;
-  overflow-y: auto;
-  border-radius: 5px;
-  margin-top: 5px;
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-
-  .wrap-search-sp {
-    display: flex; 
-    align-items: center; 
-    justify-content: flex-start;
-    gap: 10px;
-    padding-bottom: 10px; 
-    margin-bottom: 5px; 
-    border-bottom: 1px solid #dbdbdb; 
-    cursor: pointer;
-    flex-direction: column; 
-    padding: 10px;
-    transition: background-color 0.3s ease-in-out;
-    &:hover {
-      background: #FFC016;
-      color: #fff;
-    }
-  }
-  .btn_wrap-sp {
-    width: 15%; 
-    padding-top: 5px; 
-    padding-left: 5px; 
-    border-right: 1px solid #dbdbdb; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
   }
 `

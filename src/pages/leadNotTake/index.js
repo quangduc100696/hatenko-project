@@ -6,7 +6,7 @@ import LeadFilter from './LeadFilter';
 import useGetList from "hooks/useGetList";
 import { Button, Tag } from 'antd';
 import { arrayEmpty, dateFormatOnSubmit } from 'utils/dataUtils';
-import { getColorStatusLead, getSource, getStatusLead } from 'configs/constant';
+import { getColorStatusLead, getStatusLead } from 'configs/constant';
 import { HASH_MODAL } from 'configs';
 import { InAppEvent } from 'utils/FuseUtils';
 import { cloneDeep } from 'lodash';
@@ -60,32 +60,6 @@ const LeadNotTakePage = () => {
         return (
           <div>
             {dateFormatOnSubmit(item?.inTime)}
-          </div>
-        )
-      }
-    },
-    {
-      title: "Nguồn",
-      ataIndex: 'source',
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {getSource(item?.source)}
-          </div>
-        )
-      }
-    },
-    {
-      title: "Khách hàng",
-      ataIndex: 'customerName',
-      width: 200,
-      ellipsis: true,
-      render: (item) => {
-        return (
-          <div>
-            {item?.customerName}
           </div>
         )
       }
