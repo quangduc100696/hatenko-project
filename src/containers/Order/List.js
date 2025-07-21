@@ -6,6 +6,8 @@ import useGetList from "hooks/useGetList";
 import Filter from './Filter';
 import { arrayEmpty, dateFormatOnSubmit, formatMoney, formatTime } from 'utils/dataUtils';
 import OrderService from 'services/OrderService';
+import { InAppEvent } from 'utils/FuseUtils';
+import { HASH_MODAL } from 'configs';
 
 const renderArrayColor = (datas, colors) => {
   if(arrayEmpty(datas) || arrayEmpty(colors)) {
@@ -30,7 +32,14 @@ const copyToClipboard = (text, setCopiedIndex, index) => {
 };
 
 const ListOrder = ({ filter }) => {
+
   const [ copiedIndex, setCopiedIndex ] = useState(null);
+  const onClickViewDetail = (customerOrder) => InAppEvent.emit(HASH_MODAL, {
+    hash: "#order.tabs",
+    title: "Thông tin đơn hàng " + customerOrder.code,
+    data: { customerOrder }
+  });
+
   const columns = [
      {
       title: 'Kinh doanh',
@@ -157,9 +166,13 @@ const ListOrder = ({ filter }) => {
       key: 'action',
       fixed: 'right',
       width: 150,
-      render: () => (
+      render: (record) => (
         <span style={{ display: 'flex', gap: 8 }}>
-          <Button type="primary" size="small">
+          <Button 
+            type="primary" 
+            size="small" 
+            onClick={() => onClickViewDetail(record)}
+          >
             Chi tiết
           </Button>
           <Button size="small" style={{ color: "#fa8c16" }}>
