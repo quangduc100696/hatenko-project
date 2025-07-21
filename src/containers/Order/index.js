@@ -179,14 +179,14 @@ const BanHangPage = ({
       title: 'Mã',
       dataIndex: 'skuDetailCode',
       key: 'skuDetailCode',
-      width: 80,
+      width: 80
     },
     {
       title: 'Diễn giải',
       dataIndex: 'mSkuDetails',
       render: (mSkuDetails) => (<span />),
       width: 260,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: 'Bảo hành',
@@ -214,7 +214,7 @@ const BanHangPage = ({
       dataIndex: 'discountRate',
       key: 'discountRate',
       width: 90,
-      editable: true,
+      editable: true
     },
     {
       title: 'Tiền CK',
@@ -234,19 +234,19 @@ const BanHangPage = ({
       dataIndex: 'warehouse',
       key: 'warehouse',
       editable: true,
-      width: 130,
+      width: 130
     },
     {
       title: 'Tồn kho',
       dataIndex: 'stock',
       key: 'stock',
-      width: 100,
+      width: 100
     },
     {
       title: 'Đơn vị',
       dataIndex: 'unit',
       key: 'unit',
-      width: 90,
+      width: 90
     },
     {
       title: 'Sửa',
@@ -528,7 +528,7 @@ const InvoiceTable = ({
       leftLabel: 'Tổng chưa VAT',
       leftValue: formatMoney(subtotal),
       rightLabel: 'VAT',
-      rightValue: formatMoney(subtotal * (vat / 100)),
+      rightValue: formatMoney(subtotal * (vat / 100))
     },
     {
       key: '2',

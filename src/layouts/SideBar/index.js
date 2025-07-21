@@ -4,8 +4,7 @@ import {
   FolderOpenOutlined, 
   UnorderedListOutlined, 
   PieChartOutlined, 
-  GroupOutlined, 
-  ContainerOutlined,
+  GroupOutlined,
   RiseOutlined, 
   PullRequestOutlined, 
   UngroupOutlined, 
@@ -15,8 +14,7 @@ import {
   ScheduleOutlined,
   AppstoreOutlined,
   AuditOutlined,
-  OpenAIOutlined,
-  AimOutlined
+  OpenAIOutlined
 } from '@ant-design/icons';
 
 import { ConfigFIcon, CustomerFIcon, DashboardFIcon, IncomeFIcon, ReportFIcon, ReservationFIcon } from 'icons/FontIcons';
@@ -40,6 +38,7 @@ function SideBar() {
   const { user: profile } = useGetMe();
   const { t } = useTranslation();
   const { isCollapseSidebar: collapsed, toggleCollapse } = useCollapseSidebar();
+  
   const newRoleUser = profile?.userProfiles?.map(item => item?.type);
   const hasAdminRole = newRoleUser.some(role => role === roleUserAdmin);
   const hasSaleRole = newRoleUser.some(role => role === roleUserSale);
@@ -57,26 +56,24 @@ function SideBar() {
      getItem(<Link to="/customer-service/hoan-thanh">Đơn hoàn thành</Link>, "don_hang_hoan_thanh", <AuditOutlined />),
      getItem(<Link to="/customer-service/su-co">Đơn sự cố</Link>, "don_hang_su_co", <ScheduleOutlined />),
 		].filter(Boolean)),
+
     !shouldHideLeadLinks && getItem('Đã chăm sóc', 'da_cham_soc', <FolderOpenOutlined /> , [
       getItem(<Link to="/customer-lead/lead">Lead</Link>, "lead_da_cham_soc", <ScheduleOutlined />),
       getItem(<Link to="/customer-service/co-hoi-cham-soc">Cơ hội</Link>, "co_hoi_da_cham_soc", <AppstoreOutlined />),
       getItem(<Link to="/customer-service/order">Đơn hàng</Link>, "don_hang_da_hoan_thanh", <AuditOutlined />),
-     ].filter(Boolean)),
+    ].filter(Boolean)),
 
 		getItem(<Link to="/sale/co-hoi"> Cơ hội </Link>, 'co_hoi', <IncomeFIcon />),
     getItem('Đơn hàng', 'order_solve', <DollarCircleFilled /> , [
 			getItem(<Link to="/sale/order">D/S Đơn hàng</Link>, 'list_order', <UnorderedListOutlined />),
 			getItem(<Link to="/sale/cancellations">D/S đơn hủy</Link>, 'care-order', <ReservationFIcon />)
 		]),
-    getItem(<Link to="/sale/drag-drop-order">Quy trình đơn hàng</Link>, 'quy_trinh_don_hang', <DashboardFIcon />),
+    getItem(<Link to="/sale/drag-drop-order">Quy Trình</Link>, 'quy_trinh_don_hang', <DashboardFIcon />),
     getItem('Kế toán', 'need_solve', <DollarCircleFilled /> , [
 			getItem(<Link to="/ke-toan/confirm">Duyệt tiền</Link>, 'list_order_update', <UnorderedListOutlined />),
 			getItem(<Link to="/ke-toan/cong-no">Công nợ</Link>, 'can_giai_quyet', <ReservationFIcon />)
 		]),
-		getItem('Nhập liệu Ai', 'nhap_lieu_ai', <AimOutlined /> , [
-			getItem(<Link to="/cau-hinh-ai">Cấu hình Ai</Link>, 'cau_hinh_ai', <OpenAIOutlined />),
-      getItem(<Link to="/loai-lien-he">Loại liên hệ</Link>, 'loai_lien_he', <ContainerOutlined />),
-		]),
+		getItem(<Link to="/ai-agent">Ai Agent</Link>, 'ai-agent', <OpenAIOutlined />),
 		getItem('Khách hàng', 'client', <CustomerFIcon /> , [
 			getItem(<Link to="/sale/m-customer">Khách lẻ</Link>, 'customer', <GroupOutlined />),
 			getItem(<Link to="/sale/m-enterprice">Doanh nghiệp</Link>, 'enterprice', <GroupOutlined />)
@@ -93,8 +90,8 @@ function SideBar() {
 		getItem(<Link to="/product"> Sản phẩm</Link>, 'product_list', <UngroupOutlined />),
     getItem('Tài khoản', 'tai_khoan', <ReportFIcon />, [
       getItem(<Link to="/user/group">Team</Link>, 'user_group', <ConfigFIcon />),
-      getItem(<Link to="/user/list-system"> Tài khoản hệ thống</Link>, 'user_system', <ConfigFIcon />),
-		]),
+      getItem(<Link to="/user/list-system"> Tài khoản hệ thống</Link>, 'user_system', <ConfigFIcon />)
+		])
   ]
 
   return (

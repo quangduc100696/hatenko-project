@@ -33,12 +33,9 @@ const OrderService = {
   empty () {
     this.allStatus = [];
   },
-  fetchStatus() {
-    RequestUtils.Get("/order-status/fetch").then( ({ data, errorCode }) => {
-      if(errorCode === SUCCESS_CODE) {
-        this.allStatus = data;
-      }
-    })
+  async fetchStatus() {
+    this.allStatus = await RequestUtils.GetAsList("/order-status/fetch");
+    return this.allStatus;
   },
   async getOrderOnEdit(orderId) {
     let response = { customer: null, order: null, data: [] };

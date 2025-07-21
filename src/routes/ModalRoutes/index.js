@@ -15,8 +15,6 @@ import OrderRouter from './UserAccountRouter.js';
 import UserGroupRouter from './UserGroupRouter.js';
 import CohoiNotTakeRouter from './CohoiNotTakeRouter.js';
 import ActionChamSocDonHangRouter from './ChamSocDonHangRouter.js';
-import TranferRouter from './tranferRouter.js';
-import TypeContactRouter from './TypeContactRouter.js';
 
 const notFoundHash = { Component: () => <div /> };
 const modalRoutes = [
@@ -32,9 +30,7 @@ const modalRoutes = [
   ...OrderRouter,
   ...UserGroupRouter,
   ...CohoiNotTakeRouter,
-  ...ActionChamSocDonHangRouter,
-  ...TranferRouter,
-  ...TypeContactRouter
+  ...ActionChamSocDonHangRouter
 ]
 
 const getModalRoute = (urlHash) => {

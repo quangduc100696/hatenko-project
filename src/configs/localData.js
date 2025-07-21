@@ -51,18 +51,13 @@ export const CHANNEL_STATUS = [
   { 'id': 1, 'name': 'Chưa liên hệ' },
   { 'id': 2, 'name': 'Đã liên hệ' }
 ];
+export const CHANNEL_STATUS_MAP_KEYS = mapKeys(CHANNEL_STATUS, 'id');
 
 export const DISCOUNT_UNIT_CONST = [
   { text: 'Tiền mặt', value: 'money'},
   { text: 'Phần trăm', value: 'percent'}
 ]
 export const DISCOUNT_MAP_KEYS = mapKeys(DISCOUNT_UNIT_CONST, 'value');
-
-export const VAT_UNIT_CONST = [
-  { text: '8%', value: 8 },
-  { text: '10%', value: 10 },
-  { text: 'K.Vat', value: 0 }
-]
 
 export const PAYMENT_TYPE_CONST = [
   { label: 'Tiền mặt', value: 6 }, 
@@ -106,24 +101,6 @@ export const CUSTOMERS_TYPE_TAGS_MAP_KEYS = mapKeys(
   CUSTOMERS_TYPE_TAGS,
   'value',
 );
-
-export const AMOUNT_DATA = [
-  {
-    text: 'amountDataShort.total',
-    value: 'total',
-    color: theme.color.blue,
-  },
-  {
-    text: 'amountDataShort.paid',
-    value: 'paid',
-    color: theme.color.green,
-  },
-  {
-    text: 'amountDataShort.unpaid',
-    value: 'unpaid',
-    color: theme.color.red,
-  }
-];
 
 export const PRODUCT_STATUS = [
   { value: 0, text: 'Ngưng', color: 'red' },
