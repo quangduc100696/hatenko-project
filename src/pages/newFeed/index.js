@@ -1,10 +1,26 @@
-import { Col, Progress, Row } from 'antd';
+import { Button, Card, Col, Divider, Progress, Row, Select, Space } from 'antd';
 import React, { useEffect, useState } from 'react';
 import RequestUtils from 'utils/RequestUtils';
 import ChartActivityRevenue from './ChartActivityRevenue'
 import { LayoutWrapper } from './style';
 import { formatMoney } from 'utils/dataUtils';
 import ChartActivityLead from './ChartActivityLead';
+import ChartSale from './ChartSale';
+import { Text } from '@react-email/components';
+import { Option } from 'antd/es/mentions';
+import Title from 'antd/es/typography/Title';
+import {
+  UserOutlined,
+  ContactsOutlined,
+  PlusOutlined,
+  FileTextOutlined,
+  DollarCircleOutlined,
+  FileDoneOutlined,
+  BookOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+} from '@ant-design/icons';
+import MiniLineChart from './MiniChart';
 
 function formatToMillion(value) {
   const number = Number(value);
@@ -33,73 +49,156 @@ const NewFeed = () => {
   }, [])
   const grandTotal = activityGroup?.reduce((sum, item) => sum + Number(item.total), 0);
 
-  return (
-    <div>
-      <div style={{ width: '100%', background: '#fff', height: 'auto', padding: 10 }}>
-        <Row gutter={16}>
-          <Col md={14} xs={24}>
-            <h2 style={{ fontSize: 14, fontWeight: 'bold' }}>Biển đồ biến động doanh số</h2>
-            <ChartActivityRevenue activityRevenue={activityRevenue} />
-          </Col>
-          <Col md={10} xs={24}>
-            <LayoutWrapper>
-              <div style={{ marginLeft: -12, marginRight: -12 }}></div>
-              <div className='main__no__over'>
-                {/* <Row style={{ marginTop: 70 }}>
-                  {activityGroup?.map((item, i) => (
-                    <Col span={8}>
-                      <b>Team {i + 1}: {formatMoney(Number(item?.total))}</b>
-                    </Col>
-                  ))}
-                </Row> */}
-                <div style={{marginTop: 70}}>
-                  {activityGroup?.sort((a, b) => Number(b.total) - Number(a.total)).map((item, i) => (
-                    <Row key={i} align={'bottom'}>
-                      <Col span={2}>
-                        {getRankIcon(i)}
-                      </Col>
-                      <Col span={22}>
-                        <div className='ct_sale'>
-                          <Row>
-                            <Col span={6}>
-                              <p style={{ margin: 0, padding: 0, paddingLeft: 10 }}>{item.leader}</p>
-                            </Col>
-                            <Col span={10} style={{borderLeft: '1px solid #fff',paddingLeft: 12, paddingRight: 12}}>
-                              <Progress percent={((item.total / grandTotal) * 100).toFixed(2)} strokeColor="#ffc016"/>
-                            </Col>
-                            <Col span={8} style={{fontSize: 14, borderLeft: '1px solid #fff', paddingLeft: 15}}>
-                              {formatToMillion(Number(item?.total))}
-                            </Col>
-                          </Row>
-                        </div>
-                      </Col>
-                    </Row>
-                  ))}
-                </div>
+  const data = [
+    {
+      title: 'Khách hàng đã thêm',
+      icon: <UserOutlined style={{ fontSize: 20 }} />,
+      value: '2.906 Người',
+      change: -5.4,
+      chart: [10, 80, 120, 140, 130, 125, 110], // có xu hướng giảm
+    },
+    {
+      title: 'SL người liên hệ',
+      icon: <ContactsOutlined style={{ fontSize: 20 }} />,
+      value: '0 Người',
+      change: 0,
+      chart: [0, 0, 80, 300, 600, 300, 80, 0, 0]
+    },
+    {
+      title: 'Cơ hội đã thêm',
+      icon: <PlusOutlined style={{ fontSize: 20 }} />,
+      value: '5 Cái',
+      change: 80,
+      chart: [1, 2, 3, 3, 4, 5, 5], // tăng mạnh
+    },
+    {
+      title: 'Hợp đồng đã tạo',
+      icon: <FileTextOutlined style={{ fontSize: 20 }} />,
+      value: '0 cái',
+      change: 0,
+      chart: [0, 0, 0, 0, 0, 0, 0],
+    },
+    {
+      title: 'Số tiền hợp đồng',
+      icon: <FileDoneOutlined style={{ fontSize: 20 }} />,
+      value: '0 đ',
+      change: 0,
+      chart: [0, 0, 0, 0, 0, 0, 0],
+    },
+    {
+      title: 'Số tiền cơ hội',
+      icon: <DollarCircleOutlined style={{ fontSize: 20 }} />,
+      value: '0 đ',
+      change: 0,
+      chart: [0, 0, 0, 0, 0, 0, 0],
+    },
+    {
+      title: 'Số tiền công nợ',
+      icon: <DollarCircleOutlined style={{ fontSize: 20 }} />,
+      value: '0 đ',
+      change: 0,
+      chart: [0, 0, 0, 0, 0, 0, 0],
+    },
+    {
+      title: 'Ghi chép theo điều',
+      icon: <BookOutlined style={{ fontSize: 20 }} />,
+      value: '4.724 Điều',
+      change: -7.07,
+      chart: [5000, 4900, 4800, 4700, 4650, 4600, 4550], // giảm đều
+    },
+  ];
+
+
+  return (<div>
+    <Row gutter={[16, 16]}>
+      {data.map((item, index) => {
+        const isPositive = item.change > 0;
+        const isZero = item.change === 0;
+        const changeColor = isZero ? 'gray' : isPositive ? 'red' : 'green'; // thường tăng là màu đỏ theo ảnh
+        const ArrowIcon = isZero ? null : isPositive ? ArrowUpOutlined : ArrowDownOutlined;
+
+        return (
+          <Col key={index} xs={24} sm={12} md={8} lg={6}>
+            <Card size="small" style={{ height: "100%" }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+                <div style={{ marginRight: 8 }}>{item.icon}</div>
+                <Text strong>{item.title}</Text>
               </div>
-            </LayoutWrapper>
+              <Title level={4} style={{ margin: 0 }}>{item.value}</Title>
+              <Text type="secondary">So với tháng trước nữa</Text><br />
+              {!isZero && (
+                <span style={{ color: changeColor, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <ArrowIcon />
+                  {Math.abs(item.change).toFixed(2)}%
+                </span>
+              )}
+              {isZero && (
+                <Text style={{ color: 'gray' }}>0%</Text>
+              )}
+              {/* Biểu đồ mô phỏng */}
+
+              <MiniLineChart data={item.chart} />
+            </Card>
           </Col>
-        </Row>
-      </div>
-      <br />
-      <br />
-      <br />
-      <Row>
-        <Col span={14}>
-          <h2 style={{ fontSize: 14, fontWeight: 'bold' }}>Biểu đồ biến động lead theo các sale</h2>
-          <ChartActivityLead activityLead={activityLead} />
-        </Col>
-        <Col span={10} style={{ height: 40 }}>
-          {/* <h2 style={{ fontSize: 14, fontWeight: 'bold' }}>Báo cáo hoạt động ngày:</h2>
-          { activitySale?.map((item, i) => (
-            <div style={{width: '100%', background: '#e6e6e8', display: 'flex', justifyContent: 'space-between', padding: 5}} key={i}>
-              <p>Tên: {item?.sale}</p>
-              <p>Tổng tiền: {formatMoney(item?.total)}</p>
+        );
+      })}
+    </Row>
+    <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+      <Col md={8} xs={24}>
+        <div style={{ width: '100%', background: '#fff', padding: 15, minHeight: 500 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 'bold' }}>Hợp đồng số tiền mục tiêu và trạng thái hoàn thành</h2>
+          <ChartActivityRevenue activityRevenue={activityRevenue} />
+        </div>
+      </Col>
+
+      <Col md={8} xs={24}>
+        <div style={{ width: '100%', background: '#fff', padding: 15, minHeight: 500 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 'bold' }}>Hợp đồng số tiền mục tiêu và trạng thái hoàn thành</h2>
+          <ChartSale activityRevenue={activityRevenue} />
+        </div>
+      </Col>
+
+      <Col md={8} xs={24}>
+        <Card
+          style={{ height: '100%' }}
+          title={
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <Text strong style={{ fontSize: 16 }}>Tỷ lệ hoàn thành chỉ tiêu hiệu suất</Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>Tôi và cấp dưới | Tháng trước</Text>
             </div>
-          ))} */}
-        </Col>
-      </Row>
-    </div>
+          }
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+            <Select defaultValue="Số tiền công nợ" style={{ width: 180 }}>
+              <Option value="Số tiền công nợ">Số tiền công nợ</Option>
+              {/* Thêm các lựa chọn khác nếu cần */}
+            </Select>
+            <Button>Cài đặt mục tiêu</Button>
+          </div>
+
+          <div style={{ textAlign: 'left', marginBottom: 16 }}>
+            <Title level={2} style={{ margin: 0 }}>20%</Title>
+            <Text type="secondary">Tỷ lệ hoàn thành chỉ số</Text>
+          </div>
+
+          <Progress percent={20} showInfo={false} />
+
+          <Divider style={{ margin: '16px 0' }} />
+
+          <div>
+            <Space style={{ display: 'flex', columnGap: 20, width: '100%' }}>
+              <Text style={{ fontWeight: 'bold' }}>Số tiền thực tế</Text>
+              <Text strong style={{ fontWeight: 'bold' }}>0 đ</Text>
+            </Space>
+            <Space style={{ display: 'flex', columnGap: 20, width: '100%', marginTop: 12 }}>
+              <Text style={{ fontWeight: 'bold' }}>Doanh số mục tiêu</Text>
+              <Text strong style={{ fontWeight: 'bold' }}>0 đ</Text>
+            </Space>
+          </div>
+        </Card>
+      </Col>
+    </Row>
+  </div >
   )
 }
 
